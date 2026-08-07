@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   BarChart3,
   BookOpenCheck,
+  CalendarDays,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -47,6 +48,7 @@ import {
   useRef,
   useState,
 } from "react";
+import AgendaView from "./AgendaView";
 
 type Role = "suporte" | "gestor" | "administrador";
 type Severity = "Baixa" | "Média" | "Alta" | "Crítica";
@@ -61,6 +63,7 @@ type View =
   | "registros"
   | "novo"
   | "detalhe"
+  | "agenda"
   | "catalogo"
   | "usuarios";
 
@@ -1888,6 +1891,7 @@ export default function PortalOcorrencias() {
   const navItems = [
     { id: "dashboard" as View, label: "Dashboard", icon: LayoutDashboard },
     { id: "registros" as View, label: "Registro", icon: ClipboardList },
+    { id: "agenda" as View, label: "Agenda", icon: CalendarDays },
     { id: "catalogo" as View, label: "Catálogo", icon: BookOpenCheck },
     ...(currentUser.role === "administrador"
       ? [{ id: "usuarios" as View, label: "Usuários", icon: UsersRound }]
@@ -2031,6 +2035,14 @@ export default function PortalOcorrencias() {
               </button>
             </div>
           )}
+          {view === "agenda" && (
+            <AgendaView
+              currentUser={currentUser}
+              users={portalUsers}
+              onNotify={setToast}
+            />
+          )}
+
           {view === "dashboard" && (
             <>
               <div className="page-heading">
