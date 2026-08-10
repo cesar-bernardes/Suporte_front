@@ -75,6 +75,10 @@ type PortalUser = {
   title: string;
 };
 
+type PortalClient = { id: string; name: string };
+type PortalModule = { id: string; name: string; isGeneral: boolean };
+type PortalSystem = { id: string; name: string; modules: PortalModule[] };
+
 type ManagedUser = PortalUser & {
   active: boolean;
   createdAt: string;
@@ -110,365 +114,6 @@ type Occurrence = {
   createdAt: string;
   updatedAt: string;
 };
-
-const USERS: PortalUser[] = [
-  {
-    id: "u1",
-    name: "Marcelo Lima",
-    email: "marcelo@demo.portal",
-    role: "suporte",
-    title: "Analista de suporte",
-  },
-  {
-    id: "u2",
-    name: "Ana Torres",
-    email: "ana@demo.portal",
-    role: "gestor",
-    title: "Gestora de suporte",
-  },
-  {
-    id: "u3",
-    name: "Carla Nunes",
-    email: "carla@demo.portal",
-    role: "administrador",
-    title: "Administradora",
-  },
-  {
-    id: "u4",
-    name: "César",
-    email: "cesar@granddos.tech",
-    role: "administrador",
-    title: "Administrador do portal",
-  },
-];
-
-const DEMO_ACCOUNT_IDS = new Set(["u1", "u2", "u3"]);
-
-const CLIENTS = [
-  { id: "cl1", name: "Gran Dourados" },
-  { id: "cl2", name: "Via Norte Logística" },
-  { id: "cl3", name: "Transvale Transportes" },
-  { id: "cl4", name: "Rota Sul" },
-  { id: "cl5", name: "Expresso Pantanal" },
-];
-
-const SYSTEMS = [
-  {
-    id: "s1",
-    name: "GD Frotas",
-    modules: [
-      { id: "m1", name: "Checklist" },
-      { id: "m2", name: "Missões" },
-      { id: "m3", name: "Geral" },
-    ],
-  },
-  {
-    id: "s2",
-    name: "GD Mobile",
-    modules: [
-      { id: "m4", name: "Sincronização" },
-      { id: "m5", name: "Jornada" },
-      { id: "m6", name: "Geral" },
-    ],
-  },
-  {
-    id: "s3",
-    name: "Portal Cliente",
-    modules: [
-      { id: "m7", name: "Acesso" },
-      { id: "m8", name: "Financeiro" },
-      { id: "m9", name: "Geral" },
-    ],
-  },
-];
-
-const GENERAL_MODULE_IDS = new Set(["m3", "m6", "m9"]);
-
-const INITIAL_CATALOG_BASE: CatalogItem[] = [
-  {
-    id: "c1",
-    systemId: "s1",
-    moduleId: "m1",
-    name: "Já existe missão ativa para esta placa",
-    aliases: ["missão ativa", "placa em missão"],
-    active: true,
-    updatedAt: "2026-08-05T14:20:00-04:00",
-  },
-  {
-    id: "c2",
-    systemId: "s1",
-    moduleId: "m3",
-    name: "Erro Network",
-    aliases: ["network", "erro de rede"],
-    active: true,
-    updatedAt: "2026-08-04T09:10:00-04:00",
-  },
-  {
-    id: "c3",
-    systemId: "s1",
-    moduleId: "m1",
-    name: "Falha ao carregar checklist",
-    aliases: ["checklist não abre", "falha checklist"],
-    active: true,
-    updatedAt: "2026-08-03T16:45:00-04:00",
-  },
-  {
-    id: "c4",
-    systemId: "s2",
-    moduleId: "m4",
-    name: "Dados não sincronizados",
-    aliases: ["sem sincronizar", "sync pendente"],
-    active: true,
-    updatedAt: "2026-08-02T11:05:00-04:00",
-  },
-  {
-    id: "c5",
-    systemId: "s3",
-    moduleId: "m7",
-    name: "Token de acesso expirado",
-    aliases: ["sessão expirada", "token expirado"],
-    active: true,
-    updatedAt: "2026-08-01T08:40:00-04:00",
-  },
-  {
-    id: "c6",
-    systemId: "s3",
-    moduleId: "m8",
-    name: "Boleto não disponível",
-    aliases: ["sem boleto", "boleto indisponível"],
-    active: false,
-    updatedAt: "2026-07-29T10:15:00-04:00",
-  },
-];
-
-const INITIAL_OCCURRENCES_BASE: Occurrence[] = [
-  {
-    id: "o1",
-    number: "OCO-2418",
-    occurredAt: "2026-08-06T07:15:00-04:00",
-    clientId: "cl1",
-    systemId: "s1",
-    moduleId: "m1",
-    catalogItemId: "c1",
-    description:
-      "A placa já havia concluído a rota anterior, mas o sistema manteve a missão como ativa.",
-    severity: "Média",
-    status: "Em análise",
-    responsibleId: "u1",
-    authorId: "u1",
-    attachments: ["print-missao-ativa.png"],
-    createdAt: "2026-08-06T07:22:00-04:00",
-    updatedAt: "2026-08-06T08:05:00-04:00",
-  },
-  {
-    id: "o2",
-    number: "OCO-2417",
-    occurredAt: "2026-08-06T06:40:00-04:00",
-    clientId: "cl2",
-    systemId: "s2",
-    moduleId: "m4",
-    catalogItemId: "c4",
-    description: "Motoristas ficaram com viagens pendentes após retorno do sinal.",
-    severity: "Alta",
-    status: "Novo",
-    responsibleId: "u1",
-    authorId: "u2",
-    attachments: ["video-sincronizacao.mp4"],
-    createdAt: "2026-08-06T06:52:00-04:00",
-    updatedAt: "2026-08-06T06:52:00-04:00",
-  },
-  {
-    id: "o3",
-    number: "OCO-2416",
-    occurredAt: "2026-08-05T17:30:00-04:00",
-    clientId: "cl3",
-    systemId: "s1",
-    moduleId: "m3",
-    catalogItemId: "c2",
-    description: "Intermitência ao abrir o painel de veículos.",
-    severity: "Crítica",
-    status: "Aguardando",
-    responsibleId: "u2",
-    authorId: "u1",
-    attachments: ["erro-network.png", "console.txt"],
-    createdAt: "2026-08-05T17:38:00-04:00",
-    updatedAt: "2026-08-06T09:12:00-04:00",
-  },
-  {
-    id: "o4",
-    number: "OCO-2415",
-    occurredAt: "2026-08-05T14:05:00-04:00",
-    clientId: "cl4",
-    systemId: "s3",
-    moduleId: "m7",
-    catalogItemId: "c5",
-    description: "Usuários precisaram autenticar novamente durante o expediente.",
-    severity: "Média",
-    status: "Resolvido",
-    responsibleId: "u1",
-    authorId: "u1",
-    attachments: [],
-    createdAt: "2026-08-05T14:14:00-04:00",
-    updatedAt: "2026-08-05T16:42:00-04:00",
-  },
-  {
-    id: "o5",
-    number: "OCO-2414",
-    occurredAt: "2026-08-05T10:20:00-04:00",
-    clientId: "cl5",
-    systemId: "s1",
-    moduleId: "m1",
-    catalogItemId: "c3",
-    description: "Checklist permanece em carregamento em dois aparelhos.",
-    severity: "Alta",
-    status: "Em análise",
-    responsibleId: "u1",
-    authorId: "u3",
-    attachments: ["checklist-carregando.png"],
-    createdAt: "2026-08-05T10:35:00-04:00",
-    updatedAt: "2026-08-05T12:01:00-04:00",
-  },
-  {
-    id: "o6",
-    number: "OCO-2413",
-    occurredAt: "2026-08-04T15:10:00-04:00",
-    clientId: "cl1",
-    systemId: "s1",
-    moduleId: "m1",
-    catalogItemId: "c1",
-    description: "Bloqueio ao iniciar nova missão para o veículo 218.",
-    severity: "Média",
-    status: "Resolvido",
-    responsibleId: "u2",
-    authorId: "u1",
-    attachments: [],
-    createdAt: "2026-08-04T15:18:00-04:00",
-    updatedAt: "2026-08-04T18:20:00-04:00",
-  },
-  {
-    id: "o7",
-    number: "OCO-2412",
-    occurredAt: "2026-08-04T09:25:00-04:00",
-    clientId: "cl2",
-    systemId: "s2",
-    moduleId: "m5",
-    otherError: "Jornada duplicada após troca de aparelho",
-    description: "Caso ainda não padronizado; aguardando revisão do Catálogo.",
-    severity: "Baixa",
-    status: "Aguardando",
-    responsibleId: "u3",
-    authorId: "u1",
-    attachments: [],
-    createdAt: "2026-08-04T09:40:00-04:00",
-    updatedAt: "2026-08-04T11:25:00-04:00",
-  },
-  {
-    id: "o8",
-    number: "OCO-2411",
-    occurredAt: "2026-08-03T16:00:00-04:00",
-    clientId: "cl3",
-    systemId: "s2",
-    moduleId: "m4",
-    catalogItemId: "c4",
-    description: "Sincronização retomada após limpeza da fila local.",
-    severity: "Média",
-    status: "Resolvido",
-    responsibleId: "u1",
-    authorId: "u2",
-    attachments: [],
-    createdAt: "2026-08-03T16:12:00-04:00",
-    updatedAt: "2026-08-03T17:50:00-04:00",
-  },
-  {
-    id: "o9",
-    number: "OCO-2410",
-    occurredAt: "2026-08-02T11:45:00-04:00",
-    clientId: "cl4",
-    systemId: "s1",
-    moduleId: "m3",
-    catalogItemId: "c2",
-    description: "Erro de rede registrado durante atualização do cadastro.",
-    severity: "Alta",
-    status: "Resolvido",
-    responsibleId: "u1",
-    authorId: "u1",
-    attachments: [],
-    createdAt: "2026-08-02T11:57:00-04:00",
-    updatedAt: "2026-08-02T13:04:00-04:00",
-  },
-  {
-    id: "o10",
-    number: "OCO-2409",
-    occurredAt: "2026-08-01T08:15:00-04:00",
-    clientId: "cl5",
-    systemId: "s3",
-    moduleId: "m7",
-    catalogItemId: "c5",
-    description: "Sessão expirou antes do período esperado.",
-    severity: "Baixa",
-    status: "Resolvido",
-    responsibleId: "u3",
-    authorId: "u2",
-    attachments: [],
-    createdAt: "2026-08-01T08:24:00-04:00",
-    updatedAt: "2026-08-01T09:32:00-04:00",
-  },
-  {
-    id: "o11",
-    number: "OCO-2408",
-    occurredAt: "2026-07-31T13:35:00-04:00",
-    clientId: "cl1",
-    systemId: "s1",
-    moduleId: "m1",
-    catalogItemId: "c1",
-    description: "Missão antiga permaneceu ativa depois da finalização.",
-    severity: "Média",
-    status: "Resolvido",
-    responsibleId: "u1",
-    authorId: "u1",
-    attachments: [],
-    createdAt: "2026-07-31T13:46:00-04:00",
-    updatedAt: "2026-07-31T15:10:00-04:00",
-  },
-  {
-    id: "o12",
-    number: "OCO-2407",
-    occurredAt: "2026-07-30T18:05:00-04:00",
-    clientId: "cl2",
-    systemId: "s1",
-    moduleId: "m1",
-    catalogItemId: "c3",
-    description: "Falha ao carregar o formulário em conexão móvel.",
-    severity: "Alta",
-    status: "Cancelado",
-    responsibleId: "u2",
-    authorId: "u1",
-    attachments: [],
-    createdAt: "2026-07-30T18:16:00-04:00",
-    updatedAt: "2026-07-31T08:02:00-04:00",
-  },
-];
-
-const DEMO_ANCHOR_TIME = new Date("2026-08-06T12:00:00-04:00").getTime();
-const DEMO_RUNTIME_TIME = Date.now();
-const shiftDemoDate = (value: string) =>
-  new Date(
-    DEMO_RUNTIME_TIME + (new Date(value).getTime() - DEMO_ANCHOR_TIME),
-  ).toISOString();
-
-const INITIAL_CATALOG: CatalogItem[] = INITIAL_CATALOG_BASE.map((item) => ({
-  ...item,
-  updatedAt: shiftDemoDate(item.updatedAt),
-}));
-
-const INITIAL_OCCURRENCES: Occurrence[] = INITIAL_OCCURRENCES_BASE.map(
-  (item) => ({
-    ...item,
-    occurredAt: shiftDemoDate(item.occurredAt),
-    createdAt: shiftDemoDate(item.createdAt),
-    updatedAt: shiftDemoDate(item.updatedAt),
-  }),
-);
 
 const STATUS_OPTIONS: OccurrenceStatus[] = [
   "Novo",
@@ -708,7 +353,9 @@ function Modal({
 
 export default function PortalOcorrencias() {
   const [currentUser, setCurrentUser] = useState<PortalUser | null>(null);
-  const [portalUsers, setPortalUsers] = useState<PortalUser[]>(USERS);
+  const [portalUsers, setPortalUsers] = useState<PortalUser[]>([]);
+  const [clients, setClients] = useState<PortalClient[]>([]);
+  const [systems, setSystems] = useState<PortalSystem[]>([]);
   const [managedUsers, setManagedUsers] = useState<ManagedUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState("");
@@ -738,11 +385,10 @@ export default function PortalOcorrencias() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
-  const [occurrences, setOccurrences] =
-    useState<Occurrence[]>(INITIAL_OCCURRENCES);
-  const [catalog, setCatalog] = useState<CatalogItem[]>(INITIAL_CATALOG);
+  const [occurrences, setOccurrences] = useState<Occurrence[]>([]);
+  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [toast, setToast] = useState("");
-  const [selectedOccurrenceId, setSelectedOccurrenceId] = useState("o1");
+  const [selectedOccurrenceId, setSelectedOccurrenceId] = useState("");
   const [recordSearch, setRecordSearch] = useState("");
   const [recordPeriod, setRecordPeriod] = useState("all");
   const [recordSystem, setRecordSystem] = useState("all");
@@ -770,7 +416,7 @@ export default function PortalOcorrencias() {
     description: "",
     severity: "Média" as Severity,
     status: "Em análise" as OccurrenceStatus,
-    responsibleId: "u1",
+    responsibleId: "",
   });
   const [catalogSearch, setCatalogSearch] = useState("");
   const [catalogSystem, setCatalogSystem] = useState("all");
@@ -780,8 +426,8 @@ export default function PortalOcorrencias() {
     id?: string;
   } | null>(null);
   const [catalogDraft, setCatalogDraft] = useState({
-    systemId: "s1",
-    moduleId: "m1",
+    systemId: "",
+    moduleId: "",
     name: "",
     aliases: "",
     active: true,
@@ -799,7 +445,7 @@ export default function PortalOcorrencias() {
     severity: "Média" as Severity,
     occurredAt: "",
     status: "Novo" as OccurrenceStatus,
-    responsibleId: "u1",
+    responsibleId: "",
     attachments: [] as string[],
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -858,7 +504,48 @@ export default function PortalOcorrencias() {
           const payload = (await occurrencesResponse.json()) as {
             occurrences: Occurrence[];
           };
-          if (active) setOccurrences(payload.occurrences);
+          if (active) {
+            setOccurrences(payload.occurrences);
+            setSelectedOccurrenceId((current) =>
+              current && payload.occurrences.some((item) => item.id === current)
+                ? current
+                : payload.occurrences[0]?.id || "",
+            );
+          }
+        }
+        const catalogResponse = await fetch("/api/catalog", {
+          credentials: "same-origin",
+        });
+        if (catalogResponse.ok) {
+          const payload = (await catalogResponse.json()) as {
+            items: CatalogItem[];
+          };
+          if (active) setCatalog(payload.items);
+        }
+        const referenceResponse = await fetch("/api/reference-data", {
+          credentials: "same-origin",
+        });
+        if (!referenceResponse.ok) {
+          const payload = (await referenceResponse.json().catch(() => ({}))) as {
+            message?: string;
+          };
+          throw new Error(
+            payload.message || "Não foi possível carregar os dados de referência.",
+          );
+        }
+        const referencePayload = (await referenceResponse.json()) as {
+          clients: PortalClient[];
+          systems: PortalSystem[];
+        };
+        if (active) {
+          setClients(referencePayload.clients);
+          setSystems(referencePayload.systems);
+          const firstSystem = referencePayload.systems[0];
+          setCatalogDraft((current) => ({
+            ...current,
+            systemId: current.systemId || firstSystem?.id || "",
+            moduleId: current.moduleId || firstSystem?.modules[0]?.id || "",
+          }));
         }
         const assignableResponse = await fetch(
           "/api/users?scope=assignable",
@@ -902,11 +589,11 @@ export default function PortalOcorrencias() {
   }, [currentUser]);
 
   const getClient = (id: string) =>
-    CLIENTS.find((client) => client.id === id)?.name || "Cliente";
+    clients.find((client) => client.id === id)?.name || "Cliente";
   const getSystem = (id: string) =>
-    SYSTEMS.find((system) => system.id === id)?.name || "Sistema";
+    systems.find((system) => system.id === id)?.name || "Sistema";
   const getModule = (systemId: string, moduleId: string) =>
-    SYSTEMS.find((system) => system.id === systemId)?.modules.find(
+    systems.find((system) => system.id === systemId)?.modules.find(
       (module) => module.id === moduleId,
     )?.name || "Módulo";
   const getCatalogName = (item: Occurrence) =>
@@ -926,6 +613,11 @@ export default function PortalOcorrencias() {
     (item) => item.id === selectedOccurrenceId,
   );
   const canManageCatalog = Boolean(currentUser);
+  const generalModuleIds = new Set(
+    systems.flatMap((system) =>
+      system.modules.filter((module) => module.isGeneral).map((module) => module.id),
+    ),
+  );
   const canEditOccurrence = (item: Occurrence) =>
     Boolean(
       currentUser &&
@@ -1126,12 +818,6 @@ export default function PortalOcorrencias() {
     }
   }
 
-  function chooseDemo(user: PortalUser) {
-    setLoginEmail(user.email);
-    setLoginPassword("portal2026");
-    setLoginError("");
-  }
-
   async function logout() {
     try {
       await fetch("/api/auth/logout", {
@@ -1163,7 +849,7 @@ export default function PortalOcorrencias() {
       severity: "Média",
       occurredAt: toDateTimeLocal(new Date()),
       status: "Novo",
-      responsibleId: currentUser?.id || "u1",
+      responsibleId: currentUser?.id || "",
       attachments: [],
     });
     setFormErrors({});
@@ -1304,9 +990,10 @@ export default function PortalOcorrencias() {
   }
 
   function openNewCatalog() {
+    const firstSystem = systems[0];
     setCatalogDraft({
-      systemId: "s1",
-      moduleId: "m1",
+      systemId: firstSystem?.id || "",
+      moduleId: firstSystem?.modules[0]?.id || "",
       name: "",
       aliases: "",
       active: true,
@@ -1667,7 +1354,7 @@ export default function PortalOcorrencias() {
           </div>
           <div className="story-footer">
             <span className="status-dot" />
-            Ambiente demonstrativo com dados fictícios
+            Dados operacionais armazenados com segurança
           </div>
         </section>
 
@@ -1750,39 +1437,6 @@ export default function PortalOcorrencias() {
                 )}
               </button>
             </form>
-            <div className="demo-divider">
-              <span>Contas de demonstração</span>
-            </div>
-            <div className="demo-accounts">
-              {USERS.filter((user) => DEMO_ACCOUNT_IDS.has(user.id)).map(
-                (user) => (
-                  <button
-                    key={user.id}
-                    type="button"
-                    onClick={() => chooseDemo(user)}
-                    className={
-                      normalizeText(loginEmail) === normalizeText(user.email)
-                        ? "demo-account selected"
-                        : "demo-account"
-                    }
-                  >
-                    <span className="avatar avatar-small">
-                      {initials(user.name)}
-                    </span>
-                    <span>
-                      <strong>{user.name.split(" ")[0]}</strong>
-                      <small>{roleLabel[user.role]}</small>
-                    </span>
-                    {normalizeText(loginEmail) ===
-                      normalizeText(user.email) && <Check size={17} />}
-                  </button>
-                ),
-              )}
-            </div>
-            <p className="demo-hint">
-              Escolha uma conta acima. A senha demonstrativa será preenchida
-              automaticamente.
-            </p>
           </div>
         </section>
       </main>
@@ -1804,7 +1458,7 @@ export default function PortalOcorrencias() {
     }))
     .sort((a, b) => b.count - a.count);
   const recurrent = catalogCounts[0];
-  const systemCounts = SYSTEMS.map((system) => ({
+  const systemCounts = systems.map((system) => ({
     ...system,
     count: dashboardData.filter((item) => item.systemId === system.id).length,
   }));
@@ -1839,7 +1493,7 @@ export default function PortalOcorrencias() {
     const timestamps = dashboardData.map((item) =>
       new Date(item.occurredAt).getTime(),
     );
-    const now = DEMO_RUNTIME_TIME;
+    const now = Date.now();
     const startTimestamp =
       dashboardPeriodBounds.start ||
       (timestamps.length ? Math.min(...timestamps) : now);
@@ -1954,8 +1608,8 @@ export default function PortalOcorrencias() {
         <div className="sidebar-footer">
           <span className="status-dot" />
           <span>
-            <strong>Ambiente demonstrativo</strong>
-            <small>Dados fictícios</small>
+            <strong>Ambiente operacional</strong>
+            <small>Dados do Supabase</small>
           </span>
         </div>
       </aside>
@@ -1974,7 +1628,7 @@ export default function PortalOcorrencias() {
             Operação de suporte
           </div>
           <div className="topbar-actions">
-            <span className="demo-pill">Dados fictícios</span>
+            <span className="demo-pill">Dados reais</span>
             <div className="profile-menu">
               <button
                 className="profile-trigger"
@@ -2043,6 +1697,7 @@ export default function PortalOcorrencias() {
             <AgendaView
               currentUser={currentUser}
               users={portalUsers}
+              clients={clients}
               onNotify={setToast}
             />
           )}
@@ -2138,7 +1793,7 @@ export default function PortalOcorrencias() {
                       }}
                     >
                       <option value="all">Todos</option>
-                      {SYSTEMS.map((system) => (
+                      {systems.map((system) => (
                         <option key={system.id} value={system.id}>
                           {system.name}
                         </option>
@@ -2153,7 +1808,7 @@ export default function PortalOcorrencias() {
                       disabled={dashSystem === "all"}
                     >
                       <option value="all">Todos</option>
-                      {SYSTEMS.find(
+                      {systems.find(
                         (system) => system.id === dashSystem,
                       )?.modules.map((module) => (
                         <option key={module.id} value={module.id}>
@@ -2670,7 +2325,7 @@ export default function PortalOcorrencias() {
                         }}
                       >
                         <option value="all">Todos os sistemas</option>
-                        {SYSTEMS.map((system) => (
+                        {systems.map((system) => (
                           <option key={system.id} value={system.id}>
                             {system.name}
                           </option>
@@ -2693,7 +2348,7 @@ export default function PortalOcorrencias() {
                             ? "Selecione o sistema"
                             : "Todos os módulos"}
                         </option>
-                        {SYSTEMS.find(
+                        {systems.find(
                           (system) => system.id === recordSystem,
                         )?.modules.map((module) => (
                           <option key={module.id} value={module.id}>
@@ -2940,7 +2595,7 @@ export default function PortalOcorrencias() {
                           }
                         >
                           <option value="">Selecione um cliente</option>
-                          {CLIENTS.map((client) => (
+                          {clients.map((client) => (
                             <option key={client.id} value={client.id}>
                               {client.name}
                             </option>
@@ -2972,7 +2627,7 @@ export default function PortalOcorrencias() {
                           }
                         >
                           <option value="">Selecione</option>
-                          {SYSTEMS.map((system) => (
+                          {systems.map((system) => (
                             <option key={system.id} value={system.id}>
                               {system.name}
                             </option>
@@ -3004,7 +2659,7 @@ export default function PortalOcorrencias() {
                           }
                         >
                           <option value="">Selecione</option>
-                          {SYSTEMS.find(
+                          {systems.find(
                             (system) => system.id === newForm.systemId,
                           )?.modules.map((module) => (
                             <option key={module.id} value={module.id}>
@@ -3058,7 +2713,7 @@ export default function PortalOcorrencias() {
                                 item.active &&
                                 item.systemId === newForm.systemId &&
                                 (item.moduleId === newForm.moduleId ||
-                                  GENERAL_MODULE_IDS.has(item.moduleId)),
+                                  generalModuleIds.has(item.moduleId)),
                             )
                             .map((item) => (
                               <option key={item.id} value={item.id}>
@@ -3485,7 +3140,7 @@ export default function PortalOcorrencias() {
                             </span>
                             <p>
                               <strong>{file}</strong>
-                              <small>Arquivo demonstrativo</small>
+                              <small>Arquivo anexado</small>
                             </p>
                             <button
                               className="icon-button"
@@ -3657,7 +3312,7 @@ export default function PortalOcorrencias() {
                         onChange={(event) => setCatalogSystem(event.target.value)}
                       >
                         <option value="all">Todos os sistemas</option>
-                        {SYSTEMS.map((system) => (
+                        {systems.map((system) => (
                           <option key={system.id} value={system.id}>
                             {system.name}
                           </option>
@@ -4115,7 +3770,7 @@ export default function PortalOcorrencias() {
               <select
                 value={catalogDraft.systemId}
                 onChange={(event) => {
-                  const system = SYSTEMS.find(
+                  const system = systems.find(
                     (item) => item.id === event.target.value,
                   );
                   setCatalogDraft({
@@ -4125,7 +3780,7 @@ export default function PortalOcorrencias() {
                   });
                 }}
               >
-                {SYSTEMS.map((system) => (
+                {systems.map((system) => (
                   <option key={system.id} value={system.id}>
                     {system.name}
                   </option>
@@ -4145,7 +3800,7 @@ export default function PortalOcorrencias() {
                   })
                 }
               >
-                {SYSTEMS.find(
+                {systems.find(
                   (system) => system.id === catalogDraft.systemId,
                 )?.modules.map((module) => (
                   <option key={module.id} value={module.id}>
