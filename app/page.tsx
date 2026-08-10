@@ -486,7 +486,12 @@ const roleLabel: Record<Role, string> = {
 };
 
 const rolePermissions: Record<Role, string[]> = {
-  suporte: ["Dashboard próprio", "Criar registros", "Atualizar ocorrências próprias"],
+  suporte: [
+    "Dashboard próprio",
+    "Criar registros",
+    "Atualizar ocorrências próprias",
+    "Manter o Catálogo",
+  ],
   gestor: ["Dashboard completo", "Gerenciar ocorrências", "Manter o Catálogo"],
   administrador: [
     "Acesso completo",
@@ -920,8 +925,7 @@ export default function PortalOcorrencias() {
   const currentOccurrence = visibleOccurrences.find(
     (item) => item.id === selectedOccurrenceId,
   );
-  const canManageCatalog =
-    currentUser?.role === "gestor" || currentUser?.role === "administrador";
+  const canManageCatalog = Boolean(currentUser);
   const canEditOccurrence = (item: Occurrence) =>
     Boolean(
       currentUser &&
