@@ -75,20 +75,6 @@ type PortalUser = {
   title: string;
 };
 
-function isPortalUser(value: unknown): value is PortalUser {
-  if (!value || typeof value !== "object") return false;
-  const user = value as Partial<PortalUser>;
-  return Boolean(
-    user.id &&
-      user.name &&
-      user.email &&
-      user.title &&
-      (user.role === "suporte" ||
-        user.role === "gestor" ||
-        user.role === "administrador"),
-  );
-}
-
 type ManagedUser = PortalUser & {
   active: boolean;
   createdAt: string;
@@ -760,7 +746,17 @@ export default function PortalOcorrencias() {
   const [recordSeverity, setRecordSeverity] = useState("all");
   const [recordPage, setRecordPage] = useState(1);
   const [dashPeriod, setDashPeriod] = useState("week");
-  const [dashCustomStart, setDash…31577 tokens truncated…t, false)}</td>
+  const [dashCustomStart, setDashCustomStart] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 6);
+    return toDateInput(date);
+  });
+  const [dashCustomEnd, setDashCustomEnd] = useState(() =>
+    toDateInput(new Date()),
+  );
+  const [dashSystem, setDashSystem] = useState("all");
+  const [dashModule, setDashModule] = useState("all");
+  const [dashStatus, setDashStatu…31421 tokens truncated…t, false)}</td>
                             <td>
                               <div className="table-actions">
                                 <button
