@@ -434,6 +434,21 @@ export default function PortalOcorrencias() {
   });
   const [catalogError, setCatalogError] = useState("");
   const [confirmCatalogId, setConfirmCatalogId] = useState<string | null>(null);
+  const [referenceManagerOpen, setReferenceManagerOpen] = useState(false);
+  const [systemDraft, setSystemDraft] = useState("");
+  const [editingSystemId, setEditingSystemId] = useState<string | null>(null);
+  const [moduleDraft, setModuleDraft] = useState({
+    systemId: "",
+    name: "",
+    isGeneral: false,
+  });
+  const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
+  const [referenceError, setReferenceError] = useState("");
+  const [confirmReferenceDelete, setConfirmReferenceDelete] = useState<{
+    kind: "system" | "module";
+    id: string;
+    name: string;
+  } | null>(null);
   const [saving, setSaving] = useState(false);
   const [newForm, setNewForm] = useState({
     clientId: "",
@@ -991,6 +1006,13 @@ export default function PortalOcorrencias() {
 
   function openNewCatalog() {
     const firstSystem = systems[0];
+    if (!firstSystem) {
+      setReferenceError(
+        "Cadastre um sistema primeiro. O módulo Geral será criado automaticamente.",
+      );
+      setReferenceManagerOpen(true);
+      return;
+    }
     setCatalogDraft({
       systemId: firstSystem?.id || "",
       moduleId: firstSystem?.modules[0]?.id || "",
@@ -1000,6 +1022,163 @@ export default function PortalOcorrencias() {
     });
     setCatalogError("");
     setCatalogModal({ mode: "new" });
+  }
+
+  function applyReferenceData(payload: {
+    clients: PortalClient[];
+    systems: PortalSystem[];
+  }) {
+    setClients(payload.clients);
+    setSystems(payload.systems);
+    const firstSystem = payload.systems[0];
+    setCatalogDraft((current) => {
+      const selectedSystem =
+        payload.systems.find((system) => system.id === current.systemId) ||
+        firstSystem;
+      return {
+        ...current,
+        systemId: selectedSystem?.id || "",
+        moduleId:
+          selectedSystem?.modules.find((module) => module.id === current.moduleId)
+            ?.id ||
+          selectedSystem?.modules[0]?.id ||
+          "",
+      };
+    });
+    setModuleDraft((current) => ({
+      ...current,
+      systemId:
+        payload.systems.some((system) => system.id === current.systemId)
+          ? current.systemId
+          : firstSystem?.id || "",
+    }));
+  }
+
+  function openReferenceManager() {
+    setReferenceError("");
+    setSystemDraft("");
+    setEditingSystemId(null);
+    setModuleDraft({
+      systemId: systems[0]?.id || "",
+      name: "",
+      isGeneral: false,
+    });
+    setEditingModuleId(null);
+    setReferenceManagerOpen(true);
+  }
+
+  async function saveSystemReference() {
+    const name = systemDraft.trim().replace(/\s+/g, " ");
+    if (name.length < 2) {
+      setReferenceError("Informe o nome do sistema.");
+      return;
+    }
+    setSaving(true);
+    setReferenceError("");
+    try {
+      const payload = await portalRequest<{
+        clients: PortalClient[];
+        systems: PortalSystem[];
+      }>("/api/reference-data", {
+        method: editingSystemId ? "PATCH" : "POST",
+        body: JSON.stringify({
+          kind: "system",
+          id: editingSystemId,
+          name,
+        }),
+      });
+      applyReferenceData(payload);
+      const savedSystem = payload.systems.find(
+        (system) => normalizeText(system.name) === normalizeText(name),
+      );
+      setModuleDraft((current) => ({
+        ...current,
+        systemId: savedSystem?.id || current.systemId,
+      }));
+      setSystemDraft("");
+      setEditingSystemId(null);
+      setToast(editingSystemId ? "Sistema atualizado." : "Sistema criado com o módulo Geral.");
+    } catch (error) {
+      setReferenceError(
+        error instanceof Error ? error.message : "Não foi possível salvar o sistema.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function saveModuleReference() {
+    const name = moduleDraft.name.trim().replace(/\s+/g, " ");
+    if (!moduleDraft.systemId) {
+      setReferenceError("Selecione o sistema do módulo.");
+      return;
+    }
+    if (name.length < 2) {
+      setReferenceError("Informe o nome do módulo.");
+      return;
+    }
+    setSaving(true);
+    setReferenceError("");
+    try {
+      const payload = await portalRequest<{
+        clients: PortalClient[];
+        systems: PortalSystem[];
+      }>("/api/reference-data", {
+        method: editingModuleId ? "PATCH" : "POST",
+        body: JSON.stringify({
+          kind: "module",
+          id: editingModuleId,
+          systemId: moduleDraft.systemId,
+          name,
+          isGeneral: moduleDraft.isGeneral,
+        }),
+      });
+      applyReferenceData(payload);
+      setModuleDraft((current) => ({
+        systemId: current.systemId,
+        name: "",
+        isGeneral: false,
+      }));
+      setEditingModuleId(null);
+      setToast(editingModuleId ? "Módulo atualizado." : "Módulo criado.");
+    } catch (error) {
+      setReferenceError(
+        error instanceof Error ? error.message : "Não foi possível salvar o módulo.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteReference() {
+    if (!confirmReferenceDelete) return;
+    setSaving(true);
+    setReferenceError("");
+    try {
+      const payload = await portalRequest<{
+        clients: PortalClient[];
+        systems: PortalSystem[];
+      }>(
+        `/api/reference-data?kind=${confirmReferenceDelete.kind}&id=${encodeURIComponent(
+          confirmReferenceDelete.id,
+        )}`,
+        { method: "DELETE" },
+      );
+      applyReferenceData(payload);
+      setConfirmReferenceDelete(null);
+      setToast(
+        confirmReferenceDelete.kind === "system"
+          ? "Sistema removido da visualização."
+          : "Módulo removido da visualização.",
+      );
+    } catch (error) {
+      setReferenceError(
+        error instanceof Error ? error.message : "Não foi possível excluir o cadastro.",
+      );
+      setConfirmReferenceDelete(null);
+    } finally {
+      setSaving(false);
+    }
   }
 
   function openEditCatalog(item: CatalogItem) {
@@ -3238,15 +3417,42 @@ export default function PortalOcorrencias() {
                   </p>
                 </div>
                 {canManageCatalog && (
-                  <button
-                    className="button button-primary"
-                    onClick={openNewCatalog}
-                  >
-                    <Plus size={18} />
-                    Novo item
-                  </button>
+                  <div className="page-heading-actions">
+                    <button
+                      className="button button-secondary"
+                      onClick={openReferenceManager}
+                    >
+                      <SlidersHorizontal size={18} />
+                      Sistemas e módulos
+                    </button>
+                    <button
+                      className="button button-primary"
+                      onClick={openNewCatalog}
+                    >
+                      <Plus size={18} />
+                      Novo item
+                    </button>
+                  </div>
                 )}
               </div>
+              {canManageCatalog && systems.length === 0 && (
+                <section className="reference-empty-state">
+                  <div>
+                    <strong>Cadastre o primeiro sistema</strong>
+                    <p>
+                      Depois você poderá criar os módulos e usar ambos nos itens
+                      do Catálogo.
+                    </p>
+                  </div>
+                  <button
+                    className="button button-primary"
+                    onClick={openReferenceManager}
+                  >
+                    <Plus size={18} />
+                    Criar sistema
+                  </button>
+                </section>
+              )}
               <section className="catalog-summary">
                 <div>
                   <span className="metric-icon metric-teal">
@@ -3730,6 +3936,308 @@ export default function PortalOcorrencias() {
                 }
               />
             </label>
+          </div>
+        </Modal>
+      )}
+
+      {referenceManagerOpen && (
+        <Modal
+          title="Sistemas e módulos"
+          description="Organize as opções usadas no Catálogo e nos registros de ocorrência."
+          size="large"
+          onClose={() => {
+            setReferenceManagerOpen(false);
+            setReferenceError("");
+          }}
+          footer={
+            <button
+              className="button button-primary"
+              onClick={() => {
+                setReferenceManagerOpen(false);
+                setReferenceError("");
+              }}
+            >
+              Concluir
+            </button>
+          }
+        >
+          {referenceError && (
+            <div className="reference-error" role="alert">
+              <CircleAlert size={18} />
+              <span>{referenceError}</span>
+            </div>
+          )}
+          <div className="reference-manager">
+            <section className="reference-panel">
+              <div className="reference-panel-heading">
+                <div>
+                  <span className="card-kicker">Sistemas</span>
+                  <h3>{editingSystemId ? "Editar sistema" : "Novo sistema"}</h3>
+                </div>
+                <strong>{systems.length}</strong>
+              </div>
+              <div className="reference-form-row">
+                <label className="field">
+                  <span>Nome do sistema</span>
+                  <input
+                    value={systemDraft}
+                    onChange={(event) =>
+                      setSystemDraft(event.target.value.slice(0, 80))
+                    }
+                    placeholder="Ex.: Portal do Cliente"
+                  />
+                </label>
+                <button
+                  className="button button-primary"
+                  onClick={saveSystemReference}
+                  disabled={saving || systemDraft.trim().length < 2}
+                >
+                  {saving ? <span className="spinner" /> : <Check size={17} />}
+                  {editingSystemId ? "Atualizar" : "Adicionar"}
+                </button>
+                {editingSystemId && (
+                  <button
+                    className="button button-ghost"
+                    onClick={() => {
+                      setEditingSystemId(null);
+                      setSystemDraft("");
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
+              <div className="reference-list">
+                {systems.length === 0 ? (
+                  <p className="reference-list-empty">
+                    Nenhum sistema cadastrado.
+                  </p>
+                ) : (
+                  systems.map((system) => (
+                    <div className="reference-list-item" key={system.id}>
+                      <div>
+                        <strong>{system.name}</strong>
+                        <small>
+                          {system.modules.length}{" "}
+                          {system.modules.length === 1 ? "módulo" : "módulos"}
+                        </small>
+                      </div>
+                      <div className="reference-list-actions">
+                        <button
+                          className="icon-button"
+                          onClick={() => {
+                            setEditingSystemId(system.id);
+                            setSystemDraft(system.name);
+                            setReferenceError("");
+                          }}
+                          aria-label={`Editar sistema ${system.name}`}
+                          title="Editar"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          className="icon-button danger-icon-button"
+                          onClick={() =>
+                            setConfirmReferenceDelete({
+                              kind: "system",
+                              id: system.id,
+                              name: system.name,
+                            })
+                          }
+                          aria-label={`Excluir sistema ${system.name}`}
+                          title="Excluir"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            <section className="reference-panel">
+              <div className="reference-panel-heading">
+                <div>
+                  <span className="card-kicker">Módulos</span>
+                  <h3>{editingModuleId ? "Editar módulo" : "Novo módulo"}</h3>
+                </div>
+                <strong>
+                  {systems.reduce(
+                    (total, system) => total + system.modules.length,
+                    0,
+                  )}
+                </strong>
+              </div>
+              <div className="reference-module-form">
+                <label className="field">
+                  <span>Sistema</span>
+                  <select
+                    value={moduleDraft.systemId}
+                    onChange={(event) =>
+                      setModuleDraft({
+                        systemId: event.target.value,
+                        name: "",
+                        isGeneral: false,
+                      })
+                    }
+                    disabled={systems.length === 0}
+                  >
+                    {systems.length === 0 && (
+                      <option value="">Cadastre um sistema primeiro</option>
+                    )}
+                    {systems.map((system) => (
+                      <option key={system.id} value={system.id}>
+                        {system.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <span>Nome do módulo</span>
+                  <input
+                    value={moduleDraft.name}
+                    onChange={(event) =>
+                      setModuleDraft({
+                        ...moduleDraft,
+                        name: event.target.value.slice(0, 80),
+                      })
+                    }
+                    placeholder="Ex.: Checklist"
+                    disabled={!moduleDraft.systemId}
+                  />
+                </label>
+                <label className="reference-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={moduleDraft.isGeneral}
+                    onChange={(event) =>
+                      setModuleDraft({
+                        ...moduleDraft,
+                        isGeneral: event.target.checked,
+                      })
+                    }
+                    disabled={!moduleDraft.systemId}
+                  />
+                  Usar como módulo geral
+                </label>
+                <div className="reference-form-actions">
+                  <button
+                    className="button button-primary"
+                    onClick={saveModuleReference}
+                    disabled={
+                      saving ||
+                      !moduleDraft.systemId ||
+                      moduleDraft.name.trim().length < 2
+                    }
+                  >
+                    {saving ? <span className="spinner" /> : <Check size={17} />}
+                    {editingModuleId ? "Atualizar" : "Adicionar"}
+                  </button>
+                  {editingModuleId && (
+                    <button
+                      className="button button-ghost"
+                      onClick={() => {
+                        setEditingModuleId(null);
+                        setModuleDraft((current) => ({
+                          ...current,
+                          name: "",
+                          isGeneral: false,
+                        }));
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="reference-list">
+                {systems
+                  .find((system) => system.id === moduleDraft.systemId)
+                  ?.modules.map((module) => (
+                    <div className="reference-list-item" key={module.id}>
+                      <div>
+                        <strong>{module.name}</strong>
+                        <small>{module.isGeneral ? "Módulo geral" : "Módulo específico"}</small>
+                      </div>
+                      <div className="reference-list-actions">
+                        <button
+                          className="icon-button"
+                          onClick={() => {
+                            setEditingModuleId(module.id);
+                            setModuleDraft({
+                              systemId: moduleDraft.systemId,
+                              name: module.name,
+                              isGeneral: module.isGeneral,
+                            });
+                            setReferenceError("");
+                          }}
+                          aria-label={`Editar módulo ${module.name}`}
+                          title="Editar"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          className="icon-button danger-icon-button"
+                          onClick={() =>
+                            setConfirmReferenceDelete({
+                              kind: "module",
+                              id: module.id,
+                              name: module.name,
+                            })
+                          }
+                          aria-label={`Excluir módulo ${module.name}`}
+                          title="Excluir"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )) || (
+                  <p className="reference-list-empty">
+                    Selecione um sistema para ver os módulos.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+        </Modal>
+      )}
+
+      {confirmReferenceDelete && (
+        <Modal
+          title={
+            confirmReferenceDelete.kind === "system"
+              ? "Excluir sistema da visualização?"
+              : "Excluir módulo da visualização?"
+          }
+          description="O cadastro continuará preservado no banco para auditoria."
+          onClose={() => setConfirmReferenceDelete(null)}
+          footer={
+            <>
+              <button
+                className="button button-ghost"
+                onClick={() => setConfirmReferenceDelete(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="button button-danger"
+                onClick={deleteReference}
+                disabled={saving}
+              >
+                {saving ? <span className="spinner" /> : <Trash2 size={17} />}
+                Excluir da visualização
+              </button>
+            </>
+          }
+        >
+          <div className="safe-delete-copy">
+            <strong>{confirmReferenceDelete.name}</strong>
+            <p>
+              Se estiver sendo usado em um item do Catálogo ou ocorrência, o
+              sistema impedirá a exclusão e mostrará como corrigir.
+            </p>
           </div>
         </Modal>
       )}
