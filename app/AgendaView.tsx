@@ -5,9 +5,11 @@ import {
   Clock3, Pencil, Play, Plus, Search, Square, Trash2, UserRound, X,
 } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
+import DailyLogTable from "./DailyLogTable";
 
 type Role = "suporte" | "gestor" | "administrador";
 type PortalUser = { id: string; name: string; email: string; role: Role; title: string };
+type PortalClient = { id: string; name: string };
 type AgendaType = "agendado" | "inesperado" | "interno";
 type AgendaStatus = "planejado" | "em_andamento" | "concluido" | "cancelado";
 type AgendaEntry = {
@@ -18,20 +20,15 @@ type AgendaEntry = {
   outcome: string | null; createdAt: string; updatedAt: string;
 };
 
-const clients = [
-  { id: "cl1", name: "Gran Dourados" }, { id: "cl2", name: "Via Norte Logística" },
-  { id: "cl3", name: "Transvale Transportes" }, { id: "cl4", name: "Rota Sul" },
-  { id: "cl5", name: "Expresso Pantanal" },
-];
 const typeLabel: Record<AgendaType, string> = {
   agendado: "Atendimento agendado", inesperado: "Atendimento inesperado", interno: "Atividade interna",
 };
 const statusLabel: Record<AgendaStatus, string> = {
   planejado: "Planejado", em_andamento: "Em andamento", concluido: "Concluído", cancelado: "Cancelado",
 };
-const emptyDraft = (userId: string, internal = false) => ({
+const emptyDraft = (userId: string, clientId: string, internal = false) => ({
   type: (internal ? "interno" : "agendado") as AgendaType,
-  title: "", description: "", clientId: internal ? "" : "cl1", assigneeId: userId,
+  title: "", description: "", clientId: internal ? "" : clientId, assigneeId: userId,
   scheduledStart: "", estimatedMinutes: "", recordCompleted: internal,
   recordedMinutes: "30", outcome: "",
 });
@@ -59,8 +56,9 @@ function durationLabel(minutes: number | null) {
   return rest ? `${hours}h ${rest}min` : `${hours}h`;
 }
 
-export default function AgendaView({ currentUser, users, onNotify }: {
-  currentUser: PortalUser; users: PortalUser[]; onNotify: (message: string) => void;
+export default function AgendaView({ currentUser, users, clients, onNotify }: {
+  currentUser: PortalUser; users: PortalUser[]; clients: PortalClient[];
+  onNotify: (message: string) => void;
 }) {
   const [entries, setEntries] = useState<AgendaEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +72,7 @@ export default function AgendaView({ currentUser, users, onNotify }: {
   const [query, setQuery] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState(() => emptyDraft(currentUser.id));
+  const [draft, setDraft] = useState(() => emptyDraft(currentUser.id, clients[0]?.id || ""));
   const [finishEntry, setFinishEntry] = useState<AgendaEntry | null>(null);
   const [finishOutcome, setFinishOutcome] = useState("");
 
@@ -127,7 +125,7 @@ export default function AgendaView({ currentUser, users, onNotify }: {
   }).map((entry) => entry.id)), [filtered]);
 
   function openNew(internal = false) {
-    setEditingId(null); setDraft(emptyDraft(currentUser.id, internal)); setFormOpen(true); setError("");
+    setEditingId(null); setDraft(emptyDraft(currentUser.id, clients[0]?.id || "", internal)); setFormOpen(true); setError("");
   }
   function openEdit(entry: AgendaEntry) {
     setEditingId(entry.id);
@@ -201,7 +199,7 @@ export default function AgendaView({ currentUser, users, onNotify }: {
     </section>
 
     {formOpen && <div className="modal-backdrop" onMouseDown={() => !saving && setFormOpen(false)}><form className="modal modal-large" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()}><header className="modal-header"><div><h2>{editingId ? "Editar compromisso" : draft.type === "interno" ? "Registrar atividade" : "Novo compromisso"}</h2><p>Você pode salvar sem estimativa e completar essa informação depois.</p></div><button type="button" className="icon-button" onClick={() => setFormOpen(false)} aria-label="Fechar"><X size={20}/></button></header><div className="modal-body"><div className="form-grid">
-      <label className="field"><span>Tipo <b>*</b></span><select value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value as AgendaType, clientId: e.target.value === "interno" ? "" : draft.clientId || "cl1" })}><option value="agendado">Atendimento agendado</option><option value="inesperado">Atendimento inesperado</option><option value="interno">Atividade interna</option></select></label>
+      <label className="field"><span>Tipo <b>*</b></span><select value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value as AgendaType, clientId: e.target.value === "interno" ? "" : draft.clientId || clients[0]?.id || "" })}><option value="agendado">Atendimento agendado</option><option value="inesperado">Atendimento inesperado</option><option value="interno">Atividade interna</option></select></label>
       <label className="field"><span>Responsável <b>*</b></span><select value={draft.assigneeId} disabled={currentUser.role === "suporte"} onChange={(e) => setDraft({ ...draft, assigneeId: e.target.value })}>{users.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
       <label className="field field-span-2"><span>Título <b>*</b></span><input required minLength={3} maxLength={120} value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} placeholder={draft.type === "interno" ? "Ex.: Atualizar documentação do atendimento" : "Ex.: Revisar falha de sincronização"}/></label>
       {draft.type !== "interno" && <label className="field"><span>Cliente <b>*</b></span><select value={draft.clientId} onChange={(e) => setDraft({ ...draft, clientId: e.target.value })}>{clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select></label>}
@@ -212,5 +210,7 @@ export default function AgendaView({ currentUser, users, onNotify }: {
     </div></div><footer className="modal-footer"><button type="button" className="button button-ghost" onClick={() => setFormOpen(false)}>Cancelar</button><button className="button button-primary" disabled={saving}>{saving ? "Salvando…" : editingId ? "Salvar alterações" : "Adicionar à agenda"}</button></footer></form></div>}
 
     {finishEntry && <div className="modal-backdrop" onMouseDown={() => setFinishEntry(null)}><section className="modal" onMouseDown={(e) => e.stopPropagation()}><header className="modal-header"><div><h2>Finalizar atividade</h2><p>O tempo decorrido será calculado automaticamente.</p></div><button className="icon-button" onClick={() => setFinishEntry(null)} aria-label="Fechar"><X size={20}/></button></header><div className="modal-body"><label className="field"><span>Resultado ou observação</span><textarea value={finishOutcome} onChange={(e) => setFinishOutcome(e.target.value)} placeholder="Descreva brevemente o que foi resolvido ou entregue."/></label></div><footer className="modal-footer"><button className="button button-ghost" onClick={() => setFinishEntry(null)}>Cancelar</button><button className="button button-primary" disabled={saving} onClick={() => void action(finishEntry, "finish", finishOutcome)}>Finalizar e registrar tempo</button></footer></section></div>}
+    <DailyLogTable currentUser={currentUser} users={users} onNotify={onNotify}
+      periodStart={dateInput(range.start)} periodEnd={dateInput(range.end)} assigneeFilter={assigneeFilter}/>
   </>;
 }
