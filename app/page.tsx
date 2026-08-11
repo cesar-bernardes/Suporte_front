@@ -399,7 +399,7 @@ export default function PortalOcorrencias() {
   const [recordSystem, setRecordSystem] = useState("all");
   const [recordModule, setRecordModule] = useState("all");
   const [recordStatus, setRecordStatus] = useState("all");
-  const [recordSeverity, setRecordSeverity] = useState("all");
+  const [recordError, setRecordError] = useState("all");
   const [recordPage, setRecordPage] = useState(1);
   const [dashPeriod, setDashPeriod] = useState("week");
   const [dashCustomStart, setDashCustomStart] = useState(() => {
@@ -735,7 +735,7 @@ export default function PortalOcorrencias() {
           (recordSystem === "all" || item.systemId === recordSystem) &&
           (recordModule === "all" || item.moduleId === recordModule) &&
           (recordStatus === "all" || item.status === recordStatus) &&
-          (recordSeverity === "all" || item.severity === recordSeverity)
+          (recordError === "all" || getCatalogName(item) === recordError)
         );
       })
       .sort(
@@ -744,6 +744,18 @@ export default function PortalOcorrencias() {
           new Date(a.occurredAt).getTime(),
       );
   })();
+
+  const recordErrorOptions = Array.from(
+    new Set(
+      visibleOccurrences
+        .filter(
+          (item) =>
+            (recordSystem === "all" || item.systemId === recordSystem) &&
+            (recordModule === "all" || item.moduleId === recordModule),
+        )
+        .map((item) => getCatalogName(item)),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
 
   const recordPageCount = Math.max(
     1,
@@ -1532,7 +1544,7 @@ export default function PortalOcorrencias() {
     setRecordSystem("all");
     setRecordModule("all");
     setRecordStatus("all");
-    setRecordSeverity("all");
+    setRecordError("all");
     setRecordPage(1);
   }
 
@@ -2560,6 +2572,7 @@ export default function PortalOcorrencias() {
                         onChange={(event) => {
                           setRecordSystem(event.target.value);
                           setRecordModule("all");
+                          setRecordError("all");
                           setRecordPage(1);
                         }}
                       >
@@ -2577,6 +2590,7 @@ export default function PortalOcorrencias() {
                         value={recordModule}
                         onChange={(event) => {
                           setRecordModule(event.target.value);
+                          setRecordError("all");
                           setRecordPage(1);
                         }}
                         disabled={recordSystem === "all"}
@@ -2612,17 +2626,18 @@ export default function PortalOcorrencias() {
                       </select>
                     </label>
                     <label>
-                      <span className="sr-only">Gravidade</span>
+                      <span className="sr-only">Erro</span>
                       <select
-                        value={recordSeverity}
+                        value={recordError}
                         onChange={(event) => {
-                          setRecordSeverity(event.target.value);
+                          setRecordError(event.target.value);
                           setRecordPage(1);
                         }}
+                        aria-label="Filtrar registros por erro"
                       >
-                        <option value="all">Todas as gravidades</option>
-                        {SEVERITIES.map((severity) => (
-                          <option key={severity}>{severity}</option>
+                        <option value="all">Todos os erros</option>
+                        {recordErrorOptions.map((errorName) => (
+                          <option key={errorName} value={errorName}>{errorName}</option>
                         ))}
                       </select>
                     </label>
