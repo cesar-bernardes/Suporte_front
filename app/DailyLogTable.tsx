@@ -3,7 +3,7 @@
 import { ClipboardList, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-type Role = "suporte" | "gestor" | "administrador";
+type Role = "suporte" | "desenvolvedor" | "administrador";
 type PortalUser = { id: string; name: string; email: string; role: Role; title: string };
 type DailyLogEntry = {
   id: string; workDate: string; time: string; activity: string; observations: string;
