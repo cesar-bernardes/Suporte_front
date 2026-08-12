@@ -7,7 +7,7 @@ import {
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import DailyLogTable from "./DailyLogTable";
 
-type Role = "suporte" | "gestor" | "administrador";
+type Role = "suporte" | "desenvolvedor" | "administrador";
 type PortalUser = { id: string; name: string; email: string; role: Role; title: string };
 type PortalClient = { id: string; name: string };
 type AgendaType = "agendado" | "inesperado" | "interno";
