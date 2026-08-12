@@ -423,6 +423,8 @@ export default function PortalOcorrencias() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [apiError, setApiError] = useState("");
   const [view, setView] = useState<View>("dashboard");
+  const [dataRefreshVersion, setDataRefreshVersion] = useState(0);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
@@ -581,13 +583,16 @@ export default function PortalOcorrencias() {
     if (!currentUser) return;
     let active = true;
     const loadUsers = async () => {
-      if (currentUser.role === "administrador") setUsersLoading(true);
-      setActionsLoading(true);
+      if (dataRefreshVersion === 0) {
+        if (currentUser.role === "administrador") setUsersLoading(true);
+        setActionsLoading(true);
+      }
       setUsersError("");
       setActionsError("");
       try {
         const occurrencesResponse = await fetch("/api/occurrences", {
           credentials: "same-origin",
+          cache: "no-store",
         });
         if (occurrencesResponse.ok) {
           const payload = (await occurrencesResponse.json()) as {
@@ -604,6 +609,7 @@ export default function PortalOcorrencias() {
         }
         const catalogResponse = await fetch("/api/catalog", {
           credentials: "same-origin",
+          cache: "no-store",
         });
         if (catalogResponse.ok) {
           const payload = (await catalogResponse.json()) as {
@@ -613,6 +619,7 @@ export default function PortalOcorrencias() {
         }
         const referenceResponse = await fetch("/api/reference-data", {
           credentials: "same-origin",
+          cache: "no-store",
         });
         if (!referenceResponse.ok) {
           const payload = (await referenceResponse.json().catch(() => ({}))) as {
@@ -638,7 +645,7 @@ export default function PortalOcorrencias() {
         }
         const assignableResponse = await fetch(
           "/api/users?scope=assignable",
-          { credentials: "same-origin" },
+          { credentials: "same-origin", cache: "no-store" },
         );
         if (assignableResponse.ok) {
           const payload = (await assignableResponse.json()) as {
@@ -648,6 +655,7 @@ export default function PortalOcorrencias() {
         }
         const developersResponse = await fetch("/api/users?scope=developers", {
           credentials: "same-origin",
+          cache: "no-store",
         });
         if (developersResponse.ok) {
           const payload = (await developersResponse.json()) as { users: PortalUser[] };
@@ -661,6 +669,7 @@ export default function PortalOcorrencias() {
         }
         const actionsResponse = await fetch("/api/catalog?scope=development-actions", {
           credentials: "same-origin",
+          cache: "no-store",
         });
         const actionsPayload = (await actionsResponse.json().catch(() => ({}))) as {
           actions?: DevelopmentAction[];
@@ -674,6 +683,7 @@ export default function PortalOcorrencias() {
         if (currentUser.role === "administrador") {
           const managedResponse = await fetch("/api/users", {
             credentials: "same-origin",
+            cache: "no-store",
           });
           const payload = (await managedResponse.json().catch(() => ({}))) as {
             users?: ManagedUser[];
@@ -703,39 +713,26 @@ export default function PortalOcorrencias() {
     return () => {
       active = false;
     };
-  }, [currentUser]);
+  }, [currentUser, dataRefreshVersion]);
 
   useEffect(() => {
-    if (!currentUser || view !== "acoes") return;
-    let active = true;
-
-    const refreshActions = async () => {
-      const response = await fetch("/api/catalog?scope=development-actions", {
-        credentials: "same-origin",
-        cache: "no-store",
-      }).catch(() => null);
-      if (!response || !active) return;
-      const payload = (await response.json().catch(() => ({}))) as {
-        actions?: DevelopmentAction[];
-        message?: string;
-      };
-      if (response.ok) {
-        setDevelopmentActions(payload.actions || []);
-        setActionsError("");
-      } else {
-        setActionsError(payload.message || "Não foi possível atualizar as ações de desenvolvimento.");
-      }
+    if (!currentUser) return;
+    const refresh = () => {
+      setCurrentTime(Date.now());
+      setDataRefreshVersion((current) => current + 1);
     };
-
-    void refreshActions();
-    const intervalId = window.setInterval(refreshActions, 30_000);
-    window.addEventListener("focus", refreshActions);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    const intervalId = window.setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
-      active = false;
       window.clearInterval(intervalId);
-      window.removeEventListener("focus", refreshActions);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
-  }, [currentUser, view]);
+  }, [currentUser]);
 
   const getClient = (id: string) =>
     clients.find((client) => client.id === id)?.name || "Cliente";
@@ -930,11 +927,11 @@ export default function PortalOcorrencias() {
   const getActionUser = (id: string) =>
     [...developerUsers, ...portalUsers, ...managedUsers].find((user) => user.id === id)?.name || "Usuário indisponível";
   const isActionOverdue = (action: DevelopmentAction) =>
-    Boolean(action.dueAt && action.status !== "Resolvida" && new Date(action.dueAt).getTime() <= Date.now());
+    Boolean(action.dueAt && action.status !== "Resolvida" && new Date(action.dueAt).getTime() <= currentTime);
   const overdueActions = developmentActions.filter(isActionOverdue);
   const selectedAction = developmentActions.find((action) => action.id === selectedActionId) || null;
   const selectedActionIsBeforeDeadline = Boolean(
-    selectedAction?.dueAt && new Date(selectedAction.dueAt).getTime() > Date.now(),
+    selectedAction?.dueAt && new Date(selectedAction.dueAt).getTime() > currentTime,
   );
   const filteredDevelopmentActions = developmentActions.filter((action) => {
     const query = normalizeText(actionSearch);
@@ -1095,6 +1092,7 @@ export default function PortalOcorrencias() {
 
   function navigate(next: View) {
     setView(next);
+    setDataRefreshVersion((current) => current + 1);
     setSidebarOpen(false);
     setProfileOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2036,7 +2034,7 @@ export default function PortalOcorrencias() {
     const timestamps = dashboardData.map((item) =>
       new Date(item.occurredAt).getTime(),
     );
-    const now = Date.now();
+    const now = currentTime;
     const startTimestamp =
       dashboardPeriodBounds.start ||
       (timestamps.length ? Math.min(...timestamps) : now);
@@ -2253,6 +2251,7 @@ export default function PortalOcorrencias() {
               users={portalUsers}
               clients={clients}
               onNotify={setToast}
+              refreshVersion={dataRefreshVersion}
             />
           )}
 

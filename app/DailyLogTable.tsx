@@ -1,7 +1,7 @@
 "use client";
 
 import { ClipboardList, Plus, Save, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Role = "suporte" | "desenvolvedor" | "administrador";
 type PortalUser = { id: string; name: string; email: string; role: Role; title: string };
@@ -15,45 +15,63 @@ function emptyDraft(userId: string, date: string): DailyLogDraft {
   return { workDate: date, time: "08:00", activity: "", observations: "", actions: "", assigneeId: userId };
 }
 
-export default function DailyLogTable({ currentUser, users, onNotify, periodStart, periodEnd, assigneeFilter }: {
+export default function DailyLogTable({ currentUser, users, onNotify, periodStart, periodEnd, assigneeFilter, refreshVersion }: {
   currentUser: PortalUser; users: PortalUser[]; onNotify: (message: string) => void;
   periodStart: string; periodEnd: string; assigneeFilter: string;
+  refreshVersion: number;
 }) {
   const [entries, setEntries] = useState<DailyLogEntry[]>([]);
   const [drafts, setDrafts] = useState<Record<string, DailyLogDraft>>({});
+  const [dirtyRows, setDirtyRows] = useState<Set<string>>(() => new Set());
+  const dirtyRowsRef = useRef(dirtyRows);
   const [newEntry, setNewEntry] = useState(() => emptyDraft(currentUser.id, periodStart));
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  async function request<T>(url: string, init: RequestInit = {}) {
+  const request = useCallback(async function request<T>(url: string, init: RequestInit = {}) {
     const headers = new Headers(init.headers);
     if (init.body) headers.set("Content-Type", "application/json");
     const response = await fetch(url, { ...init, headers, credentials: "same-origin" });
     const payload = await response.json().catch(() => ({})) as T & { message?: string };
     if (!response.ok) throw new Error(payload.message || "Não foi possível concluir a operação.");
     return payload;
-  }
-
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    void request<{ entries: DailyLogEntry[] }>("/api/daily-log")
-      .then(({ entries: loaded }) => {
-        if (!active) return;
-        setEntries(loaded);
-        setDrafts(Object.fromEntries(loaded.map((entry) => [entry.id, {
-          workDate: entry.workDate, time: entry.time, activity: entry.activity,
-          observations: entry.observations, actions: entry.actions, assigneeId: entry.assigneeId,
-        }])));
-      })
-      .catch((reason) => active && setError(reason instanceof Error ? reason.message : "Não foi possível carregar o diário."))
-      .finally(() => active && setLoading(false));
-    return () => { active = false; };
   }, []);
 
   useEffect(() => {
-    setNewEntry((current) => current.activity || current.observations || current.actions ? current : { ...current, workDate: periodStart });
+    dirtyRowsRef.current = dirtyRows;
+  }, [dirtyRows]);
+
+  useEffect(() => {
+    let active = true;
+    const load = (background = false) => {
+      if (!background) setLoading(true);
+      void request<{ entries: DailyLogEntry[] }>("/api/daily-log")
+      .then(({ entries: loaded }) => {
+        if (!active) return;
+        setEntries(loaded);
+        setDrafts((current) => Object.fromEntries(loaded.map((entry) => [entry.id,
+          dirtyRowsRef.current.has(entry.id) && current[entry.id] ? current[entry.id] : {
+            workDate: entry.workDate, time: entry.time, activity: entry.activity,
+            observations: entry.observations, actions: entry.actions, assigneeId: entry.assigneeId,
+          },
+        ])));
+      })
+      .catch((reason) => active && setError(reason instanceof Error ? reason.message : "Não foi possível carregar o diário."))
+      .finally(() => active && !background && setLoading(false));
+    };
+    const timer = window.setTimeout(() => load(refreshVersion > 0), 0);
+    return () => {
+      window.clearTimeout(timer);
+      active = false;
+    };
+  }, [refreshVersion, request]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setNewEntry((current) => current.activity || current.observations || current.actions ? current : { ...current, workDate: periodStart });
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [periodStart]);
 
   const visibleEntries = useMemo(() => entries
@@ -63,6 +81,7 @@ export default function DailyLogTable({ currentUser, users, onNotify, periodStar
   [entries, periodStart, periodEnd, assigneeFilter]);
 
   function change(id: string, field: keyof DailyLogDraft, value: string) {
+    setDirtyRows((current) => new Set(current).add(id));
     setDrafts((current) => ({ ...current, [id]: { ...current[id], [field]: value } }));
   }
 
@@ -86,6 +105,7 @@ export default function DailyLogTable({ currentUser, users, onNotify, periodStar
       const { entry } = await request<{ entry: DailyLogEntry }>("/api/daily-log", { method: "PATCH", body: JSON.stringify({ id, ...draft }) });
       setEntries((current) => current.map((item) => item.id === id ? entry : item));
       setDrafts((current) => ({ ...current, [id]: { ...draft } }));
+      setDirtyRows((current) => { const next = new Set(current); next.delete(id); return next; });
       onNotify("Linha do diário atualizada.");
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Não foi possível salvar a linha."); }
     finally { setSavingId(null); }
@@ -98,6 +118,7 @@ export default function DailyLogTable({ currentUser, users, onNotify, periodStar
       await request(`/api/daily-log?id=${encodeURIComponent(entry.id)}`, { method: "DELETE" });
       setEntries((current) => current.filter((item) => item.id !== entry.id));
       setDrafts((current) => { const next = { ...current }; delete next[entry.id]; return next; });
+      setDirtyRows((current) => { const next = new Set(current); next.delete(entry.id); return next; });
       onNotify("Atividade removida da visualização. O histórico foi preservado.");
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Não foi possível remover a atividade."); }
     finally { setSavingId(null); }

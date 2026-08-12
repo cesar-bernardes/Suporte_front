@@ -4,7 +4,7 @@ import {
   AlertTriangle, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight,
   Clock3, Pencil, Play, Plus, Search, Square, Trash2, UserRound, X,
 } from "lucide-react";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import DailyLogTable from "./DailyLogTable";
 
 type Role = "suporte" | "desenvolvedor" | "administrador";
@@ -56,9 +56,10 @@ function durationLabel(minutes: number | null) {
   return rest ? `${hours}h ${rest}min` : `${hours}h`;
 }
 
-export default function AgendaView({ currentUser, users, clients, onNotify }: {
+export default function AgendaView({ currentUser, users, clients, onNotify, refreshVersion }: {
   currentUser: PortalUser; users: PortalUser[]; clients: PortalClient[];
   onNotify: (message: string) => void;
+  refreshVersion: number;
 }) {
   const [entries, setEntries] = useState<AgendaEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,24 +77,28 @@ export default function AgendaView({ currentUser, users, clients, onNotify }: {
   const [finishEntry, setFinishEntry] = useState<AgendaEntry | null>(null);
   const [finishOutcome, setFinishOutcome] = useState("");
 
-  async function request<T>(url: string, init: RequestInit = {}) {
+  const request = useCallback(async function request<T>(url: string, init: RequestInit = {}) {
     const headers = new Headers(init.headers);
     if (init.body) headers.set("Content-Type", "application/json");
     const response = await fetch(url, { ...init, headers, credentials: "same-origin" });
     const payload = await response.json().catch(() => ({})) as T & { message?: string };
     if (!response.ok) throw new Error(payload.message || "Não foi possível concluir a operação.");
     return payload;
-  }
+  }, []);
 
-  async function load() {
-    setLoading(true); setError("");
+  const load = useCallback(async (background = false) => {
+    if (!background) setLoading(true);
+    setError("");
     try { const payload = await request<{ entries: AgendaEntry[] }>("/api/agenda"); setEntries(payload.entries); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Não foi possível carregar a agenda."); }
-    finally { setLoading(false); }
-  }
-  useEffect(() => { void load(); }, []);
+    finally { if (!background) setLoading(false); }
+  }, [request]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void load(refreshVersion > 0), 0);
+    return () => window.clearTimeout(timer);
+  }, [load, refreshVersion]);
 
-  const selected = new Date(`${selectedDate}T12:00:00`);
+  const selected = useMemo(() => new Date(`${selectedDate}T12:00:00`), [selectedDate]);
   const range = useMemo(() => {
     if (mode === "day") return { start: startOfDay(selected), end: addDays(startOfDay(selected), 1) };
     if (mode === "week") {
@@ -102,7 +107,7 @@ export default function AgendaView({ currentUser, users, clients, onNotify }: {
     }
     const start = new Date(selected.getFullYear(), selected.getMonth(), 1);
     return { start, end: new Date(selected.getFullYear(), selected.getMonth() + 1, 1) };
-  }, [selectedDate, mode]);
+  }, [selected, mode]);
 
   const filtered = entries.filter((entry) => {
     const moment = Date.parse(entry.scheduledStart || entry.actualStart || entry.createdAt);
@@ -115,14 +120,14 @@ export default function AgendaView({ currentUser, users, clients, onNotify }: {
   });
   const plannedMinutes = filtered.filter((e) => e.status !== "cancelado").reduce((sum, e) => sum + (e.estimatedMinutes || 0), 0);
   const actualMinutes = filtered.reduce((sum, e) => sum + (duration(e) || 0), 0);
-  const overlapping = useMemo(() => new Set(filtered.filter((entry, index) => {
+  const overlapping = new Set(filtered.filter((entry, index) => {
     if (!entry.scheduledStart || !entry.estimatedMinutes || entry.status === "cancelado") return false;
     const start = Date.parse(entry.scheduledStart); const end = start + entry.estimatedMinutes * 60_000;
     return filtered.some((other, otherIndex) => {
       if (index === otherIndex || other.assigneeId !== entry.assigneeId || !other.scheduledStart || !other.estimatedMinutes || other.status === "cancelado") return false;
       const otherStart = Date.parse(other.scheduledStart); return start < otherStart + other.estimatedMinutes * 60_000 && end > otherStart;
     });
-  }).map((entry) => entry.id)), [filtered]);
+  }).map((entry) => entry.id));
 
   function openNew(internal = false) {
     setEditingId(null); setDraft(emptyDraft(currentUser.id, clients[0]?.id || "", internal)); setFormOpen(true); setError("");
@@ -211,6 +216,7 @@ export default function AgendaView({ currentUser, users, clients, onNotify }: {
 
     {finishEntry && <div className="modal-backdrop" onMouseDown={() => setFinishEntry(null)}><section className="modal" onMouseDown={(e) => e.stopPropagation()}><header className="modal-header"><div><h2>Finalizar atividade</h2><p>O tempo decorrido será calculado automaticamente.</p></div><button className="icon-button" onClick={() => setFinishEntry(null)} aria-label="Fechar"><X size={20}/></button></header><div className="modal-body"><label className="field"><span>Resultado ou observação</span><textarea value={finishOutcome} onChange={(e) => setFinishOutcome(e.target.value)} placeholder="Descreva brevemente o que foi resolvido ou entregue."/></label></div><footer className="modal-footer"><button className="button button-ghost" onClick={() => setFinishEntry(null)}>Cancelar</button><button className="button button-primary" disabled={saving} onClick={() => void action(finishEntry, "finish", finishOutcome)}>Finalizar e registrar tempo</button></footer></section></div>}
     <DailyLogTable currentUser={currentUser} users={users} onNotify={onNotify}
+      refreshVersion={refreshVersion}
       periodStart={dateInput(range.start)} periodEnd={dateInput(range.end)} assigneeFilter={assigneeFilter}/>
   </>;
 }
