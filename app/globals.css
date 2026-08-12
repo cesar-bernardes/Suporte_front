@@ -2323,6 +2323,93 @@ td small {
   font-size: 1.1rem;
 }
 
+.development-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.development-deadline-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  padding: 14px 16px;
+  border: 1px solid #f6c36b;
+  border-radius: 12px;
+  background: #fff8e8;
+  color: #9a5700;
+}
+
+.development-deadline-alert div {
+  display: grid;
+  gap: 2px;
+}
+
+.development-deadline-alert span {
+  font-size: 0.76rem;
+}
+
+.development-actions-card {
+  overflow: hidden;
+}
+
+.development-actions-card td small {
+  display: block;
+  max-width: 370px;
+  margin-top: 4px;
+  color: var(--text-soft);
+}
+
+.table-primary-link {
+  border: 0;
+  background: transparent;
+  color: var(--blue-700);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.deadline-row {
+  background: #fffaf0;
+}
+
+.deadline-text {
+  color: #b45309;
+  font-weight: 800;
+}
+
+.metric-red {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.development-action-detail {
+  display: grid;
+  gap: 20px;
+}
+
+.development-evidence-section,
+.development-workflow-panel {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.development-evidence-section h3,
+.development-workflow-panel h3 {
+  margin: 0 0 14px;
+  color: var(--navy-900);
+}
+
+.development-workflow-panel > .button {
+  margin-top: 14px;
+}
+
+.validation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .permission-note {
   display: flex;
   align-items: center;
@@ -2480,7 +2567,7 @@ td small {
   color: #356b9b;
 }
 
-.badge-gestor {
+.badge-desenvolvedor {
   background: #f2edff;
   color: #6a50a0;
 }
@@ -3308,6 +3395,9 @@ td small {
 }
 
 @media (max-width: 960px) {
+  .development-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .sidebar {
     width: 264px;
     transform: translateX(-100%);
@@ -3345,6 +3435,17 @@ td small {
   .topbar-context {
     margin-right: auto;
     margin-left: 8px;
+  }
+}
+
+@media (max-width: 620px) {
+  .development-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .validation-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 
