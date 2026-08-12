@@ -1231,7 +1231,7 @@ export default function PortalOcorrencias() {
     const form = new FormData();
     form.append("occurrenceId", occurrenceId);
     editEvidenceFiles.forEach((file) => form.append("files", file));
-    const response = await fetch("/api/occurrences/evidence", {
+    const response = await fetch("/api/occurrences", {
       method: "POST",
       credentials: "same-origin",
       body: form,
@@ -3724,7 +3724,7 @@ export default function PortalOcorrencias() {
                               <a
                                 className="icon-button"
                                 aria-label={"Ver " + evidenceName(file)}
-                                href={`/api/occurrences/evidence?occurrenceId=${encodeURIComponent(currentOccurrence.id)}&path=${encodeURIComponent(file)}`}
+                                href={`/api/occurrences?evidence=1&occurrenceId=${encodeURIComponent(currentOccurrence.id)}&path=${encodeURIComponent(file)}`}
                                 target="_blank"
                                 rel="noreferrer"
                               >
