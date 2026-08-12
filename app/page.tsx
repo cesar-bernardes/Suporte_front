@@ -13,6 +13,7 @@ import {
   ChevronRight,
   CircleAlert,
   ClipboardList,
+  Code2,
   Clock3,
   Eye,
   EyeOff,
@@ -50,7 +51,7 @@ import {
 } from "react";
 import AgendaView from "./AgendaView";
 
-type Role = "suporte" | "gestor" | "administrador";
+type Role = "suporte" | "desenvolvedor" | "administrador";
 type Severity = "Baixa" | "Média" | "Alta" | "Crítica";
 type OccurrenceStatus =
   | "Novo"
@@ -64,6 +65,7 @@ type View =
   | "novo"
   | "detalhe"
   | "agenda"
+  | "acoes"
   | "catalogo"
   | "usuarios";
 
@@ -115,6 +117,33 @@ type Occurrence = {
   updatedAt: string;
 };
 
+type DevelopmentActionStatus =
+  | "Encaminhada"
+  | "Em análise"
+  | "Em desenvolvimento"
+  | "Aguardando validação"
+  | "Resolvida";
+
+type DevelopmentAction = {
+  id: string;
+  number: string;
+  title: string;
+  problemDescription: string;
+  actionPlan: string;
+  analysisInformation: string;
+  identifiedAt: string;
+  supportId: string;
+  developerId: string;
+  dueAt: string | null;
+  status: DevelopmentActionStatus;
+  developerNotes: string;
+  resolutionNotes: string;
+  evidencePaths: string[];
+  resolvedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 const STATUS_OPTIONS: OccurrenceStatus[] = [
   "Novo",
   "Em análise",
@@ -122,11 +151,18 @@ const STATUS_OPTIONS: OccurrenceStatus[] = [
   "Resolvido",
   "Cancelado",
 ];
+const DEVELOPMENT_STATUS_OPTIONS: DevelopmentActionStatus[] = [
+  "Encaminhada",
+  "Em análise",
+  "Em desenvolvimento",
+  "Aguardando validação",
+  "Resolvida",
+];
 const SEVERITIES: Severity[] = ["Baixa", "Média", "Alta", "Crítica"];
 
 const roleLabel: Record<Role, string> = {
   suporte: "Suporte",
-  gestor: "Gestor",
+  desenvolvedor: "Desenvolvedor",
   administrador: "Administrador",
 };
 
@@ -137,7 +173,11 @@ const rolePermissions: Record<Role, string[]> = {
     "Atualizar ocorrências próprias",
     "Manter o Catálogo",
   ],
-  gestor: ["Dashboard completo", "Gerenciar ocorrências", "Manter o Catálogo"],
+  desenvolvedor: [
+    "Visualizar ações atribuídas",
+    "Definir previsão de resolução",
+    "Atualizar andamento e enviar para validação",
+  ],
   administrador: [
     "Acesso completo",
     "Manter o Catálogo",
@@ -458,6 +498,30 @@ export default function PortalOcorrencias() {
     name: string;
   } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [developmentActions, setDevelopmentActions] = useState<DevelopmentAction[]>([]);
+  const [developerUsers, setDeveloperUsers] = useState<PortalUser[]>([]);
+  const [actionsLoading, setActionsLoading] = useState(false);
+  const [actionsError, setActionsError] = useState("");
+  const [actionStatusFilter, setActionStatusFilter] = useState("all");
+  const [actionSearch, setActionSearch] = useState("");
+  const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
+  const [actionModalOpen, setActionModalOpen] = useState(false);
+  const [actionEvidenceFiles, setActionEvidenceFiles] = useState<File[]>([]);
+  const [actionFormError, setActionFormError] = useState("");
+  const [actionDraft, setActionDraft] = useState({
+    title: "",
+    problemDescription: "",
+    actionPlan: "",
+    analysisInformation: "",
+    identifiedAt: "",
+    developerId: "",
+  });
+  const [developerActionDraft, setDeveloperActionDraft] = useState({
+    dueAt: "",
+    status: "Em análise" as DevelopmentActionStatus,
+    developerNotes: "",
+  });
+  const [validationNotes, setValidationNotes] = useState("");
   const [newForm, setNewForm] = useState({
     clientId: "",
     systemId: "",
@@ -483,6 +547,7 @@ export default function PortalOcorrencias() {
       .then((payload) => {
         if (active && payload?.user) {
           setCurrentUser(payload.user);
+          if (payload.user.role === "desenvolvedor") setView("acoes");
           setPortalUsers((current) =>
             current.some((user) => user.id === payload.user.id)
               ? current.map((user) =>
@@ -518,7 +583,9 @@ export default function PortalOcorrencias() {
     let active = true;
     const loadUsers = async () => {
       if (currentUser.role === "administrador") setUsersLoading(true);
+      setActionsLoading(true);
       setUsersError("");
+      setActionsError("");
       try {
         const occurrencesResponse = await fetch("/api/occurrences", {
           credentials: "same-origin",
@@ -580,6 +647,31 @@ export default function PortalOcorrencias() {
           };
           if (active) setPortalUsers(payload.users);
         }
+        const developersResponse = await fetch("/api/users?scope=developers", {
+          credentials: "same-origin",
+        });
+        if (developersResponse.ok) {
+          const payload = (await developersResponse.json()) as { users: PortalUser[] };
+          if (active) {
+            setDeveloperUsers(payload.users);
+            setActionDraft((current) => ({
+              ...current,
+              developerId: current.developerId || payload.users[0]?.id || "",
+            }));
+          }
+        }
+        const actionsResponse = await fetch("/api/development-actions", {
+          credentials: "same-origin",
+        });
+        const actionsPayload = (await actionsResponse.json().catch(() => ({}))) as {
+          actions?: DevelopmentAction[];
+          message?: string;
+        };
+        if (actionsResponse.ok) {
+          if (active) setDevelopmentActions(actionsPayload.actions || []);
+        } else if (active) {
+          setActionsError(actionsPayload.message || "Não foi possível carregar as ações de desenvolvimento.");
+        }
         if (currentUser.role === "administrador") {
           const managedResponse = await fetch("/api/users", {
             credentials: "same-origin",
@@ -602,7 +694,10 @@ export default function PortalOcorrencias() {
           );
         }
       } finally {
-        if (active) setUsersLoading(false);
+        if (active) {
+          setUsersLoading(false);
+          setActionsLoading(false);
+        }
       }
     };
     void loadUsers();
@@ -801,6 +896,137 @@ export default function PortalOcorrencias() {
   const catalogUsage = (id: string) =>
     visibleOccurrences.filter((item) => item.catalogItemId === id).length;
 
+  const getActionUser = (id: string) =>
+    [...developerUsers, ...portalUsers, ...managedUsers].find((user) => user.id === id)?.name || "Usuário indisponível";
+  const isActionOverdue = (action: DevelopmentAction) =>
+    Boolean(action.dueAt && action.status !== "Resolvida" && new Date(action.dueAt).getTime() <= Date.now());
+  const overdueActions = developmentActions.filter(isActionOverdue);
+  const selectedAction = developmentActions.find((action) => action.id === selectedActionId) || null;
+  const filteredDevelopmentActions = developmentActions.filter((action) => {
+    const query = normalizeText(actionSearch);
+    const searchable = normalizeText([
+      action.number, action.title, action.problemDescription,
+      getActionUser(action.developerId), action.status,
+    ].join(" "));
+    return (!query || searchable.includes(query)) &&
+      (actionStatusFilter === "all" || action.status === actionStatusFilter);
+  });
+
+  function openNewDevelopmentAction() {
+    setActionDraft({
+      title: "", problemDescription: "", actionPlan: "", analysisInformation: "",
+      identifiedAt: toDateTimeLocal(new Date()), developerId: developerUsers[0]?.id || "",
+    });
+    setActionEvidenceFiles([]);
+    setActionFormError("");
+    setActionModalOpen(true);
+  }
+
+  function handleActionEvidence(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    const allowed = files.filter((file) =>
+      /image\/(png|jpeg|webp)/.test(file.type) || file.type === "video/mp4" ||
+      file.type === "text/plain" || file.type === "application/pdf",
+    );
+    if (allowed.length !== files.length) {
+      setActionFormError("Use PNG, JPG, WEBP, MP4, PDF ou TXT.");
+      return;
+    }
+    if (allowed.length > 5 || allowed.some((file) => file.size > 10 * 1024 * 1024)) {
+      setActionFormError("Envie até 5 arquivos de no máximo 10 MB cada.");
+      return;
+    }
+    setActionEvidenceFiles(allowed);
+    setActionFormError("");
+  }
+
+  async function uploadDevelopmentEvidence(actionId: string, files: File[]) {
+    if (!files.length) return null;
+    const form = new FormData();
+    form.append("actionId", actionId);
+    files.forEach((file) => form.append("files", file));
+    const response = await fetch("/api/development-actions/evidence", {
+      method: "POST", credentials: "same-origin", body: form,
+    });
+    const payload = (await response.json().catch(() => ({}))) as { action?: DevelopmentAction; message?: string };
+    if (!response.ok || !payload.action) throw new Error(payload.message || "Não foi possível enviar as evidências.");
+    return payload.action;
+  }
+
+  async function createDevelopmentAction() {
+    setActionFormError("");
+    if (!actionDraft.developerId) {
+      setActionFormError("Cadastre e selecione um Desenvolvedor ativo.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/development-actions", {
+        method: "POST", body: JSON.stringify(actionDraft),
+      });
+      let action = payload.action;
+      setDevelopmentActions((current) => [action, ...current]);
+      if (actionEvidenceFiles.length) {
+        action = (await uploadDevelopmentEvidence(action.id, actionEvidenceFiles)) || action;
+        setDevelopmentActions((current) => current.map((item) => item.id === action.id ? action : item));
+      }
+      setActionModalOpen(false);
+      setSelectedActionId(action.id);
+      setToast("Ação encaminhada ao Desenvolvedor.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "Não foi possível criar a ação.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openDevelopmentAction(action: DevelopmentAction) {
+    setSelectedActionId(action.id);
+    setValidationNotes(action.resolutionNotes);
+    setDeveloperActionDraft({
+      dueAt: action.dueAt ? toDateTimeLocal(new Date(action.dueAt)) : "",
+      status: action.status === "Encaminhada" ? "Em análise" : action.status === "Resolvida" ? "Em análise" : action.status,
+      developerNotes: action.developerNotes,
+    });
+    setActionFormError("");
+  }
+
+  async function saveDeveloperAction() {
+    if (!selectedAction) return;
+    setSaving(true);
+    setActionFormError("");
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/development-actions", {
+        method: "PATCH",
+        body: JSON.stringify({ id: selectedAction.id, ...developerActionDraft }),
+      });
+      setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
+      setToast("Previsão e andamento salvos.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "Não foi possível atualizar a ação.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function validateDevelopmentAction(validation: "resolved" | "reopen") {
+    if (!selectedAction) return;
+    setSaving(true);
+    setActionFormError("");
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/development-actions", {
+        method: "PATCH",
+        body: JSON.stringify({ id: selectedAction.id, validation, resolutionNotes: validationNotes }),
+      });
+      setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
+      setToast(validation === "resolved" ? "Ação resolvida e encerrada." : "Ação reaberta para nova previsão.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "Não foi possível validar a ação.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function navigate(next: View) {
     setView(next);
     setSidebarOpen(false);
@@ -839,7 +1065,7 @@ export default function PortalOcorrencias() {
         ...current,
         responsibleId: payload.user.id,
       }));
-      setView("dashboard");
+      setView(payload.user.role === "desenvolvedor" ? "acoes" : "dashboard");
       setApiError("");
     } catch (error) {
       setLoginError(
@@ -1797,15 +2023,18 @@ export default function PortalOcorrencias() {
     : "";
   const dailyLabelStep = Math.max(1, Math.ceil(dailyEvolution.length / 7));
 
-  const navItems = [
-    { id: "dashboard" as View, label: "Dashboard", icon: LayoutDashboard },
-    { id: "registros" as View, label: "Registro", icon: ClipboardList },
-    { id: "agenda" as View, label: "Agenda", icon: CalendarDays },
-    { id: "catalogo" as View, label: "Catálogo", icon: BookOpenCheck },
-    ...(currentUser.role === "administrador"
-      ? [{ id: "usuarios" as View, label: "Usuários", icon: UsersRound }]
-      : []),
-  ];
+  const navItems = currentUser.role === "desenvolvedor"
+    ? [{ id: "acoes" as View, label: "Ações para Desenvolvedores", icon: Code2 }]
+    : [
+        { id: "dashboard" as View, label: "Dashboard", icon: LayoutDashboard },
+        { id: "registros" as View, label: "Registro", icon: ClipboardList },
+        { id: "agenda" as View, label: "Agenda", icon: CalendarDays },
+        { id: "acoes" as View, label: "Ações para Desenvolvedores", icon: Code2 },
+        { id: "catalogo" as View, label: "Catálogo", icon: BookOpenCheck },
+        ...(currentUser.role === "administrador"
+          ? [{ id: "usuarios" as View, label: "Usuários", icon: UsersRound }]
+          : []),
+      ];
 
   return (
     <div className="portal-shell">
@@ -1843,6 +2072,11 @@ export default function PortalOcorrencias() {
                 {item.id === "registros" && (
                   <small>{visibleOccurrences.length}</small>
                 )}
+                {item.id === "acoes" && (
+                  <small>{currentUser.role === "desenvolvedor"
+                    ? developmentActions.filter((action) => action.status !== "Resolvida").length
+                    : overdueActions.length}</small>
+                )}
               </button>
             );
           })}
@@ -1852,8 +2086,11 @@ export default function PortalOcorrencias() {
             <Activity size={18} />
           </span>
           <p>
-            <strong>{dashboardOpen} em acompanhamento</strong>
-            na semana atual
+            {currentUser.role === "desenvolvedor" ? (
+              <><strong>{developmentActions.filter((action) => action.status !== "Resolvida").length} ações abertas</strong>atribuídas a você</>
+            ) : (
+              <><strong>{overdueActions.length} prazos atingidos</strong>aguardando verificação</>
+            )}
           </p>
         </div>
         <div className="sidebar-footer">
@@ -1951,6 +2188,93 @@ export default function PortalOcorrencias() {
               clients={clients}
               onNotify={setToast}
             />
+          )}
+
+          {view === "acoes" && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">Desenvolvimento</span>
+                  <h1>Ações para Desenvolvedores</h1>
+                  <p>Acompanhe encaminhamentos, previsões, prazos e validações das correções.</p>
+                </div>
+                {currentUser.role !== "desenvolvedor" && (
+                  <button className="button button-primary" onClick={openNewDevelopmentAction}>
+                    <Plus size={18} /> Nova ação
+                  </button>
+                )}
+              </div>
+
+              {currentUser.role !== "desenvolvedor" && overdueActions.length > 0 && (
+                <div className="development-deadline-alert" role="alert">
+                  <AlertTriangle size={22} />
+                  <div>
+                    <strong>{overdueActions.length} {overdueActions.length === 1 ? "prazo foi atingido" : "prazos foram atingidos"}</strong>
+                    <span>Verifique com o Desenvolvedor e valide se o problema foi solucionado.</span>
+                  </div>
+                </div>
+              )}
+
+              <section className="catalog-summary development-summary">
+                <div>
+                  <span className="metric-icon metric-blue"><Code2 size={20} /></span>
+                  <p><strong>{developmentActions.filter((action) => action.status !== "Resolvida").length}</strong>ações abertas</p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-amber"><Clock3 size={20} /></span>
+                  <p><strong>{developmentActions.filter((action) => !action.dueAt && action.status !== "Resolvida").length}</strong>sem previsão</p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span>
+                  <p><strong>{developmentActions.filter((action) => action.status === "Aguardando validação").length}</strong>aguardando validação</p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-red"><AlertTriangle size={20} /></span>
+                  <p><strong>{overdueActions.length}</strong>prazo atingido</p>
+                </div>
+              </section>
+
+              {actionsError && <div className="users-error" role="alert"><CircleAlert size={18} /><span>{actionsError}</span></div>}
+              <section className="card records-card development-actions-card">
+                <div className="records-toolbar">
+                  <label className="search-control">
+                    <Search size={18} />
+                    <input value={actionSearch} onChange={(event) => setActionSearch(event.target.value)} placeholder="Buscar ação, problema ou Desenvolvedor" aria-label="Buscar ações" />
+                  </label>
+                  <label>
+                    <span className="sr-only">Status da ação</span>
+                    <select value={actionStatusFilter} onChange={(event) => setActionStatusFilter(event.target.value)}>
+                      <option value="all">Todos os status</option>
+                      {DEVELOPMENT_STATUS_OPTIONS.map((status) => <option key={status}>{status}</option>)}
+                    </select>
+                  </label>
+                </div>
+                {actionsLoading ? (
+                  <div className="users-loading"><span className="spinner" />Carregando ações…</div>
+                ) : filteredDevelopmentActions.length === 0 ? (
+                  <div className="empty-state"><Code2 size={32} /><h3>Nenhuma ação encontrada</h3><p>Os encaminhamentos aparecerão aqui.</p></div>
+                ) : (
+                  <div className="table-wrap">
+                    <table>
+                      <thead><tr><th>Ação</th><th>Problema</th><th>Desenvolvedor</th><th>Registrado em</th><th>Previsão</th><th>Status</th><th /></tr></thead>
+                      <tbody>
+                        {filteredDevelopmentActions.map((action) => (
+                          <tr key={action.id} className={isActionOverdue(action) ? "deadline-row" : undefined}>
+                            <td><button className="table-primary-link" onClick={() => openDevelopmentAction(action)}>{action.number}</button></td>
+                            <td><strong>{action.title}</strong><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "…" : ""}</small></td>
+                            <td>{getActionUser(action.developerId)}</td>
+                            <td>{formatDate(action.identifiedAt)}</td>
+                            <td className={isActionOverdue(action) ? "deadline-text" : undefined}>{action.dueAt ? formatDate(action.dueAt) : "Aguardando definição"}</td>
+                            <td><span className="badge">{isActionOverdue(action) ? "Prazo atingido" : action.status}</span></td>
+                            <td><button className="icon-button" onClick={() => openDevelopmentAction(action)} aria-label={`Abrir ${action.number}`}><Eye size={17} /></button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            </>
           )}
 
           {view === "dashboard" && (
@@ -3575,7 +3899,7 @@ export default function PortalOcorrencias() {
                 <div className="permission-note">
                   <ShieldCheck size={18} />
                   Você tem acesso de consulta. A manutenção do Catálogo é
-                  reservada aos perfis Gestor e Administrador.
+                  reservada ao perfil Administrador.
                 </div>
               )}
               <section className="card records-card">
@@ -3796,7 +4120,7 @@ export default function PortalOcorrencias() {
                       >
                         <option value="all">Todos os perfis</option>
                         <option value="suporte">Suporte</option>
-                        <option value="gestor">Gestor</option>
+                        <option value="desenvolvedor">Desenvolvedor</option>
                         <option value="administrador">Administrador</option>
                       </select>
                     </label>
@@ -3925,6 +4249,142 @@ export default function PortalOcorrencias() {
           )}
         </main>
       </div>
+
+      {actionModalOpen && currentUser.role !== "desenvolvedor" && (
+        <Modal
+          title="Nova ação para Desenvolvedor"
+          description="Encaminhe o problema com contexto suficiente para análise e correção."
+          size="large"
+          onClose={() => setActionModalOpen(false)}
+          footer={
+            <>
+              <button className="button button-ghost" onClick={() => setActionModalOpen(false)}>Cancelar</button>
+              <button className="button button-primary" onClick={createDevelopmentAction} disabled={saving}>
+                {saving ? <span className="spinner" /> : <Code2 size={17} />}
+                {saving ? "Encaminhando…" : "Encaminhar ação"}
+              </button>
+            </>
+          }
+        >
+          <div className="form-grid">
+            <label className="field field-span-2">
+              <span>Título da ação <b>*</b></span>
+              <input value={actionDraft.title} onChange={(event) => setActionDraft({ ...actionDraft, title: event.target.value.slice(0, 120) })} placeholder="Resumo objetivo do problema" />
+            </label>
+            <label className="field field-span-2">
+              <span>Descrição do problema <b>*</b></span>
+              <textarea rows={5} value={actionDraft.problemDescription} onChange={(event) => setActionDraft({ ...actionDraft, problemDescription: event.target.value.slice(0, 3000) })} placeholder="Explique o comportamento atual, impacto e como reproduzir" />
+            </label>
+            <label className="field field-span-2">
+              <span>Plano de ação <b>*</b></span>
+              <textarea rows={4} value={actionDraft.actionPlan} onChange={(event) => setActionDraft({ ...actionDraft, actionPlan: event.target.value.slice(0, 3000) })} placeholder="Descreva o que precisa ser analisado, corrigido ou entregue" />
+            </label>
+            <label className="field field-span-2">
+              <span>Informações para análise</span>
+              <textarea rows={4} value={actionDraft.analysisInformation} onChange={(event) => setActionDraft({ ...actionDraft, analysisInformation: event.target.value.slice(0, 3000) })} placeholder="Ambiente, cliente, passos, mensagens, versões e demais detalhes" />
+            </label>
+            <label className="field">
+              <span>Data e horário da identificação <b>*</b></span>
+              <input type="datetime-local" value={actionDraft.identifiedAt} onChange={(event) => setActionDraft({ ...actionDraft, identifiedAt: event.target.value })} />
+            </label>
+            <label className="field">
+              <span>Desenvolvedor responsável <b>*</b></span>
+              <select value={actionDraft.developerId} onChange={(event) => setActionDraft({ ...actionDraft, developerId: event.target.value })}>
+                <option value="">Selecione</option>
+                {developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}
+              </select>
+              {developerUsers.length === 0 && <small className="field-help">Crie primeiro uma conta com o perfil Desenvolvedor na aba Usuários.</small>}
+            </label>
+            <div className="field field-span-2">
+              <span>Evidências do problema</span>
+              <label className="upload-zone">
+                <UploadCloud size={24} />
+                <strong>Selecionar evidências</strong>
+                <span>Até 5 arquivos · PNG, JPG, WEBP, MP4, PDF ou TXT · máximo 10 MB</span>
+                <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.mp4,.pdf,.txt" onChange={handleActionEvidence} />
+              </label>
+              {actionEvidenceFiles.length > 0 && (
+                <div className="attachment-list">
+                  {actionEvidenceFiles.map((file) => (
+                    <span key={file.name + file.lastModified}><Paperclip size={15} />{file.name}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+            {actionFormError && <div className="form-alert field-span-2" role="alert">{actionFormError}</div>}
+          </div>
+        </Modal>
+      )}
+
+      {selectedAction && (
+        <Modal
+          title={`${selectedAction.number} · ${selectedAction.title}`}
+          description="Detalhes, prazo e acompanhamento da ação encaminhada."
+          size="large"
+          onClose={() => setSelectedActionId(null)}
+          footer={<button className="button button-ghost" onClick={() => setSelectedActionId(null)}>Fechar</button>}
+        >
+          <div className="development-action-detail">
+            {isActionOverdue(selectedAction) && (
+              <div className="development-deadline-alert" role="alert">
+                <AlertTriangle size={20} /><div><strong>Prazo atingido</strong><span>Esta ação precisa ser verificada.</span></div>
+              </div>
+            )}
+            <dl className="detail-grid">
+              <div><dt>Status</dt><dd><span className="badge">{selectedAction.status}</span></dd></div>
+              <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
+              <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
+              <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>
+              <div><dt>Previsão de resolução</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda não definida"}</dd></div>
+              <div><dt>Encerrado em</dt><dd>{selectedAction.resolvedAt ? formatDate(selectedAction.resolvedAt) : "—"}</dd></div>
+              <div className="detail-span-2"><dt>Descrição do problema</dt><dd className="detail-description">{selectedAction.problemDescription}</dd></div>
+              <div className="detail-span-2"><dt>Plano de ação</dt><dd className="detail-description">{selectedAction.actionPlan}</dd></div>
+              <div className="detail-span-2"><dt>Informações para análise</dt><dd className="detail-description">{selectedAction.analysisInformation || "Nenhuma informação complementar."}</dd></div>
+              <div className="detail-span-2"><dt>Anotações do Desenvolvedor</dt><dd className="detail-description">{selectedAction.developerNotes || "Nenhuma anotação registrada."}</dd></div>
+              {selectedAction.resolutionNotes && <div className="detail-span-2"><dt>Validação do Suporte</dt><dd className="detail-description">{selectedAction.resolutionNotes}</dd></div>}
+            </dl>
+
+            <section className="development-evidence-section">
+              <h3>Evidências</h3>
+              {selectedAction.evidencePaths.length ? (
+                <div className="evidence-grid">
+                  {selectedAction.evidencePaths.map((path) => (
+                    <div className="evidence-item" key={path}>
+                      <span><FileText size={20} /></span>
+                      <p><strong>{evidenceName(path)}</strong><small>Arquivo protegido</small></p>
+                      <a className="icon-button" href={`/api/development-actions/evidence?actionId=${encodeURIComponent(selectedAction.id)}&path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer" aria-label={`Abrir ${evidenceName(path)}`}><Eye size={17} /></a>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="muted-copy">Nenhuma evidência anexada.</p>}
+            </section>
+
+            {currentUser.role === "desenvolvedor" && selectedAction.status !== "Resolvida" && (
+              <section className="development-workflow-panel">
+                <h3>Atualizar análise e previsão</h3>
+                <div className="form-grid">
+                  <label className="field"><span>Data prevista para resolução <b>*</b></span><input type="datetime-local" value={developerActionDraft.dueAt} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, dueAt: event.target.value })} /></label>
+                  <label className="field"><span>Status <b>*</b></span><select value={developerActionDraft.status} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, status: event.target.value as DevelopmentActionStatus })}><option>Em análise</option><option>Em desenvolvimento</option><option>Aguardando validação</option></select></label>
+                  <label className="field field-span-2"><span>Anotações da análise</span><textarea rows={5} value={developerActionDraft.developerNotes} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, developerNotes: event.target.value.slice(0, 3000) })} placeholder="Registre diagnóstico, solução aplicada e orientações para validação" /></label>
+                </div>
+                <button className="button button-primary" onClick={saveDeveloperAction} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : "Salvar previsão e andamento"}</button>
+              </section>
+            )}
+
+            {currentUser.role !== "desenvolvedor" && selectedAction.status === "Aguardando validação" && (
+              <section className="development-workflow-panel">
+                <h3>Validar resolução</h3>
+                <label className="field"><span>Observações da validação</span><textarea rows={4} value={validationNotes} onChange={(event) => setValidationNotes(event.target.value.slice(0, 3000))} placeholder="Registre o resultado do teste ou o motivo da reabertura" /></label>
+                <div className="validation-actions">
+                  <button className="button button-secondary" onClick={() => validateDevelopmentAction("reopen")} disabled={saving}><RefreshCcw size={17} />Não foi solucionado</button>
+                  <button className="button button-primary" onClick={() => validateDevelopmentAction("resolved")} disabled={saving}><CheckCircle2 size={17} />Confirmar resolução</button>
+                </div>
+              </section>
+            )}
+            {actionFormError && <div className="form-alert" role="alert">{actionFormError}</div>}
+          </div>
+        </Modal>
+      )}
 
       {editingOccurrence && currentOccurrence && (
         <Modal
@@ -4602,7 +5062,7 @@ export default function PortalOcorrencias() {
                 onChange={(event) => setUserDraft({ ...userDraft, role: event.target.value as Role })}
               >
                 <option value="suporte">Suporte</option>
-                <option value="gestor">Gestor</option>
+                <option value="desenvolvedor">Desenvolvedor</option>
                 <option value="administrador">Administrador</option>
               </select>
             </label>
