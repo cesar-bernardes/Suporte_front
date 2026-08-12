@@ -945,7 +945,7 @@ export default function PortalOcorrencias() {
     const form = new FormData();
     form.append("actionId", actionId);
     files.forEach((file) => form.append("files", file));
-    const response = await fetch("/api/development-actions/evidence", {
+    const response = await fetch("/api/development-actions", {
       method: "POST", credentials: "same-origin", body: form,
     });
     const payload = (await response.json().catch(() => ({}))) as { action?: DevelopmentAction; message?: string };
@@ -4352,7 +4352,7 @@ export default function PortalOcorrencias() {
                     <div className="evidence-item" key={path}>
                       <span><FileText size={20} /></span>
                       <p><strong>{evidenceName(path)}</strong><small>Arquivo protegido</small></p>
-                      <a className="icon-button" href={`/api/development-actions/evidence?actionId=${encodeURIComponent(selectedAction.id)}&path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer" aria-label={`Abrir ${evidenceName(path)}`}><Eye size={17} /></a>
+                      <a className="icon-button" href={`/api/development-actions?evidence=1&actionId=${encodeURIComponent(selectedAction.id)}&path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer" aria-label={`Abrir ${evidenceName(path)}`}><Eye size={17} /></a>
                     </div>
                   ))}
                 </div>
