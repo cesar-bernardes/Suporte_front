@@ -660,7 +660,7 @@ export default function PortalOcorrencias() {
             }));
           }
         }
-        const actionsResponse = await fetch("/api/development-actions", {
+        const actionsResponse = await fetch("/api/catalog?scope=development-actions", {
           credentials: "same-origin",
         });
         const actionsPayload = (await actionsResponse.json().catch(() => ({}))) as {
@@ -945,7 +945,7 @@ export default function PortalOcorrencias() {
     const form = new FormData();
     form.append("actionId", actionId);
     files.forEach((file) => form.append("files", file));
-    const response = await fetch("/api/development-actions", {
+    const response = await fetch("/api/catalog?scope=development-actions", {
       method: "POST", credentials: "same-origin", body: form,
     });
     const payload = (await response.json().catch(() => ({}))) as { action?: DevelopmentAction; message?: string };
@@ -961,7 +961,7 @@ export default function PortalOcorrencias() {
     }
     setSaving(true);
     try {
-      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/development-actions", {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
         method: "POST", body: JSON.stringify(actionDraft),
       });
       let action = payload.action;
@@ -996,7 +996,7 @@ export default function PortalOcorrencias() {
     setSaving(true);
     setActionFormError("");
     try {
-      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/development-actions", {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
         method: "PATCH",
         body: JSON.stringify({ id: selectedAction.id, ...developerActionDraft }),
       });
@@ -1014,7 +1014,7 @@ export default function PortalOcorrencias() {
     setSaving(true);
     setActionFormError("");
     try {
-      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/development-actions", {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
         method: "PATCH",
         body: JSON.stringify({ id: selectedAction.id, validation, resolutionNotes: validationNotes }),
       });
@@ -4352,7 +4352,7 @@ export default function PortalOcorrencias() {
                     <div className="evidence-item" key={path}>
                       <span><FileText size={20} /></span>
                       <p><strong>{evidenceName(path)}</strong><small>Arquivo protegido</small></p>
-                      <a className="icon-button" href={`/api/development-actions?evidence=1&actionId=${encodeURIComponent(selectedAction.id)}&path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer" aria-label={`Abrir ${evidenceName(path)}`}><Eye size={17} /></a>
+                      <a className="icon-button" href={`/api/catalog?scope=development-actions&evidence=1&actionId=${encodeURIComponent(selectedAction.id)}&path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer" aria-label={`Abrir ${evidenceName(path)}`}><Eye size={17} /></a>
                     </div>
                   ))}
                 </div>
