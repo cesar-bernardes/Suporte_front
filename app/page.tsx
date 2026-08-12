@@ -505,6 +505,7 @@ export default function PortalOcorrencias() {
   const [actionStatusFilter, setActionStatusFilter] = useState("all");
   const [actionSearch, setActionSearch] = useState("");
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
+  const [confirmActionDeleteId, setConfirmActionDeleteId] = useState<string | null>(null);
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [actionEvidenceFiles, setActionEvidenceFiles] = useState<File[]>([]);
   const [actionFormError, setActionFormError] = useState("");
@@ -1067,6 +1068,26 @@ export default function PortalOcorrencias() {
       setToast(validation === "resolved" ? "Ação resolvida e encerrada." : "Ação reaberta para nova previsão.");
     } catch (error) {
       setActionFormError(error instanceof Error ? error.message : "Não foi possível validar a ação.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteDevelopmentAction(id: string) {
+    setSaving(true);
+    setActionFormError("");
+    try {
+      await portalRequest<{ deleted: boolean }>(
+        `/api/catalog?scope=development-actions&id=${encodeURIComponent(id)}`,
+        { method: "DELETE" },
+      );
+      setDevelopmentActions((current) => current.filter((action) => action.id !== id));
+      setConfirmActionDeleteId(null);
+      setSelectedActionId(null);
+      setToast("Ação excluída da visualização com segurança.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "Não foi possível excluir a ação.");
+      setConfirmActionDeleteId(null);
     } finally {
       setSaving(false);
     }
@@ -4362,7 +4383,16 @@ export default function PortalOcorrencias() {
           description="Detalhes, prazo e acompanhamento da ação encaminhada."
           size="large"
           onClose={() => setSelectedActionId(null)}
-          footer={<button className="button button-ghost" onClick={() => setSelectedActionId(null)}>Fechar</button>}
+          footer={
+            <>
+              {currentUser.role === "administrador" && (
+                <button className="button button-danger" onClick={() => setConfirmActionDeleteId(selectedAction.id)}>
+                  <Trash2 size={17} /> Excluir ação
+                </button>
+              )}
+              <button className="button button-ghost" onClick={() => setSelectedActionId(null)}>Fechar</button>
+            </>
+          }
         >
           <div className="development-action-detail">
             {isActionOverdue(selectedAction) && (
@@ -5206,6 +5236,35 @@ export default function PortalOcorrencias() {
                 {occurrences.find((item) => item.id === confirmOccurrenceDeleteId)?.number}
               </strong>
               Nenhum dado será apagado definitivamente do banco de dados.
+            </p>
+          </div>
+        </Modal>
+      )}
+
+      {confirmActionDeleteId && currentUser.role === "administrador" && (
+        <Modal
+          title="Excluir ação da visualização?"
+          description="Somente Administradores podem realizar esta exclusão segura. A ação deixará de aparecer no portal, mas continuará armazenada no Supabase para recuperação e auditoria."
+          onClose={() => setConfirmActionDeleteId(null)}
+          footer={
+            <>
+              <button className="button button-ghost" onClick={() => setConfirmActionDeleteId(null)}>
+                Cancelar
+              </button>
+              <button className="button button-danger" onClick={() => deleteDevelopmentAction(confirmActionDeleteId)} disabled={saving}>
+                {saving ? <span className="spinner" /> : <Trash2 size={17} />}
+                {saving ? "Excluindo…" : "Excluir da visualização"}
+              </button>
+            </>
+          }
+        >
+          <div className="safe-delete-message">
+            <span><ShieldCheck size={23} /></span>
+            <p>
+              <strong>
+                {developmentActions.find((action) => action.id === confirmActionDeleteId)?.number}
+              </strong>
+              O histórico, os prazos, as anotações e as evidências não serão apagados definitivamente.
             </p>
           </div>
         </Modal>
