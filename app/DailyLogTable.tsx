@@ -58,7 +58,7 @@ export default function DailyLogTable({ currentUser, users, onNotify, periodStar
         ])));
       })
       .catch((reason) => active && setError(reason instanceof Error ? reason.message : "Não foi possível carregar o diário."))
-      .finally(() => active && !background && setLoading(false));
+      .finally(() => active && setLoading(false));
     };
     const timer = window.setTimeout(() => load(refreshVersion > 0), 0);
     return () => {

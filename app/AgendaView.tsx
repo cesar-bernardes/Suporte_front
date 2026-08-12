@@ -91,7 +91,7 @@ export default function AgendaView({ currentUser, users, clients, onNotify, refr
     setError("");
     try { const payload = await request<{ entries: AgendaEntry[] }>("/api/agenda"); setEntries(payload.entries); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Não foi possível carregar a agenda."); }
-    finally { if (!background) setLoading(false); }
+    finally { setLoading(false); }
   }, [request]);
   useEffect(() => {
     const timer = window.setTimeout(() => void load(refreshVersion > 0), 0);
