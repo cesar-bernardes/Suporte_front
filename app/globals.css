@@ -2123,6 +2123,36 @@ td small {
   color: #715398;
 }
 
+.badge-encaminhada {
+  border-color: #f4c37a;
+  background: #fff3df;
+  color: #a85b00;
+}
+
+.badge-em-desenvolvimento {
+  border-color: #b9d5f4;
+  background: #eaf4ff;
+  color: #1f67a5;
+}
+
+.badge-aguardando-validacao {
+  border-color: #addfd7;
+  background: #e8f8f5;
+  color: #08786c;
+}
+
+.badge-resolvida {
+  border-color: #b7dfca;
+  background: #eaf8f0;
+  color: #23734f;
+}
+
+.badge-prazo-atingido {
+  border-color: #efb8b8;
+  background: #fff0f0;
+  color: #b4232f;
+}
+
 /* Records and catalog */
 
 .records-card {
@@ -2401,6 +2431,44 @@ td small {
 
 .development-workflow-panel > .button {
   margin-top: 14px;
+}
+
+.development-due-date {
+  border: 1px solid #b9d5f4 !important;
+  border-radius: 10px;
+  background: #f0f7ff;
+}
+
+.development-due-date dd {
+  color: #1f67a5 !important;
+  font-weight: 800 !important;
+}
+
+.development-waiting-panel {
+  padding: 16px;
+  border: 1px solid #f1d09a;
+  border-radius: 11px;
+  background: #fff9ed;
+}
+
+.development-waiting-panel p {
+  margin: 0;
+  color: #8b5c16;
+  font-size: 0.76rem;
+}
+
+.early-closure-notice {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+  padding: 11px 13px;
+  border: 1px solid #f1c675;
+  border-radius: 9px;
+  background: #fff7e6;
+  color: #965700;
+  font-size: 0.74rem;
+  font-weight: 680;
 }
 
 .validation-actions {

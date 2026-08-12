@@ -511,8 +511,6 @@ export default function PortalOcorrencias() {
   const [actionDraft, setActionDraft] = useState({
     title: "",
     problemDescription: "",
-    actionPlan: "",
-    analysisInformation: "",
     identifiedAt: "",
     developerId: "",
   });
@@ -705,6 +703,38 @@ export default function PortalOcorrencias() {
       active = false;
     };
   }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser || view !== "acoes") return;
+    let active = true;
+
+    const refreshActions = async () => {
+      const response = await fetch("/api/catalog?scope=development-actions", {
+        credentials: "same-origin",
+        cache: "no-store",
+      }).catch(() => null);
+      if (!response || !active) return;
+      const payload = (await response.json().catch(() => ({}))) as {
+        actions?: DevelopmentAction[];
+        message?: string;
+      };
+      if (response.ok) {
+        setDevelopmentActions(payload.actions || []);
+        setActionsError("");
+      } else {
+        setActionsError(payload.message || "Não foi possível atualizar as ações de desenvolvimento.");
+      }
+    };
+
+    void refreshActions();
+    const intervalId = window.setInterval(refreshActions, 30_000);
+    window.addEventListener("focus", refreshActions);
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshActions);
+    };
+  }, [currentUser, view]);
 
   const getClient = (id: string) =>
     clients.find((client) => client.id === id)?.name || "Cliente";
@@ -902,6 +932,9 @@ export default function PortalOcorrencias() {
     Boolean(action.dueAt && action.status !== "Resolvida" && new Date(action.dueAt).getTime() <= Date.now());
   const overdueActions = developmentActions.filter(isActionOverdue);
   const selectedAction = developmentActions.find((action) => action.id === selectedActionId) || null;
+  const selectedActionIsBeforeDeadline = Boolean(
+    selectedAction?.dueAt && new Date(selectedAction.dueAt).getTime() > Date.now(),
+  );
   const filteredDevelopmentActions = developmentActions.filter((action) => {
     const query = normalizeText(actionSearch);
     const searchable = normalizeText([
@@ -914,7 +947,7 @@ export default function PortalOcorrencias() {
 
   function openNewDevelopmentAction() {
     setActionDraft({
-      title: "", problemDescription: "", actionPlan: "", analysisInformation: "",
+      title: "", problemDescription: "",
       identifiedAt: toDateTimeLocal(new Date()), developerId: developerUsers[0]?.id || "",
     });
     setActionEvidenceFiles([]);
@@ -1011,6 +1044,18 @@ export default function PortalOcorrencias() {
 
   async function validateDevelopmentAction(validation: "resolved" | "reopen") {
     if (!selectedAction) return;
+    if (validation === "resolved" && !selectedAction.dueAt) {
+      setActionFormError("O Desenvolvedor precisa definir uma previsão antes da finalização.");
+      return;
+    }
+    if (
+      validation === "resolved" &&
+      selectedActionIsBeforeDeadline &&
+      validationNotes.trim().length < 10
+    ) {
+      setActionFormError("Justifique a finalização antes do prazo com pelo menos 10 caracteres.");
+      return;
+    }
     setSaving(true);
     setActionFormError("");
     try {
@@ -2264,8 +2309,11 @@ export default function PortalOcorrencias() {
                             <td><strong>{action.title}</strong><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "…" : ""}</small></td>
                             <td>{getActionUser(action.developerId)}</td>
                             <td>{formatDate(action.identifiedAt)}</td>
-                            <td className={isActionOverdue(action) ? "deadline-text" : undefined}>{action.dueAt ? formatDate(action.dueAt) : "Aguardando definição"}</td>
-                            <td><span className="badge">{isActionOverdue(action) ? "Prazo atingido" : action.status}</span></td>
+                            <td className={isActionOverdue(action) ? "deadline-text" : undefined}>
+                              <strong>{action.dueAt ? formatDate(action.dueAt) : "Aguardando definição"}</strong>
+                              {action.dueAt && <small>Prazo definido pelo Desenvolvedor</small>}
+                            </td>
+                            <td><Badge tone={isActionOverdue(action) ? "Prazo atingido" : action.status}>{isActionOverdue(action) ? "Prazo atingido" : action.status}</Badge></td>
                             <td><button className="icon-button" onClick={() => openDevelopmentAction(action)} aria-label={`Abrir ${action.number}`}><Eye size={17} /></button></td>
                           </tr>
                         ))}
@@ -4275,14 +4323,6 @@ export default function PortalOcorrencias() {
               <span>Descrição do problema <b>*</b></span>
               <textarea rows={5} value={actionDraft.problemDescription} onChange={(event) => setActionDraft({ ...actionDraft, problemDescription: event.target.value.slice(0, 3000) })} placeholder="Explique o comportamento atual, impacto e como reproduzir" />
             </label>
-            <label className="field field-span-2">
-              <span>Plano de ação <b>*</b></span>
-              <textarea rows={4} value={actionDraft.actionPlan} onChange={(event) => setActionDraft({ ...actionDraft, actionPlan: event.target.value.slice(0, 3000) })} placeholder="Descreva o que precisa ser analisado, corrigido ou entregue" />
-            </label>
-            <label className="field field-span-2">
-              <span>Informações para análise</span>
-              <textarea rows={4} value={actionDraft.analysisInformation} onChange={(event) => setActionDraft({ ...actionDraft, analysisInformation: event.target.value.slice(0, 3000) })} placeholder="Ambiente, cliente, passos, mensagens, versões e demais detalhes" />
-            </label>
             <label className="field">
               <span>Data e horário da identificação <b>*</b></span>
               <input type="datetime-local" value={actionDraft.identifiedAt} onChange={(event) => setActionDraft({ ...actionDraft, identifiedAt: event.target.value })} />
@@ -4331,15 +4371,13 @@ export default function PortalOcorrencias() {
               </div>
             )}
             <dl className="detail-grid">
-              <div><dt>Status</dt><dd><span className="badge">{selectedAction.status}</span></dd></div>
+              <div><dt>Status</dt><dd><Badge tone={selectedAction.status}>{selectedAction.status}</Badge></dd></div>
               <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
               <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
               <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>
-              <div><dt>Previsão de resolução</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda não definida"}</dd></div>
+              <div className="development-due-date"><dt>Prazo definido pelo Desenvolvedor</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda não definido"}</dd></div>
               <div><dt>Encerrado em</dt><dd>{selectedAction.resolvedAt ? formatDate(selectedAction.resolvedAt) : "—"}</dd></div>
               <div className="detail-span-2"><dt>Descrição do problema</dt><dd className="detail-description">{selectedAction.problemDescription}</dd></div>
-              <div className="detail-span-2"><dt>Plano de ação</dt><dd className="detail-description">{selectedAction.actionPlan}</dd></div>
-              <div className="detail-span-2"><dt>Informações para análise</dt><dd className="detail-description">{selectedAction.analysisInformation || "Nenhuma informação complementar."}</dd></div>
               <div className="detail-span-2"><dt>Anotações do Desenvolvedor</dt><dd className="detail-description">{selectedAction.developerNotes || "Nenhuma anotação registrada."}</dd></div>
               {selectedAction.resolutionNotes && <div className="detail-span-2"><dt>Validação do Suporte</dt><dd className="detail-description">{selectedAction.resolutionNotes}</dd></div>}
             </dl>
@@ -4371,13 +4409,31 @@ export default function PortalOcorrencias() {
               </section>
             )}
 
-            {currentUser.role !== "desenvolvedor" && selectedAction.status === "Aguardando validação" && (
+            {currentUser.role !== "desenvolvedor" && selectedAction.status !== "Resolvida" && !selectedAction.dueAt && (
+              <section className="development-workflow-panel development-waiting-panel">
+                <h3>Aguardando prazo do Desenvolvedor</h3>
+                <p>Esta ação poderá ser finalizada pelo Suporte assim que o Desenvolvedor registrar a previsão de resolução.</p>
+              </section>
+            )}
+
+            {currentUser.role !== "desenvolvedor" && selectedAction.status !== "Resolvida" && selectedAction.dueAt && (
               <section className="development-workflow-panel">
-                <h3>Validar resolução</h3>
-                <label className="field"><span>Observações da validação</span><textarea rows={4} value={validationNotes} onChange={(event) => setValidationNotes(event.target.value.slice(0, 3000))} placeholder="Registre o resultado do teste ou o motivo da reabertura" /></label>
+                <h3>Finalizar ação</h3>
+                {selectedActionIsBeforeDeadline && (
+                  <div className="early-closure-notice" role="note">
+                    <AlertTriangle size={18} />
+                    <span>O prazo ainda não chegou. Para finalizar agora, informe obrigatoriamente o motivo.</span>
+                  </div>
+                )}
+                <label className="field">
+                  <span>{selectedActionIsBeforeDeadline ? "Justificativa da finalização antecipada *" : "Observações da finalização"}</span>
+                  <textarea rows={4} value={validationNotes} onChange={(event) => setValidationNotes(event.target.value.slice(0, 3000))} placeholder={selectedActionIsBeforeDeadline ? "Explique por que esta ação está sendo finalizada antes do prazo" : "Registre o resultado da verificação realizada pelo Suporte"} />
+                </label>
                 <div className="validation-actions">
-                  <button className="button button-secondary" onClick={() => validateDevelopmentAction("reopen")} disabled={saving}><RefreshCcw size={17} />Não foi solucionado</button>
-                  <button className="button button-primary" onClick={() => validateDevelopmentAction("resolved")} disabled={saving}><CheckCircle2 size={17} />Confirmar resolução</button>
+                  {selectedAction.status === "Aguardando validação" && (
+                    <button className="button button-secondary" onClick={() => validateDevelopmentAction("reopen")} disabled={saving}><RefreshCcw size={17} />Não foi solucionado</button>
+                  )}
+                  <button className="button button-primary" onClick={() => validateDevelopmentAction("resolved")} disabled={saving}><CheckCircle2 size={17} />Finalizar ação</button>
                 </div>
               </section>
             )}
