@@ -511,6 +511,8 @@ export default function PortalOcorrencias() {
   const [actionDraft, setActionDraft] = useState({
     title: "",
     problemDescription: "",
+    actionPlan: "",
+    analysisInformation: "",
     identifiedAt: "",
     developerId: "",
   });
@@ -521,10 +523,4676 @@ export default function PortalOcorrencias() {
   });
   const [validationNotes, setValidationNotes] = useState("");
   const [newForm, setNewForm] = useState({
-    clientIdÁœ<÷⁄$z{-ÆÈ‹j◊ù‚6∆74Ê÷S“'7ñÊÊW""Û‚¢≈G&6É"6ó¶S◊≥w“ÛÁ–¢WÜ6«Vó"Ffó7V∆ó¶:|:6¢¬ˆ'WGFˆ„‡¢¬Û‡¢–¢‡¢∆Fób6∆74Ê÷S“'6fR÷FV∆WFR÷6˜í#‡¢«7G&ˆÊsÁ∂6ˆÊfó&’&VfW&VÊ6TFV∆WFRÊÊ÷W”¬˜7G&ˆÊs‡¢«‡¢6RW7FófW"6VÊFÚW6FÚV“V“óFV“FÚ6L:∆ˆvÚ˜Rˆ6˜',:¶Ê6ñ¬¢6ó7FV÷ñ◊VFó,:WÜ6«W<:6ÚR÷˜7G&,:6ˆ÷Ú6˜'&ñvó"‡¢¬˜‡¢¬ˆFóc‡¢¬Ù÷ˆF√‡¢ó–†¢∂6F∆ˆt÷ˆF¬bbÄ¢ƒ÷ˆF¿¢FóF∆S◊∞¢6F∆ˆt÷ˆF¬Ê÷ˆFR””“&ÊWr ¢Ú$Ê˜fÚóFV“FÚ6L:∆ˆvÚ ¢¢$VFóF"óFV“FÚ6L:∆ˆvÚ ¢–¢FW67&óFñˆ„“%W6RV“Êˆ÷R7W'FÚ¬ˆfñ6ñ¬R&V6ˆÊÜV<:◊fV¬V∆WVóR‚ ¢ˆ‰6∆˜6S◊≤Çí”‚6WD6F∆ˆt÷ˆF¬ÜÁV∆¬ó–¢fˆ˜FW#◊∞¢√‡¢∆'WGFˆ‡¢6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷vÜ˜7B ¢ˆ‰6∆ñ6≥◊≤Çí”‚6WD6F∆ˆt÷ˆF¬ÜÁV∆¬ó–¢‡¢6Ê6V∆ ¢¬ˆ'WGFˆ„‡¢∆'WGFˆ‡¢6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚◊&ñ÷'í ¢ˆ‰6∆ñ6≥◊∑6fT6F∆ˆw–¢Fó6&∆VC◊∑6fñÊw–¢‡¢∑6fñÊrÚ«7‚6∆74Ê÷S“'7ñÊÊW""Û‚¢ƒ6ÜV6≤6ó¶S◊≥w“ÛÁ–¢∑6fñÊrÚ%6«fÊF˛(
-b"¢%6«f"óFV“'–¢¬ˆ'WGFˆ„‡¢¬Û‡¢–¢‡¢∆Fób6∆74Ê÷S“&f˜&“÷w&ñB#‡¢∆∆&V¬6∆74Ê÷S“&fñV∆B#‡¢«7„‡¢6ó7FV÷∆#‚£¬ˆ#‡¢¬˜7„‡¢«6V∆V7@¢f«VS◊∂6F∆ˆtG&gBÁ7ó7FV‘ñG–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‚∞¢6ˆÁ7B7ó7FV““7ó7FV◊2ÊfñÊBÄ¢ÜóFV“í”‚óFV“ÊñB””“WfVÁBÁF&vWBÁf«VR¿¢ì∞¢6WD6F∆ˆtG&gBá∞¢‚‚Ê6F∆ˆtG&gB¿¢7ó7FV‘ñC¢WfVÁBÁF&vWBÁf«VR¿¢÷ˆGV∆TñC¢7ó7FV”ÚÊ÷ˆGV∆W5≥“ÊñB«¬""¿¢“ì∞¢◊–¢‡¢∑7ó7FV◊2Ê÷Çá7ó7FV“í”‚Ä¢∆˜Fñˆ‚∂Wì◊∑7ó7FV“ÊñG“f«VS◊∑7ó7FV“ÊñG”‡¢∑7ó7FV“ÊÊ÷W–¢¬ˆ˜Fñˆ„‡¢íó–¢¬˜6V∆V7C‡¢¬ˆ∆&V√‡¢∆∆&V¬6∆74Ê÷S“&fñV∆B#‡¢«7„‡¢‹;6GV∆Ú∆#‚£¬ˆ#‡¢¬˜7„‡¢«6V∆V7@¢f«VS◊∂6F∆ˆtG&gBÊ÷ˆGV∆TñG–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‡¢6WD6F∆ˆtG&gBá∞¢‚‚Ê6F∆ˆtG&gB¿¢÷ˆGV∆TñC¢WfVÁBÁF&vWBÁf«VR¿¢“ê¢–¢‡¢∑7ó7FV◊2ÊfñÊBÄ¢á7ó7FV“í”‚7ó7FV“ÊñB””“6F∆ˆtG&gBÁ7ó7FV‘ñB¿¢ìÚÊ÷ˆGV∆W2Ê÷ÇÜ÷ˆGV∆Rí”‚Ä¢∆˜Fñˆ‚∂Wì◊∂÷ˆGV∆RÊñG“f«VS◊∂÷ˆGV∆RÊñG”‡¢∂÷ˆGV∆RÊÊ÷W–¢¬ˆ˜Fñˆ„‡¢íó–¢¬˜6V∆V7C‡¢¬ˆ∆&V√‡¢∆∆&V¬6∆74Ê÷S“&fñV∆BfñV∆B◊7‚”"#‡¢«7„‡¢Êˆ÷RG&ˆÊó¶FÚFÚW'&Ú∆#‚£¬ˆ#‡¢¬˜7„‡¢∆ñÁW@¢f«VS◊∂6F∆ˆtG&gBÊÊ÷W–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‡¢6WD6F∆ˆtG&gBá∞¢‚‚Ê6F∆ˆtG&gB¿¢Ê÷S¢WfVÁBÁF&vWBÁf«VRÁ6∆ñ6RÉ¬#í¿¢“ê¢–¢∆6VÜˆ∆FW#“$WÇ„¢f∆ÜÚ6'&Vv"6ÜV6∂∆ó7B ¢&ñ÷ñÁf∆ñC◊¥&ˆˆ∆V‚Ü6F∆ˆtW'&˜"ó–¢Û‡¢∂6F∆ˆtW'&˜"bbÄ¢«6÷∆¬6∆74Ê÷S“&fñV∆B÷W'&˜"#Á∂6F∆ˆtW'&˜'”¬˜6÷∆√‡¢ó–¢∂6F∆ˆtG&gBÊÊ÷RÊ∆VÊwFÇ‚Bb`¢6F∆ˆrÁ6ˆ÷RÄ¢ÜóFV“í”‡¢óFV“ÊñB”“6F∆ˆt÷ˆF¬ÊñBb`¢Ê˜&÷∆ó¶UFWáBÜóFV“ÊÊ÷RíÊñÊ6«VFW2Ä¢Ê˜&÷∆ó¶UFWáBÜ6F∆ˆtG&gBÊÊ÷Rí¿¢í¿¢íbbÄ¢«6÷∆¬6∆74Ê÷S“&fñV∆B◊v&ÊñÊr#‡¢VÊ6ˆÁG&÷˜2óFVÁ2&V6ñF˜2‚&Wfó6RÁFW2FR6«f"‡¢¬˜6÷∆√‡¢ó–¢¬ˆ∆&V√‡¢∆∆&V¬6∆74Ê÷S“&fñV∆BfñV∆B◊7‚”"#‡¢«7„ÂFW&÷˜2«FW&ÊFóf˜2&'W66¬˜7„‡¢∆ñÁW@¢f«VS◊∂6F∆ˆtG&gBÊ∆ñ6W7–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‡¢6WD6F∆ˆtG&gBá∞¢‚‚Ê6F∆ˆtG&gB¿¢∆ñ6W3¢WfVÁBÁF&vWBÁf«VRÁ6∆ñ6RÉ¬##í¿¢“ê¢–¢∆6VÜˆ∆FW#“%6W&R˜2FW&÷˜2˜"l:◊&wV∆ ¢Û‡¢«6÷∆¬6∆74Ê÷S“&fñV∆B÷ÜV«#‡¢W7FW2FW&÷˜2ßVF“Ê'W666V“7&ñ"GW∆ñ6ñFFW2‡¢¬˜6÷∆√‡¢¬ˆ∆&V√‡¢∆∆&V¬6∆74Ê÷S“&fñV∆BfñV∆B◊7‚”"#‡¢«7„Â7FGW3¬˜7„‡¢«6V∆V7@¢f«VS◊∂6F∆ˆtG&gBÊ7FófRÚ&7FófR"¢&ñÊ7FófR'–¢Fó6&∆VC◊∂6F∆ˆt÷ˆF¬Ê÷ˆFR””“&VFóB'–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‡¢6WD6F∆ˆtG&gBá∞¢‚‚Ê6F∆ˆtG&gB¿¢7FófS¢WfVÁBÁF&vWBÁf«VR””“&7FófR"¿¢“ê¢–¢‡¢∆˜Fñˆ‚f«VS“&7FófR#‰FófÛ¬ˆ˜Fñˆ„‡¢∆˜Fñˆ‚f«VS“&ñÊ7FófR#‰ñÊFófÛ¬ˆ˜Fñˆ„‡¢¬˜6V∆V7C‡¢∂6F∆ˆt÷ˆF¬Ê÷ˆFR””“&VFóB"bbÄ¢«6÷∆¬6∆74Ê÷S“&fñV∆B÷ÜV«#‡¢W6RFóf"˜RñÊFóf"Ê∆ó7F&6ˆÊfó&÷"W7F«FW&:|:6Ú‡¢¬˜6÷∆√‡¢ó–¢¬ˆ∆&V√‡¢¬ˆFóc‡¢¬Ù÷ˆF√‡¢ó–†¢∂6ˆÊfó&‘6F∆ˆtñBbbÄ¢ƒ÷ˆF¿¢FóF∆S◊∞¢6F∆ˆrÊfñÊBÇÜóFV“í”‚óFV“ÊñB””“6ˆÊfó&‘6F∆ˆtñBìÚÊ7FófP¢Ú$ñÊFóf"óFV”Ú ¢¢%&VFóf"óFV”Ú ¢–¢FW67&óFñˆ„“$˜2&Vvó7G&˜2Üó7L;7&ñ6˜26ˆÁFñÁV,:6ÚfñÊ7V∆F˜2W7FRóFV“‚ ¢ˆ‰6∆˜6S◊≤Çí”‚6WD6ˆÊfó&‘6F∆ˆtñBÜÁV∆¬ó–¢fˆ˜FW#◊∞¢√‡¢∆'WGFˆ‡¢6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷vÜ˜7B ¢ˆ‰6∆ñ6≥◊≤Çí”‚6WD6ˆÊfó&‘6F∆ˆtñBÜÁV∆¬ó–¢‡¢6Ê6V∆ ¢¬ˆ'WGFˆ„‡¢∆'WGFˆ‡¢6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚◊&ñ÷'í ¢ˆ‰6∆ñ6≥◊≤Çí”‚Fˆvv∆T6F∆ˆtóFV“Ü6ˆÊfó&‘6F∆ˆtñBó–¢Fó6&∆VC◊∑6fñÊw–¢‡¢∑6fñÊrÚ%&ˆ6W76ÊF˛(
-b"¢$6ˆÊfó&÷"'–¢¬ˆ'WGFˆ„‡¢¬Û‡¢–¢‡¢∆Fób6∆74Ê÷S“&6ˆÊfó&“÷÷W76vR#‡¢«7„‡¢ƒ∆W'EG&ñÊv∆R6ó¶S◊≥#7“Û‡¢¬˜7„‡¢«‡¢«7G&ˆÊs‡¢∂6F∆ˆrÊfñÊBÇÜóFV“í”‚óFV“ÊñB””“6ˆÊfó&‘6F∆ˆtñBìÚÊÊ÷W–¢¬˜7G&ˆÊs‡¢∂6F∆ˆrÊfñÊBÇÜóFV“í”‚óFV“ÊñB””“6ˆÊfó&‘6F∆ˆtñBìÚÊ7FófP¢Ú"FVóÜ,:FR&V6W"V“Ê˜f˜2&Vvó7G&˜2‚ ¢¢"fˆ«F,:&V6W"&Ê˜f˜2&Vvó7G&˜2‚'–¢¬˜‡¢¬ˆFóc‡¢¬Ù÷ˆF√‡¢ó–†¢∑W6W$÷ˆF¬bb7W'&VÁEW6W"Á&ˆ∆R””“&F÷ñÊó7G&F˜""bbÄ¢ƒ÷ˆF¿¢FóF∆S◊∑W6W$÷ˆF¬Ê÷ˆFR””“&ÊWr"Ú$Ê˜fÚW7\:&ñÚ"¢$VFóF"W7\:&ñÚ'–¢FW67&óFñˆ„◊∞¢W6W$÷ˆF¬Ê÷ˆFR””“&ÊWr ¢Ú$7&ñR6ˆÁFRVÁG&VwVR6VÊÜFV◊˜,:&ñFRf˜&÷6VwW&‚ ¢¢$GV∆ó¶RÚW&fñ¬¬2W&÷ó7<;VW2˜R&VFVfñÊ6VÊÜ‚ ¢–¢ˆ‰6∆˜6S◊≤Çí”‚6WEW6W$÷ˆF¬ÜÁV∆¬ó–¢fˆ˜FW#◊∞¢√‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷vÜ˜7B"ˆ‰6∆ñ6≥◊≤Çí”‚6WEW6W$÷ˆF¬ÜÁV∆¬ó”‡¢6Ê6V∆ ¢¬ˆ'WGFˆ„‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚◊&ñ÷'í"ˆ‰6∆ñ6≥◊∑6fUW6W'“Fó6&∆VC◊∑6fñÊw”‡¢∑6fñÊrÚ«7‚6∆74Ê÷S“'7ñÊÊW""Û‚¢ƒ6ÜV6≤6ó¶S◊≥w“ÛÁ–¢∑6fñÊrÚ%6«fÊF˛(
-b"¢%6«f"W7\:&ñÚ'–¢¬ˆ'WGFˆ„‡¢¬Û‡¢–¢‡¢∆Fób6∆74Ê÷S“&f˜&“÷w&ñB#‡¢∆∆&V¬6∆74Ê÷S“&fñV∆BfñV∆B◊7‚”"#‡¢«7„‰Êˆ÷R6ˆ◊∆WFÚ∆#‚£¬ˆ#„¬˜7„‡¢∆ñÁW@¢f«VS◊∑W6W$G&gBÊÊ÷W–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‚6WEW6W$G&gBá≤‚‚ÁW6W$G&gB¬Ê÷S¢WfVÁBÁF&vWBÁf«VRÁ6∆ñ6RÉ¬í“ó–¢∆6VÜˆ∆FW#“$Êˆ÷RFW76ˆ ¢Û‡¢¬ˆ∆&V√‡¢∆∆&V¬6∆74Ê÷S“&fñV∆BfñV∆B◊7‚”"#‡¢«7„‰R÷÷ñ¬FR6W76Ú∆#‚£¬ˆ#„¬˜7„‡¢∆ñÁW@¢GóS“&V÷ñ¬ ¢f«VS◊∑W6W$G&gBÊV÷ñ«–¢Fó6&∆VC◊∑W6W$÷ˆF¬Ê÷ˆFR””“&VFóB'–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‚6WEW6W$G&gBá≤‚‚ÁW6W$G&gB¬V÷ñ√¢WfVÁBÁF&vWBÁf«VRÁ6∆ñ6RÉ¬cí“ó–¢∆6VÜˆ∆FW#“&Êˆ÷TV◊&W6Ê6ˆ“ ¢Û‡¢∑W6W$÷ˆF¬Ê÷ˆFR””“&VFóB"bbÄ¢«6÷∆¬6∆74Ê÷S“&fñV∆B÷ÜV«#‰ÚR÷÷ñ¬FR6W76ÚÏ:6ÚˆFR6W"«FW&FÚ„¬˜6÷∆√‡¢ó–¢¬ˆ∆&V√‡¢∆∆&V¬6∆74Ê÷S“&fñV∆BfñV∆B◊7‚”"#‡¢«7„ÂW&fñ¬FR6W76Ú∆#‚£¬ˆ#„¬˜7„‡¢«6V∆V7@¢f«VS◊∑W6W$G&gBÁ&ˆ∆W–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‚6WEW6W$G&gBá≤‚‚ÁW6W$G&gB¬&ˆ∆S¢WfVÁBÁF&vWBÁf«VR2&ˆ∆R“ó–¢‡¢∆˜Fñˆ‚f«VS“'7W˜'FR#Â7W˜'FS¬ˆ˜Fñˆ„‡¢∆˜Fñˆ‚f«VS“&FW6VÁfˆ«fVF˜"#‰FW6VÁfˆ«fVF˜#¬ˆ˜Fñˆ„‡¢∆˜Fñˆ‚f«VS“&F÷ñÊó7G&F˜"#‰F÷ñÊó7G&F˜#¬ˆ˜Fñˆ„‡¢¬˜6V∆V7C‡¢¬ˆ∆&V√‡¢∆Fób6∆74Ê÷S“'W&÷ó76ñˆ‚◊&WfñWrfñV∆B◊7‚”"#‡¢«7‚6∆74Ê÷S“&÷WG&ñ2÷ñ6ˆ‚÷WG&ñ2÷&«VR#„≈6ÜñV∆D6ÜV6≤6ó¶S◊≥á“Û„¬˜7„‡¢∆Fóc‡¢«7G&ˆÊsÂW&÷ó7<;VW2FÚW&fñ¬∑&ˆ∆T∆&V≈∑W6W$G&gBÁ&ˆ∆U◊”¬˜7G&ˆÊs‡¢«V√‡¢∑&ˆ∆UW&÷ó76ñˆÁ5∑W6W$G&gBÁ&ˆ∆U“Ê÷ÇáW&÷ó76ñˆ‚í”‚Ä¢∆∆í∂Wì◊∑W&÷ó76ñˆÁ”Á∑W&÷ó76ñˆÁ”¬ˆ∆ì‡¢íó–¢¬˜V√‡¢¬ˆFóc‡¢¬ˆFóc‡¢∆∆&V¬6∆74Ê÷S“&fñV∆BfñV∆B◊7‚”"#‡¢«7„Á∑W6W$÷ˆF¬Ê÷ˆFR””“&ÊWr"Ú%6VÊÜFV◊˜,:&ñ¢"¢$Ê˜f6VÊÜ'”¬˜7„‡¢∆ñÁW@¢GóS“'77v˜&B ¢f«VS◊∑W6W$G&gBÁ77v˜&G–¢ˆ‰6ÜÊvS◊≤ÜWfVÁBí”‚6WEW6W$G&gBá≤‚‚ÁW6W$G&gB¬77v˜&C¢WfVÁBÁF&vWBÁf«VR“ó–¢∆6VÜˆ∆FW#◊∑W6W$÷ˆF¬Ê÷ˆFR””“&ÊWr"Ú$‹:÷Êñ÷ÚFRÇ6&7FW&W2"¢$FVóÜRV“'&Ê6Ú&÷ÁFW"'–¢Û‡¢«6÷∆¬6∆74Ê÷S“&fñV∆B÷ÜV«#‡¢∑W6W$÷ˆF¬Ê÷ˆFR””“&ÊWr ¢Ú$6VÊÜFWfRFW"V∆Ú÷VÊ˜2Ç6&7FW&W2‚ ¢¢$Ú&VFVfñÊó"6VÊÜ¬26W7<;VW2&W'F26W,:6ÚVÊ6W'&F2‚'–¢¬˜6÷∆√‡¢¬ˆ∆&V√‡¢∑W6W$f˜&‘W'&˜"bbÄ¢∆Fób6∆74Ê÷S“&f˜&“÷∆W'BfñV∆B◊7‚”""&ˆ∆S“&∆W'B#Á∑W6W$f˜&‘W'&˜'”¬ˆFóc‡¢ó–¢¬ˆFóc‡¢¬Ù÷ˆF√‡¢ó–†¢∂6ˆÊfó&’W6W$ñBbb7W'&VÁEW6W"Á&ˆ∆R””“&F÷ñÊó7G&F˜""bbÄ¢ƒ÷ˆF¿¢FóF∆S◊∂÷ÊvVEW6W'2ÊfñÊBÇáW6W"í”‚W6W"ÊñB””“6ˆÊfó&’W6W$ñBìÚÊ7FófRÚ$&∆˜VV"6W76ÛÚ"¢%&VFóf"6W76ÛÚ'–¢FW67&óFñˆ„“$ÚÜó7L;7&ñ6ÚR˜2&Vvó7G&˜276ˆ6ñF˜2W7FW76ˆ6W,:6Ú&W6W'fF˜2‚ ¢ˆ‰6∆˜6S◊≤Çí”‚6WD6ˆÊfó&’W6W$ñBÜÁV∆¬ó–¢fˆ˜FW#◊∞¢√‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷vÜ˜7B"ˆ‰6∆ñ6≥◊≤Çí”‚6WD6ˆÊfó&’W6W$ñBÜÁV∆¬ó”‡¢6Ê6V∆ ¢¬ˆ'WGFˆ„‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚◊&ñ÷'í"ˆ‰6∆ñ6≥◊≤Çí”‚Fˆvv∆UW6W$66W72Ü6ˆÊfó&’W6W$ñBó“Fó6&∆VC◊∑6fñÊw”‡¢∑6fñÊrÚ%&ˆ6W76ÊF˛(
-b"¢$6ˆÊfó&÷"'–¢¬ˆ'WGFˆ„‡¢¬Û‡¢–¢‡¢∆Fób6∆74Ê÷S“&6ˆÊfó&“÷÷W76vR#‡¢«7„„ƒ∆W'EG&ñÊv∆R6ó¶S◊≥#7“Û„¬˜7„‡¢«‡¢«7G&ˆÊsÁ∂÷ÊvVEW6W'2ÊfñÊBÇáW6W"í”‚W6W"ÊñB””“6ˆÊfó&’W6W$ñBìÚÊÊ÷W”¬˜7G&ˆÊs‡¢∂÷ÊvVEW6W'2ÊfñÊBÇáW6W"í”‚W6W"ÊñB””“6ˆÊfó&’W6W$ñBìÚÊ7FófP¢Ú"W&FW,:Ú6W76Úñ÷VFñF÷VÁFRR7V26W7<;VW26W,:6ÚVÊ6W'&F2‚ ¢¢"ˆFW,:VÁG&"Ê˜f÷VÁFRÊÚ6ó7FV÷6ˆ“7V6VÊÜGV¬‚'–¢¬˜‡¢¬ˆFóc‡¢¬Ù÷ˆF√‡¢ó–†¢∂6ˆÊfó&‘ˆ67W'&VÊ6TFV∆WFTñBbb7W'&VÁEW6W"Á&ˆ∆R””“&F÷ñÊó7G&F˜""bbÄ¢ƒ÷ˆF¿¢FóF∆S“$WÜ6«Vó"&Vvó7G&ÚFfó7V∆ó¶:|:6ÛÚ ¢FW67&óFñˆ„“$W7F:íV÷WÜ6«W<:6Ú6VwW&¢Ú&Vvó7G&ÚFVóÜ,:FR&V6W"ÊÚ˜'F¬¬÷26ˆÁFñÁV,:&÷¶VÊFÚ&&V7WW&:|:6ÚRVFóF˜&ñ‚ ¢ˆ‰6∆˜6S◊≤Çí”‚6WD6ˆÊfó&‘ˆ67W'&VÊ6TFV∆WFTñBÜÁV∆¬ó–¢fˆ˜FW#◊∞¢√‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷vÜ˜7B"ˆ‰6∆ñ6≥◊≤Çí”‚6WD6ˆÊfó&‘ˆ67W'&VÊ6TFV∆WFTñBÜÁV∆¬ó”‡¢6Ê6V∆ ¢¬ˆ'WGFˆ„‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷FÊvW""ˆ‰6∆ñ6≥◊≤Çí”‚FV∆WFTˆ67W'&VÊ6RÜ6ˆÊfó&‘ˆ67W'&VÊ6TFV∆WFTñBó“Fó6&∆VC◊∑6fñÊw”‡¢∑6fñÊrÚ«7‚6∆74Ê÷S“'7ñÊÊW""Û‚¢≈G&6É"6ó¶S◊≥w“ÛÁ–¢∑6fñÊrÚ$WÜ6«VñÊF˛(
-b"¢$WÜ6«Vó"Ffó7V∆ó¶:|:6Ú'–¢¬ˆ'WGFˆ„‡¢¬Û‡¢–¢‡¢∆Fób6∆74Ê÷S“'6fR÷FV∆WFR÷÷W76vR#‡¢«7„„≈6ÜñV∆D6ÜV6≤6ó¶S◊≥#7“Û„¬˜7„‡¢«‡¢«7G&ˆÊs‡¢∂ˆ67W'&VÊ6W2ÊfñÊBÇÜóFV“í”‚óFV“ÊñB””“6ˆÊfó&‘ˆ67W'&VÊ6TFV∆WFTñBìÚÊÁV÷&W'–¢¬˜7G&ˆÊs‡¢ÊVÊáV“FFÚ6W,:vFÚFVfñÊóFóf÷VÁFRFÚ&Ê6ÚFRFF˜2‡¢¬˜‡¢¬ˆFóc‡¢¬Ù÷ˆF√‡¢ó–†¢∂6ˆÊfó&’W6W$FV∆WFTñBbb7W'&VÁEW6W"Á&ˆ∆R””“&F÷ñÊó7G&F˜""bbÄ¢ƒ÷ˆF¿¢FóF∆S“$WÜ6«Vó"W7\:&ñÚFfó7V∆ó¶:|:6ÛÚ ¢FW67&óFñˆ„“$6ˆÁF6W,:ˆ7V«FFRW&FW,:Ú6W76Ú¬÷26WW2FF˜2Rl:÷Ê7V∆˜2Üó7L;7&ñ6˜26ˆÁFñÁV,:6Ú&÷¶VÊF˜2‚ ¢ˆ‰6∆˜6S◊≤Çí”‚6WD6ˆÊfó&’W6W$FV∆WFTñBÜÁV∆¬ó–¢fˆ˜FW#◊∞¢√‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷vÜ˜7B"ˆ‰6∆ñ6≥◊≤Çí”‚6WD6ˆÊfó&’W6W$FV∆WFTñBÜÁV∆¬ó”‡¢6Ê6V∆ ¢¬ˆ'WGFˆ„‡¢∆'WGFˆ‚6∆74Ê÷S“&'WGFˆ‚'WGFˆ‚÷FÊvW""ˆ‰6∆ñ6≥◊≤Çí”‚FV∆WFUW6W"Ü6ˆÊfó&’W6W$FV∆WFTñBó“Fó6&∆VC◊∑6fñÊw”‡¢∑6fñÊrÚ«7‚6∆74Ê÷S“'7ñÊÊW""Û‚¢≈G&6É"6ó¶S◊≥w“ÛÁ–¢∑6fñÊrÚ$WÜ6«VñÊF˛(
-b"¢$WÜ6«Vó"W7\:&ñÚ'–¢¬ˆ'WGFˆ„‡¢¬Û‡¢–¢‡¢∆Fób6∆74Ê÷S“'6fR÷FV∆WFR÷÷W76vR#‡¢«7„„≈6ÜñV∆D6ÜV6≤6ó¶S◊≥#7“Û„¬˜7„‡¢«‡¢«7G&ˆÊs‡¢∂÷ÊvVEW6W'2ÊfñÊBÇáW6W"í”‚W6W"ÊñB””“6ˆÊfó&’W6W$FV∆WFTñBìÚÊÊ÷W–¢¬˜7G&ˆÊs‡¢WÜ6«W<:6ÚÏ:6Úvˆ6˜',:¶Ê6ñ2¬Üó7L;7&ñ6ÚFR6W76Ú˜RFF˜2FRVFóF˜&ñ‡¢¬˜‡¢¬ˆFóc‡¢¬Ù÷ˆF√‡¢ó–†¢∑Fˆ7BbbÄ¢∆Fób6∆74Ê÷S“'Fˆ7B"&ˆ∆S“'7FGW2#‡¢ƒ6ÜV6¥6ó&6∆S"6ó¶S◊≥#“Û‡¢∑Fˆ7G–¢∆'WGFˆ‚ˆ‰6∆ñ6≥◊≤Çí”‚6WEFˆ7BÇ""ó“&ñ÷∆&V√“$fV6Ü"÷VÁ6vV“#‡¢≈Ç6ó¶S◊≥g“Û‡¢¬ˆ'WGFˆ„‡¢¬ˆFóc‡¢ó–¢¬ˆFóc‡¢ì∞ß–
+    clientId: "",
+    systemId: "",
+    moduleId: "",
+    catalogChoice: "",
+    otherError: "",
+    description: "",
+    severity: "M√©dia" as Severity,
+    occurredAt: "",
+    status: "Novo" as OccurrenceStatus,
+    responsibleId: "",
+    attachments: [] as string[],
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/session", { credentials: "same-origin" })
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return (await response.json()) as { user: PortalUser };
+      })
+      .then((payload) => {
+        if (active && payload?.user) {
+          setCurrentUser(payload.user);
+          if (payload.user.role === "desenvolvedor") setView("acoes");
+          setPortalUsers((current) =>
+            current.some((user) => user.id === payload.user.id)
+              ? current.map((user) =>
+                  user.id === payload.user.id ? payload.user : user,
+                )
+              : [...current, payload.user],
+          );
+          setNewForm((current) => ({
+            ...current,
+            responsibleId: payload.user.id,
+          }));
+        }
+      })
+      .catch(() => {
+        // Sem uma sess√£o v√°lida, o portal apresenta o login normalmente.
+      })
+      .finally(() => {
+        if (active) setCheckingSession(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(""), 3200);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    let active = true;
+    const loadUsers = async () => {
+      if (currentUser.role === "administrador") setUsersLoading(true);
+      setActionsLoading(true);
+      setUsersError("");
+      setActionsError("");
+      try {
+        const occurrencesResponse = await fetch("/api/occurrences", {
+          credentials: "same-origin",
+        });
+        if (occurrencesResponse.ok) {
+          const payload = (await occurrencesResponse.json()) as {
+            occurrences: Occurrence[];
+          };
+          if (active) {
+            setOccurrences(payload.occurrences);
+            setSelectedOccurrenceId((current) =>
+              current && payload.occurrences.some((item) => item.id === current)
+                ? current
+                : payload.occurrences[0]?.id || "",
+            );
+          }
+        }
+        const catalogResponse = await fetch("/api/catalog", {
+          credentials: "same-origin",
+        });
+        if (catalogResponse.ok) {
+          const payload = (await catalogResponse.json()) as {
+            items: CatalogItem[];
+          };
+          if (active) setCatalog(payload.items);
+        }
+        const referenceResponse = await fetch("/api/reference-data", {
+          credentials: "same-origin",
+        });
+        if (!referenceResponse.ok) {
+          const payload = (await referenceResponse.json().catch(() => ({}))) as {
+            message?: string;
+          };
+          throw new Error(
+            payload.message || "N√£o foi poss√≠vel carregar os dados de refer√™ncia.",
+          );
+        }
+        const referencePayload = (await referenceResponse.json()) as {
+          clients: PortalClient[];
+          systems: PortalSystem[];
+        };
+        if (active) {
+          setClients(referencePayload.clients);
+          setSystems(referencePayload.systems);
+          const firstSystem = referencePayload.systems[0];
+          setCatalogDraft((current) => ({
+            ...current,
+            systemId: current.systemId || firstSystem?.id || "",
+            moduleId: current.moduleId || firstSystem?.modules[0]?.id || "",
+          }));
+        }
+        const assignableResponse = await fetch(
+          "/api/users?scope=assignable",
+          { credentials: "same-origin" },
+        );
+        if (assignableResponse.ok) {
+          const payload = (await assignableResponse.json()) as {
+            users: PortalUser[];
+          };
+          if (active) setPortalUsers(payload.users);
+        }
+        const developersResponse = await fetch("/api/users?scope=developers", {
+          credentials: "same-origin",
+        });
+        if (developersResponse.ok) {
+          const payload = (await developersResponse.json()) as { users: PortalUser[] };
+          if (active) {
+            setDeveloperUsers(payload.users);
+            setActionDraft((current) => ({
+              ...current,
+              developerId: current.developerId || payload.users[0]?.id || "",
+            }));
+          }
+        }
+        const actionsResponse = await fetch("/api/catalog?scope=development-actions", {
+          credentials: "same-origin",
+        });
+        const actionsPayload = (await actionsResponse.json().catch(() => ({}))) as {
+          actions?: DevelopmentAction[];
+          message?: string;
+        };
+        if (actionsResponse.ok) {
+          if (active) setDevelopmentActions(actionsPayload.actions || []);
+        } else if (active) {
+          setActionsError(actionsPayload.message || "N√£o foi poss√≠vel carregar as a√ß√µes de desenvolvimento.");
+        }
+        if (currentUser.role === "administrador") {
+          const managedResponse = await fetch("/api/users", {
+            credentials: "same-origin",
+          });
+          const payload = (await managedResponse.json().catch(() => ({}))) as {
+            users?: ManagedUser[];
+            message?: string;
+          };
+          if (!managedResponse.ok) {
+            throw new Error(payload.message || "N√£o foi poss√≠vel carregar os usu√°rios.");
+          }
+          if (active) setManagedUsers(payload.users || []);
+        }
+      } catch (error) {
+        if (active) {
+          setUsersError(
+            error instanceof Error
+              ? error.message
+              : "N√£o foi poss√≠vel carregar os usu√°rios.",
+          );
+        }
+      } finally {
+        if (active) {
+          setUsersLoading(false);
+          setActionsLoading(false);
+        }
+      }
+    };
+    void loadUsers();
+    return () => {
+      active = false;
+    };
+  }, [currentUser]);
+
+  const getClient = (id: string) =>
+    clients.find((client) => client.id === id)?.name || "Cliente";
+  const getSystem = (id: string) =>
+    systems.find((system) => system.id === id)?.name || "Sistema";
+  const getModule = (systemId: string, moduleId: string) =>
+    systems.find((system) => system.id === systemId)?.modules.find(
+      (module) => module.id === moduleId,
+    )?.name || "M√≥dulo";
+  const getCatalogName = (item: Occurrence) =>
+    item.catalogItemId
+      ? catalog.find((entry) => entry.id === item.catalogItemId)?.name ||
+        "Item inativo"
+      : item.otherError || "Outro erro";
+  const getUser = (id: string) =>
+    portalUsers.find((user) => user.id === id)?.name || "Sem respons√°vel";
+
+  const visibleOccurrences =
+    currentUser?.role === "suporte"
+      ? occurrences.filter((item) => item.responsibleId === currentUser.id)
+      : occurrences;
+
+  const currentOccurrence = visibleOccurrences.find(
+    (item) => item.id === selectedOccurrenceId,
+  );
+  const canManageCatalog = Boolean(currentUser);
+  const generalModuleIds = new Set(
+    systems.flatMap((system) =>
+      system.modules.filter((module) => module.isGeneral).map((module) => module.id),
+    ),
+  );
+  const canEditOccurrence = (item: Occurrence) =>
+    Boolean(
+      currentUser &&
+        (currentUser.role !== "suporte" ||
+          item.responsibleId === currentUser.id),
+    );
+
+  async function portalRequest<T>(
+    url: string,
+    init: RequestInit,
+  ): Promise<T> {
+    setApiError("");
+    const headers = new Headers(init.headers);
+    if (init.body) headers.set("Content-Type", "application/json");
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        ...init,
+        credentials: "same-origin",
+        headers,
+      });
+    } catch {
+      const message =
+        "N√£o foi poss√≠vel conectar ao portal. Verifique a conex√£o e tente novamente.";
+      setApiError(message);
+      throw new Error(message);
+    }
+    const payload = (await response.json().catch(() => ({}))) as {
+      message?: string;
+    };
+    if (response.status === 401 && !url.endsWith("/login")) {
+      setCurrentUser(null);
+      setLoginError("Sua sess√£o expirou. Entre novamente para continuar.");
+    }
+    if (!response.ok) {
+      const message =
+        payload.message || "N√£o foi poss√≠vel concluir a opera√ß√£o.";
+      setApiError(message);
+      throw new Error(message);
+    }
+    return payload as T;
+  }
+
+  const dashboardPeriodBounds = getPeriodBounds(
+    dashPeriod,
+    dashCustomStart,
+    dashCustomEnd,
+  );
+
+  const dashboardData = (() => {
+    const query = normalizeText(dashQuery);
+    return visibleOccurrences.filter((item) => {
+      const occurredAt = new Date(item.occurredAt).getTime();
+      const searchable = normalizeText(
+        [
+          getClient(item.clientId),
+          getUser(item.responsibleId),
+          getCatalogName(item),
+        ].join(" "),
+      );
+      return (
+        occurredAt >= dashboardPeriodBounds.start &&
+        occurredAt <= dashboardPeriodBounds.end &&
+        (dashSystem === "all" || item.systemId === dashSystem) &&
+        (dashModule === "all" || item.moduleId === dashModule) &&
+        (dashStatus === "all" || item.status === dashStatus) &&
+        (dashSeverity === "all" || item.severity === dashSeverity) &&
+        (!query || searchable.includes(query))
+      );
+    });
+  })();
+
+  const filteredRecords = (() => {
+    const periodBounds = getPeriodBounds(recordPeriod);
+    const query = normalizeText(recordSearch);
+    return [...visibleOccurrences]
+      .filter((item) => {
+        const occurredAt = new Date(item.occurredAt).getTime();
+        const searchable = normalizeText(
+          [
+            item.number,
+            getClient(item.clientId),
+            getSystem(item.systemId),
+            getCatalogName(item),
+            getUser(item.responsibleId),
+          ].join(" "),
+        );
+        return (
+          (!query || searchable.includes(query)) &&
+          occurredAt >= periodBounds.start &&
+          occurredAt <= periodBounds.end &&
+          (recordSystem === "all" || item.systemId === recordSystem) &&
+          (recordModule === "all" || item.moduleId === recordModule) &&
+          (recordStatus === "all" || item.status === recordStatus) &&
+          (recordError === "all" || getCatalogName(item) === recordError)
+        );
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.occurredAt).getTime() -
+          new Date(a.occurredAt).getTime(),
+      );
+  })();
+
+  const recordErrorOptions = Array.from(
+    new Set(
+      visibleOccurrences
+        .filter(
+          (item) =>
+            (recordSystem === "all" || item.systemId === recordSystem) &&
+            (recordModule === "all" || item.moduleId === recordModule),
+        )
+        .map((item) => getCatalogName(item)),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const recordPageCount = Math.max(
+    1,
+    Math.ceil(filteredRecords.length / RECORDS_PER_PAGE),
+  );
+  const currentRecordPage = Math.min(recordPage, recordPageCount);
+  const recordPageStart = (currentRecordPage - 1) * RECORDS_PER_PAGE;
+  const paginatedRecords = filteredRecords.slice(
+    recordPageStart,
+    recordPageStart + RECORDS_PER_PAGE,
+  );
+
+  const filteredCatalog = (() => {
+    const query = normalizeText(catalogSearch);
+    return catalog.filter((item) => {
+      const searchable = normalizeText(
+        [item.name, ...item.aliases, getSystem(item.systemId)].join(" "),
+      );
+      return (
+        (!query || searchable.includes(query)) &&
+        (catalogSystem === "all" || item.systemId === catalogSystem) &&
+        (catalogStatus === "all" ||
+          (catalogStatus === "active" ? item.active : !item.active))
+      );
+    });
+  })();
+
+  const filteredManagedUsers = (() => {
+    const query = normalizeText(userSearch);
+    return managedUsers.filter((user) => {
+      const searchable = normalizeText(
+        [user.name, user.email, roleLabel[user.role], user.title].join(" "),
+      );
+      return (
+        (!query || searchable.includes(query)) &&
+        (userRoleFilter === "all" || user.role === userRoleFilter) &&
+        (userStatusFilter === "all" ||
+          (userStatusFilter === "active" ? user.active : !user.active))
+      );
+    });
+  })();
+
+  const catalogUsage = (id: string) =>
+    visibleOccurrences.filter((item) => item.catalogItemId === id).length;
+
+  const getActionUser = (id: string) =>
+    [...developerUsers, ...portalUsers, ...managedUsers].find((user) => user.id === id)?.name || "Usu√°rio indispon√≠vel";
+  const isActionOverdue = (action: DevelopmentAction) =>
+    Boolean(action.dueAt && action.status !== "Resolvida" && new Date(action.dueAt).getTime() <= Date.now());
+  const overdueActions = developmentActions.filter(isActionOverdue);
+  const selectedAction = developmentActions.find((action) => action.id === selectedActionId) || null;
+  const filteredDevelopmentActions = developmentActions.filter((action) => {
+    const query = normalizeText(actionSearch);
+    const searchable = normalizeText([
+      action.number, action.title, action.problemDescription,
+      getActionUser(action.developerId), action.status,
+    ].join(" "));
+    return (!query || searchable.includes(query)) &&
+      (actionStatusFilter === "all" || action.status === actionStatusFilter);
+  });
+
+  function openNewDevelopmentAction() {
+    setActionDraft({
+      title: "", problemDescription: "", actionPlan: "", analysisInformation: "",
+      identifiedAt: toDateTimeLocal(new Date()), developerId: developerUsers[0]?.id || "",
+    });
+    setActionEvidenceFiles([]);
+    setActionFormError("");
+    setActionModalOpen(true);
+  }
+
+  function handleActionEvidence(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    const allowed = files.filter((file) =>
+      /image\/(png|jpeg|webp)/.test(file.type) || file.type === "video/mp4" ||
+      file.type === "text/plain" || file.type === "application/pdf",
+    );
+    if (allowed.length !== files.length) {
+      setActionFormError("Use PNG, JPG, WEBP, MP4, PDF ou TXT.");
+      return;
+    }
+    if (allowed.length > 5 || allowed.some((file) => file.size > 10 * 1024 * 1024)) {
+      setActionFormError("Envie at√© 5 arquivos de no m√°ximo 10 MB cada.");
+      return;
+    }
+    setActionEvidenceFiles(allowed);
+    setActionFormError("");
+  }
+
+  async function uploadDevelopmentEvidence(actionId: string, files: File[]) {
+    if (!files.length) return null;
+    const form = new FormData();
+    form.append("actionId", actionId);
+    files.forEach((file) => form.append("files", file));
+    const response = await fetch("/api/catalog?scope=development-actions", {
+      method: "POST", credentials: "same-origin", body: form,
+    });
+    const payload = (await response.json().catch(() => ({}))) as { action?: DevelopmentAction; message?: string };
+    if (!response.ok || !payload.action) throw new Error(payload.message || "N√£o foi poss√≠vel enviar as evid√™ncias.");
+    return payload.action;
+  }
+
+  async function createDevelopmentAction() {
+    setActionFormError("");
+    if (!actionDraft.developerId) {
+      setActionFormError("Cadastre e selecione um Desenvolvedor ativo.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
+        method: "POST", body: JSON.stringify(actionDraft),
+      });
+      let action = payload.action;
+      setDevelopmentActions((current) => [action, ...current]);
+      if (actionEvidenceFiles.length) {
+        action = (await uploadDevelopmentEvidence(action.id, actionEvidenceFiles)) || action;
+        setDevelopmentActions((current) => current.map((item) => item.id === action.id ? action : item));
+      }
+      setActionModalOpen(false);
+      setSelectedActionId(action.id);
+      setToast("A√ß√£o encaminhada ao Desenvolvedor.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "N√£o foi poss√≠vel criar a a√ß√£o.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openDevelopmentAction(action: DevelopmentAction) {
+    setSelectedActionId(action.id);
+    setValidationNotes(action.resolutionNotes);
+    setDeveloperActionDraft({
+      dueAt: action.dueAt ? toDateTimeLocal(new Date(action.dueAt)) : "",
+      status: action.status === "Encaminhada" ? "Em an√°lise" : action.status === "Resolvida" ? "Em an√°lise" : action.status,
+      developerNotes: action.developerNotes,
+    });
+    setActionFormError("");
+  }
+
+  async function saveDeveloperAction() {
+    if (!selectedAction) return;
+    setSaving(true);
+    setActionFormError("");
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
+        method: "PATCH",
+        body: JSON.stringify({ id: selectedAction.id, ...developerActionDraft }),
+      });
+      setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
+      setToast("Previs√£o e andamento salvos.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "N√£o foi poss√≠vel atualizar a a√ß√£o.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function validateDevelopmentAction(validation: "resolved" | "reopen") {
+    if (!selectedAction) return;
+    setSaving(true);
+    setActionFormError("");
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
+        method: "PATCH",
+        body: JSON.stringify({ id: selectedAction.id, validation, resolutionNotes: validationNotes }),
+      });
+      setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
+      setToast(validation === "resolved" ? "A√ß√£o resolvida e encerrada." : "A√ß√£o reaberta para nova previs√£o.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "N√£o foi poss√≠vel validar a a√ß√£o.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function navigate(next: View) {
+    setView(next);
+    setSidebarOpen(false);
+    setProfileOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    setLoginError("");
+    if (!loginEmail.trim() || !loginPassword) {
+      setLoginError("Preencha o usu√°rio e a senha para continuar.");
+      return;
+    }
+    setLoggingIn(true);
+    try {
+      const payload = await portalRequest<{ user: PortalUser }>(
+        "/api/auth/login",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: loginEmail.trim(),
+            password: loginPassword,
+          }),
+        },
+      );
+      setCurrentUser(payload.user);
+      setPortalUsers((current) =>
+        current.some((user) => user.id === payload.user.id)
+          ? current.map((user) =>
+              user.id === payload.user.id ? payload.user : user,
+            )
+          : [...current, payload.user],
+      );
+      setNewForm((current) => ({
+        ...current,
+        responsibleId: payload.user.id,
+      }));
+      setView(payload.user.role === "desenvolvedor" ? "acoes" : "dashboard");
+      setApiError("");
+    } catch (error) {
+      setLoginError(
+        error instanceof Error
+          ? error.message
+          : "N√£o foi poss√≠vel entrar. Verifique os dados informados.",
+      );
+      setApiError("");
+    } finally {
+      setLoggingIn(false);
+    }
+  }
+
+  async function logout() {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+    } finally {
+      setCurrentUser(null);
+      setProfileOpen(false);
+      setLoginPassword("");
+      setApiError("");
+      setView("dashboard");
+    }
+  }
+
+  function openDetail(id: string) {
+    setSelectedOccurrenceId(id);
+    navigate("detalhe");
+  }
+
+  function resetNewForm() {
+    setNewForm({
+      clientId: "",
+      systemId: "",
+      moduleId: "",
+      catalogChoice: "",
+      otherError: "",
+      description: "",
+      severity: "M√©dia",
+      occurredAt: toDateTimeLocal(new Date()),
+      status: "Novo",
+      responsibleId: currentUser?.id || "",
+      attachments: [],
+    });
+    setFormErrors({});
+  }
+
+  function startNewOccurrence() {
+    resetNewForm();
+    navigate("novo");
+  }
+
+  function handleFiles(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    const allowed = files.filter(
+      (file) =>
+        /image\/(png|jpeg|webp)/.test(file.type) ||
+        file.type === "video/mp4" ||
+        file.type === "text/plain",
+    );
+    if (allowed.length !== files.length) {
+      setFormErrors((current) => ({
+        ...current,
+        attachments: "Use PNG, JPG, WEBP, MP4 ou TXT.",
+      }));
+    } else {
+      setFormErrors((current) => ({ ...current, attachments: "" }));
+    }
+    setNewForm((current) => ({
+      ...current,
+      attachments: allowed.slice(0, 3).map((file) => file.name),
+    }));
+  }
+
+  async function submitOccurrence(event: FormEvent) {
+    event.preventDefault();
+    const errors: Record<string, string> = {};
+    if (!newForm.clientId) errors.clientId = "Selecione o cliente.";
+    if (!newForm.systemId) errors.systemId = "Selecione o sistema.";
+    if (!newForm.moduleId) errors.moduleId = "Selecione o m√≥dulo.";
+    if (!newForm.catalogChoice) {
+      errors.catalogChoice = "Selecione o erro.";
+    }
+    if (
+      newForm.catalogChoice === "other" &&
+      newForm.otherError.trim().length < 8
+    ) {
+      errors.otherError = "Descreva o erro com pelo menos 8 caracteres.";
+    }
+    if (!newForm.occurredAt) errors.occurredAt = "Informe data e hor√°rio.";
+    if (!newForm.responsibleId) {
+      errors.responsibleId = "Selecione o respons√°vel.";
+    }
+    if (new Date(newForm.occurredAt).getTime() > Date.now()) {
+      errors.occurredAt = "A data da ocorr√™ncia n√£o pode estar no futuro.";
+    }
+    setFormErrors(errors);
+    if (Object.keys(errors).length) return;
+
+    setSaving(true);
+    try {
+      const payload = await portalRequest<{ occurrence: Occurrence }>(
+        "/api/occurrences",
+        {
+          method: "POST",
+          body: JSON.stringify(newForm),
+        },
+      );
+      const newOccurrence = payload.occurrence;
+      setOccurrences((current) => [newOccurrence, ...current]);
+      setSelectedOccurrenceId(newOccurrence.id);
+      setToast("Ocorr√™ncia registrada com sucesso.");
+      setView("detalhe");
+    } catch {
+      // O banner global apresenta a mensagem devolvida pela API mockada.
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function beginEditOccurrence(item: Occurrence) {
+    setEditDraft({
+      description: item.description,
+      severity: item.severity,
+      status: item.status,
+      responsibleId: item.responsibleId,
+      attachments: item.attachments,
+    });
+    setEditEvidenceFiles([]);
+    setEditEvidenceError("");
+    setEditingOccurrence(true);
+  }
+
+  function handleEditEvidence(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    const allowed = files.filter(
+      (file) =>
+        /image\/(png|jpeg|webp)/.test(file.type) ||
+        file.type === "video/mp4" ||
+        file.type === "text/plain",
+    );
+    if (allowed.length !== files.length) {
+      setEditEvidenceError("Use PNG, JPG, WEBP, MP4 ou TXT.");
+      return;
+    }
+    if (editDraft.attachments.length + allowed.length > 3) {
+      setEditEvidenceError("Cada ocorr√™ncia pode ter no m√°ximo 3 evid√™ncias.");
+      return;
+    }
+    if (allowed.some((file) => file.size > 10 * 1024 * 1024)) {
+      setEditEvidenceError("Cada evid√™ncia pode ter no m√°ximo 10 MB.");
+      return;
+    }
+    setEditEvidenceFiles(allowed);
+    setEditEvidenceError("");
+  }
+
+  async function uploadOccurrenceEvidence(occurrenceId: string) {
+    if (!editEvidenceFiles.length) return [] as string[];
+    const form = new FormData();
+    form.append("occurrenceId", occurrenceId);
+    editEvidenceFiles.forEach((file) => form.append("files", file));
+    const response = await fetch("/api/occurrences", {
+      method: "POST",
+      credentials: "same-origin",
+      body: form,
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      attachments?: string[];
+      message?: string;
+    };
+    if (!response.ok || !payload.attachments) {
+      throw new Error(payload.message || "N√£o foi poss√≠vel enviar as evid√™ncias.");
+    }
+    return payload.attachments;
+  }
+
+  async function saveOccurrenceEdit() {
+    if (!currentOccurrence) return;
+    setSaving(true);
+    try {
+      const uploadedAttachments = await uploadOccurrenceEvidence(currentOccurrence.id);
+      const attachments = [...editDraft.attachments, ...uploadedAttachments];
+      const payload = await portalRequest<{
+        changes: Pick<
+          Occurrence,
+          "description" | "severity" | "status" | "responsibleId" | "attachments" | "updatedAt"
+        >;
+      }>("/api/occurrences", {
+        method: "PATCH",
+        body: JSON.stringify({
+          id: currentOccurrence.id,
+          originalResponsibleId: currentOccurrence.responsibleId,
+          ...editDraft,
+          attachments,
+        }),
+      });
+      setOccurrences((current) =>
+        current.map((item) =>
+          item.id === currentOccurrence.id
+            ? { ...item, ...payload.changes }
+            : item,
+        ),
+      );
+      setEditingOccurrence(false);
+      setEditEvidenceFiles([]);
+      setToast(uploadedAttachments.length ? "Ocorr√™ncia e evid√™ncias atualizadas." : "Ocorr√™ncia atualizada.");
+    } catch (error) {
+      if (error instanceof Error) setEditEvidenceError(error.message);
+      // Mant√©m o modal aberto para que a pessoa possa revisar ou tentar novamente.
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteOccurrence(id: string) {
+    setSaving(true);
+    try {
+      await portalRequest<{ deleted: true; id: string }>(
+        `/api/occurrences?id=${encodeURIComponent(id)}`,
+        { method: "DELETE" },
+      );
+      setOccurrences((current) => current.filter((item) => item.id !== id));
+      setConfirmOccurrenceDeleteId(null);
+      if (selectedOccurrenceId === id) navigate("registros");
+      setToast("Registro removido da visualiza√ß√£o. Os dados foram preservados com seguran√ßa.");
+    } catch {
+      // O di√°logo permanece aberto para uma nova tentativa.
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openNewCatalog() {
+    const firstSystem = systems[0];
+    if (!firstSystem) {
+      setReferenceError(
+        "Cadastre um sistema primeiro. O m√≥dulo Geral ser√° criado automaticamente.",
+      );
+      setReferenceManagerOpen(true);
+      return;
+    }
+    setCatalogDraft({
+      systemId: firstSystem?.id || "",
+      moduleId: firstSystem?.modules[0]?.id || "",
+      name: "",
+      aliases: "",
+      active: true,
+    });
+    setCatalogError("");
+    setCatalogModal({ mode: "new" });
+  }
+
+  function applyReferenceData(payload: {
+    clients: PortalClient[];
+    systems: PortalSystem[];
+  }) {
+    setClients(payload.clients);
+    setSystems(payload.systems);
+    const firstSystem = payload.systems[0];
+    setCatalogDraft((current) => {
+      const selectedSystem =
+        payload.systems.find((system) => system.id === current.systemId) ||
+        firstSystem;
+      return {
+        ...current,
+        systemId: selectedSystem?.id || "",
+        moduleId:
+          selectedSystem?.modules.find((module) => module.id === current.moduleId)
+            ?.id ||
+          selectedSystem?.modules[0]?.id ||
+          "",
+      };
+    });
+    setModuleDraft((current) => ({
+      ...current,
+      systemId:
+        payload.systems.some((system) => system.id === current.systemId)
+          ? current.systemId
+          : firstSystem?.id || "",
+    }));
+  }
+
+  function openReferenceManager() {
+    setReferenceError("");
+    setSystemDraft("");
+    setEditingSystemId(null);
+    setModuleDraft({
+      systemId: systems[0]?.id || "",
+      name: "",
+      isGeneral: false,
+    });
+    setEditingModuleId(null);
+    setReferenceManagerOpen(true);
+  }
+
+  async function saveSystemReference() {
+    const name = systemDraft.trim().replace(/\s+/g, " ");
+    if (name.length < 2) {
+      setReferenceError("Informe o nome do sistema.");
+      return;
+    }
+    setSaving(true);
+    setReferenceError("");
+    try {
+      const payload = await portalRequest<{
+        clients: PortalClient[];
+        systems: PortalSystem[];
+      }>("/api/reference-data", {
+        method: editingSystemId ? "PATCH" : "POST",
+        body: JSON.stringify({
+          kind: "system",
+          id: editingSystemId,
+          name,
+        }),
+      });
+      applyReferenceData(payload);
+      const savedSystem = payload.systems.find(
+        (system) => normalizeText(system.name) === normalizeText(name),
+      );
+      setModuleDraft((current) => ({
+        ...current,
+        systemId: savedSystem?.id || current.systemId,
+      }));
+      setSystemDraft("");
+      setEditingSystemId(null);
+      setToast(editingSystemId ? "Sistema atualizado." : "Sistema criado com o m√≥dulo Geral.");
+    } catch (error) {
+      setReferenceError(
+        error instanceof Error ? error.message : "N√£o foi poss√≠vel salvar o sistema.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function saveModuleReference() {
+    const name = moduleDraft.name.trim().replace(/\s+/g, " ");
+    if (!moduleDraft.systemId) {
+      setReferenceError("Selecione o sistema do m√≥dulo.");
+      return;
+    }
+    if (name.length < 2) {
+      setReferenceError("Informe o nome do m√≥dulo.");
+      return;
+    }
+    setSaving(true);
+    setReferenceError("");
+    try {
+      const payload = await portalRequest<{
+        clients: PortalClient[];
+        systems: PortalSystem[];
+      }>("/api/reference-data", {
+        method: editingModuleId ? "PATCH" : "POST",
+        body: JSON.stringify({
+          kind: "module",
+          id: editingModuleId,
+          systemId: moduleDraft.systemId,
+          name,
+          isGeneral: moduleDraft.isGeneral,
+        }),
+      });
+      applyReferenceData(payload);
+      setModuleDraft((current) => ({
+        systemId: current.systemId,
+        name: "",
+        isGeneral: false,
+      }));
+      setEditingModuleId(null);
+      setToast(editingModuleId ? "M√≥dulo atualizado." : "M√≥dulo criado.");
+    } catch (error) {
+      setReferenceError(
+        error instanceof Error ? error.message : "N√£o foi poss√≠vel salvar o m√≥dulo.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteReference() {
+    if (!confirmReferenceDelete) return;
+    setSaving(true);
+    setReferenceError("");
+    try {
+      const payload = await portalRequest<{
+        clients: PortalClient[];
+        systems: PortalSystem[];
+      }>(
+        `/api/reference-data?kind=${confirmReferenceDelete.kind}&id=${encodeURIComponent(
+          confirmReferenceDelete.id,
+        )}`,
+        { method: "DELETE" },
+      );
+      applyReferenceData(payload);
+      setConfirmReferenceDelete(null);
+      setToast(
+        confirmReferenceDelete.kind === "system"
+          ? "Sistema removido da visualiza√ß√£o."
+          : "M√≥dulo removido da visualiza√ß√£o.",
+      );
+    } catch (error) {
+      setReferenceError(
+        error instanceof Error ? error.message : "N√£o foi poss√≠vel excluir o cadastro.",
+      );
+      setConfirmReferenceDelete(null);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openEditCatalog(item: CatalogItem) {
+    setCatalogDraft({
+      systemId: item.systemId,
+      moduleId: item.moduleId,
+      name: item.name,
+      aliases: item.aliases.join(", "),
+      active: item.active,
+    });
+    setCatalogError("");
+    setCatalogModal({ mode: "edit", id: item.id });
+  }
+
+  async function saveCatalog() {
+    const name = catalogDraft.name.trim().replace(/\s+/g, " ");
+    if (name.length < 5) {
+      setCatalogError("Informe um nome oficial com pelo menos 5 caracteres.");
+      return;
+    }
+    const duplicate = catalog.find(
+      (item) =>
+        item.id !== catalogModal?.id &&
+        item.systemId === catalogDraft.systemId &&
+        item.moduleId === catalogDraft.moduleId &&
+        normalizeText(item.name) === normalizeText(name),
+    );
+    if (duplicate) {
+      setCatalogError(
+        "J√° existe um item com este nome para o sistema e m√≥dulo selecionados.",
+      );
+      return;
+    }
+    const item: CatalogItem = {
+      id: catalogModal?.id || "c" + String(Date.now()),
+      systemId: catalogDraft.systemId,
+      moduleId: catalogDraft.moduleId,
+      name,
+      aliases: catalogDraft.aliases
+        .split(",")
+        .map((alias) => alias.trim())
+        .filter(Boolean),
+      active: catalogDraft.active,
+      updatedAt: new Date().toISOString(),
+    };
+    setSaving(true);
+    try {
+      const payload = await portalRequest<{ item: Partial<CatalogItem> }>(
+        "/api/catalog",
+        {
+          method: catalogModal?.mode === "edit" ? "PATCH" : "POST",
+          body: JSON.stringify({
+            ...item,
+            existingKeys: catalog
+              .filter((entry) => entry.id !== item.id)
+              .map(
+                (entry) =>
+                  entry.systemId +
+                  "|" +
+                  entry.moduleId +
+                  "|" +
+                  normalizeText(entry.name),
+              ),
+          }),
+        },
+      );
+      const savedItem = { ...item, ...payload.item } as CatalogItem;
+      setCatalog((current) =>
+        catalogModal?.mode === "edit"
+          ? current.map((entry) =>
+              entry.id === savedItem.id ? savedItem : entry,
+            )
+          : [savedItem, ...current],
+      );
+      setCatalogModal(null);
+      setToast(
+        catalogModal?.mode === "edit"
+          ? "Item do Cat√°logo atualizado."
+          : "Item adicionado ao Cat√°logo.",
+      );
+    } catch (error) {
+      setCatalogError(
+        error instanceof Error
+          ? error.message
+          : "N√£o foi poss√≠vel salvar o item.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function toggleCatalogItem(id: string) {
+    const item = catalog.find((entry) => entry.id === id);
+    if (!item) return;
+    setSaving(true);
+    try {
+      const payload = await portalRequest<{ item: Partial<CatalogItem> }>(
+        "/api/catalog",
+        {
+          method: "PATCH",
+          body: JSON.stringify({ ...item, active: !item.active }),
+        },
+      );
+      setCatalog((current) =>
+        current.map((entry) =>
+          entry.id === id ? ({ ...entry, ...payload.item } as CatalogItem) : entry,
+        ),
+      );
+      setConfirmCatalogId(null);
+      setToast(item.active ? "Item inativado." : "Item reativado.");
+    } catch {
+      // O di√°logo permanece aberto para uma nova tentativa.
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function syncManagedUser(user: ManagedUser) {
+    setManagedUsers((current) => {
+      const exists = current.some((entry) => entry.id === user.id);
+      return exists
+        ? current.map((entry) => (entry.id === user.id ? user : entry))
+        : [...current, user].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    });
+    setPortalUsers((current) => {
+      const withoutUser = current.filter((entry) => entry.id !== user.id);
+      return user.active ? [...withoutUser, user] : withoutUser;
+    });
+  }
+
+  async function reloadManagedUsers() {
+    setUsersLoading(true);
+    setUsersError("");
+    try {
+      const payload = await portalRequest<{ users: ManagedUser[] }>(
+        "/api/users",
+        { method: "GET" },
+      );
+      setManagedUsers(payload.users);
+      setPortalUsers(payload.users.filter((user) => user.active));
+    } catch (error) {
+      setUsersError(
+        error instanceof Error
+          ? error.message
+          : "N√£o foi poss√≠vel carregar os usu√°rios.",
+      );
+    } finally {
+      setUsersLoading(false);
+    }
+  }
+
+  function openNewUser() {
+    setUserDraft({ name: "", email: "", role: "suporte", password: "" });
+    setUserFormError("");
+    setUserModal({ mode: "new" });
+  }
+
+  function openEditUser(user: ManagedUser) {
+    setUserDraft({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      password: "",
+    });
+    setUserFormError("");
+    setUserModal({ mode: "edit", id: user.id });
+  }
+
+  async function saveUser() {
+    const name = userDraft.name.trim().replace(/\s+/g, " ");
+    const email = userDraft.email.trim().toLocaleLowerCase("pt-BR");
+    if (name.length < 2) {
+      setUserFormError("Informe o nome completo do usu√°rio.");
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setUserFormError("Informe um e-mail v√°lido.");
+      return;
+    }
+    if (userModal?.mode === "new" && userDraft.password.length < 8) {
+      setUserFormError("A senha tempor√°ria deve ter pelo menos 8 caracteres.");
+      return;
+    }
+    if (
+      userModal?.mode === "edit" &&
+      userDraft.password &&
+      userDraft.password.length < 8
+    ) {
+      setUserFormError("A nova senha deve ter pelo menos 8 caracteres.");
+      return;
+    }
+
+    const existing = managedUsers.find((user) => user.id === userModal?.id);
+    setSaving(true);
+    setUserFormError("");
+    try {
+      const payload = await portalRequest<{ user: ManagedUser }>("/api/users", {
+        method: userModal?.mode === "edit" ? "PATCH" : "POST",
+        body: JSON.stringify(
+          userModal?.mode === "edit"
+            ? {
+                id: userModal.id,
+                name,
+                role: userDraft.role,
+                active: existing?.active ?? true,
+                ...(userDraft.password ? { password: userDraft.password } : {}),
+              }
+            : {
+                name,
+                email,
+                role: userDraft.role,
+                password: userDraft.password,
+              },
+        ),
+      });
+      syncManagedUser(payload.user);
+      setUserModal(null);
+      setToast(
+        userModal?.mode === "edit"
+          ? "Usu√°rio e permiss√µes atualizados."
+          : "Usu√°rio criado com sucesso.",
+      );
+    } catch (error) {
+      setUserFormError(
+        error instanceof Error ? error.message : "N√£o foi poss√≠vel salvar o usu√°rio.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function toggleUserAccess(id: string) {
+    const user = managedUsers.find((entry) => entry.id === id);
+    if (!user) return;
+    setSaving(true);
+    try {
+      const payload = await portalRequest<{ user: ManagedUser }>("/api/users", {
+        method: "PATCH",
+        body: JSON.stringify({
+          id: user.id,
+          name: user.name,
+          role: user.role,
+          active: !user.active,
+        }),
+      });
+      syncManagedUser(payload.user);
+      setConfirmUserId(null);
+      setToast(user.active ? "Acesso do usu√°rio bloqueado." : "Acesso reativado.");
+    } catch {
+      // O di√°logo permanece aberto para uma nova tentativa.
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteUser(id: string) {
+    setSaving(true);
+    try {
+      await portalRequest<{ deleted: true; id: string }>(
+        `/api/users?id=${encodeURIComponent(id)}`,
+        { method: "DELETE" },
+      );
+      setManagedUsers((current) => current.filter((user) => user.id !== id));
+      setPortalUsers((current) => current.filter((user) => user.id !== id));
+      setConfirmUserDeleteId(null);
+      setToast("Usu√°rio removido da visualiza√ß√£o. O hist√≥rico foi preservado.");
+    } catch {
+      // O di√°logo permanece aberto para uma nova tentativa.
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function clearDashboardFilters() {
+    setDashPeriod("week");
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    setDashCustomStart(toDateInput(sevenDaysAgo));
+    setDashCustomEnd(toDateInput(today));
+    setDashSystem("all");
+    setDashModule("all");
+    setDashStatus("all");
+    setDashSeverity("all");
+    setDashQuery("");
+  }
+
+  function clearRecordFilters() {
+    setRecordSearch("");
+    setRecordPeriod("all");
+    setRecordSystem("all");
+    setRecordModule("all");
+    setRecordStatus("all");
+    setRecordError("all");
+    setRecordPage(1);
+  }
+
+  if (checkingSession) {
+    return (
+      <main className="session-loading" aria-live="polite">
+        <span className="brand-mark">
+          <ShieldCheck size={24} />
+        </span>
+        <span className="spinner" />
+        <p>Verificando a sess√£o do portal‚Ä¶</p>
+      </main>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <main className="login-page">
+        <section className="login-story" aria-label="Apresenta√ß√£o do portal">
+          <div className="story-glow story-glow-one" />
+          <div className="story-glow story-glow-two" />
+          <div className="brand brand-light">
+            <span className="brand-mark">
+              <ShieldCheck size={24} />
+            </span>
+            <span>
+              <strong>Portal de Ocorr√™ncias</strong>
+              <small>Suporte</small>
+            </span>
+          </div>
+          <div className="story-copy">
+            <span className="eyebrow eyebrow-light">Opera√ß√£o centralizada</span>
+            <h1>Transforme relatos de suporte em decis√µes mais claras.</h1>
+            <p>
+              Registre ocorr√™ncias, acompanhe o impacto e mantenha os erros
+              recorrentes organizados em um √∫nico lugar.
+            </p>
+            <div className="story-points">
+              <div>
+                <span>
+                  <BarChart3 size={19} />
+                </span>
+                <p>
+                  <strong>Vis√£o gerencial</strong>
+                  Indicadores que usam a mesma base de filtros.
+                </p>
+              </div>
+              <div>
+                <span>
+                  <BookOpenCheck size={19} />
+                </span>
+                <p>
+                  <strong>Erros padronizados</strong>
+                  Menos duplicidade, m√©tricas mais confi√°veis.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="story-footer">
+            <span className="status-dot" />
+            Dados operacionais armazenados com seguran√ßa
+          </div>
+        </section>
+
+        <section className="login-panel">
+          <div className="login-card">
+            <div className="mobile-brand brand">
+              <span className="brand-mark">
+                <ShieldCheck size={22} />
+              </span>
+              <span>
+                <strong>Portal de Ocorr√™ncias</strong>
+                <small>Suporte</small>
+              </span>
+            </div>
+            <span className="eyebrow">Acesso seguro</span>
+            <h2>Que bom ter voc√™ de volta</h2>
+            <p className="login-intro">
+              Entre com uma conta autorizada para acessar o portal.
+            </p>
+            <form onSubmit={handleLogin} noValidate>
+              <label className="field">
+                <span>E-mail ou usu√°rio</span>
+                <div className="input-with-icon">
+                  <UserRound size={18} />
+                  <input
+                    type="email"
+                    value={loginEmail}
+                    onChange={(event) => setLoginEmail(event.target.value)}
+                    placeholder="nome@empresa.com"
+                    autoComplete="username"
+                    aria-invalid={Boolean(loginError)}
+                    aria-describedby={loginError ? "login-error" : undefined}
+                  />
+                </div>
+              </label>
+              <label className="field">
+                <span>Senha</span>
+                <div className="input-with-icon password-field">
+                  <LockKeyhole size={18} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={loginPassword}
+                    onChange={(event) => setLoginPassword(event.target.value)}
+                    placeholder="Digite sua senha"
+                    autoComplete="current-password"
+                    aria-invalid={Boolean(loginError)}
+                    aria-describedby={loginError ? "login-error" : undefined}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword((current) => !current)}
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </label>
+              {loginError && (
+                <div className="form-alert" id="login-error" role="alert">
+                  <CircleAlert size={18} />
+                  {loginError}
+                </div>
+              )}
+              <button
+                type="submit"
+                className="button button-primary button-wide"
+                disabled={loggingIn}
+              >
+                {loggingIn ? (
+                  <>
+                    <span className="spinner" />
+                    Autenticando‚Ä¶
+                  </>
+                ) : (
+                  <>
+                    Entrar
+                    <ChevronRight size={18} />
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  const dashboardOpen = dashboardData.filter(
+    (item) => !["Resolvido", "Cancelado"].includes(item.status),
+  ).length;
+  const dashboardCritical = dashboardData.filter((item) =>
+    ["Alta", "Cr√≠tica"].includes(item.severity),
+  ).length;
+  const catalogCounts = catalog
+    .map((entry) => ({
+      id: entry.id,
+      name: entry.name,
+      count: dashboardData.filter((item) => item.catalogItemId === entry.id)
+        .length,
+    }))
+    .sort((a, b) => b.count - a.count);
+  const recurrent = catalogCounts[0];
+  const systemCounts = systems.map((system) => ({
+    ...system,
+    count: dashboardData.filter((item) => item.systemId === system.id).length,
+  }));
+  const mostAffected = [...systemCounts].sort((a, b) => b.count - a.count)[0];
+  const maxSystemCount = Math.max(1, ...systemCounts.map((item) => item.count));
+  const statusCounts = STATUS_OPTIONS.map((status) => ({
+    status,
+    count: dashboardData.filter((item) => item.status === status).length,
+  })).filter((item) => item.count > 0);
+  let donutCursor = 0;
+  const donutColors = ["#0f766e", "#2d6ca2", "#e1a42f", "#42a474", "#94a3b8"];
+  const donutParts = statusCounts.map((item, index) => {
+    const start = donutCursor;
+    const end =
+      start + (dashboardData.length ? (item.count / dashboardData.length) * 100 : 0);
+    donutCursor = end;
+    return donutColors[index % donutColors.length] + " " + start + "% " + end + "%";
+  });
+  const donutStyle = {
+    background:
+      dashboardData.length > 0
+        ? "conic-gradient(" + donutParts.join(", ") + ")"
+        : "#e8eef3",
+  } as CSSProperties;
+
+  const dailyEvolution = (() => {
+    const counts = dashboardData.reduce<Map<string, number>>((map, item) => {
+      const key = getLocalDateKey(item.occurredAt);
+      map.set(key, (map.get(key) || 0) + 1);
+      return map;
+    }, new Map());
+    const timestamps = dashboardData.map((item) =>
+      new Date(item.occurredAt).getTime(),
+    );
+    const now = Date.now();
+    const startTimestamp =
+      dashboardPeriodBounds.start ||
+      (timestamps.length ? Math.min(...timestamps) : now);
+    const endTimestamp = Number.isFinite(dashboardPeriodBounds.end)
+      ? Math.min(dashboardPeriodBounds.end, now)
+      : now;
+    const startDate = new Date(startTimestamp);
+    const endDate = new Date(Math.max(startTimestamp, endTimestamp));
+    startDate.setHours(12, 0, 0, 0);
+    endDate.setHours(12, 0, 0, 0);
+
+    const points: { key: string; label: string; count: number }[] = [];
+    const cursor = new Date(startDate);
+    while (cursor.getTime() <= endDate.getTime()) {
+      const key = getLocalDateKey(cursor);
+      points.push({ key, label: formatDailyLabel(key), count: counts.get(key) || 0 });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return points;
+  })();
+  const dailyChartWidth = 760;
+  const dailyChartHeight = 210;
+  const dailyChartLeft = 34;
+  const dailyChartRight = 18;
+  const dailyChartTop = 16;
+  const dailyChartBottom = 32;
+  const dailyChartBaseline = dailyChartHeight - dailyChartBottom;
+  const dailyMax = Math.max(1, ...dailyEvolution.map((item) => item.count));
+  const dailyChartPoints = dailyEvolution.map((item, index) => {
+    const usableWidth = dailyChartWidth - dailyChartLeft - dailyChartRight;
+    const usableHeight = dailyChartBaseline - dailyChartTop;
+    const x =
+      dailyEvolution.length === 1
+        ? dailyChartLeft + usableWidth / 2
+        : dailyChartLeft + (index / (dailyEvolution.length - 1)) * usableWidth;
+    const y = dailyChartBaseline - (item.count / dailyMax) * usableHeight;
+    return { ...item, x, y };
+  });
+  const dailyLinePoints = dailyChartPoints
+    .map((item) => item.x + "," + item.y)
+    .join(" ");
+  const dailyAreaPoints = dailyChartPoints.length
+    ? [
+        dailyChartPoints[0].x + "," + dailyChartBaseline,
+        dailyLinePoints,
+        dailyChartPoints[dailyChartPoints.length - 1].x +
+          "," +
+          dailyChartBaseline,
+      ].join(" ")
+    : "";
+  const dailyLabelStep = Math.max(1, Math.ceil(dailyEvolution.length / 7));
+
+  const navItems = currentUser.role === "desenvolvedor"
+    ? [{ id: "acoes" as View, label: "A√ß√µes para Desenvolvedores", icon: Code2 }]
+    : [
+        { id: "dashboard" as View, label: "Dashboard", icon: LayoutDashboard },
+        { id: "registros" as View, label: "Registro", icon: ClipboardList },
+        { id: "agenda" as View, label: "Agenda", icon: CalendarDays },
+        { id: "acoes" as View, label: "A√ß√µes para Desenvolvedores", icon: Code2 },
+        { id: "catalogo" as View, label: "Cat√°logo", icon: BookOpenCheck },
+        ...(currentUser.role === "administrador"
+          ? [{ id: "usuarios" as View, label: "Usu√°rios", icon: UsersRound }]
+          : []),
+      ];
+
+  return (
+    <div className="portal-shell">
+      <div
+        className={sidebarOpen ? "sidebar-scrim visible" : "sidebar-scrim"}
+        onClick={() => setSidebarOpen(false)}
+      />
+      <aside className={sidebarOpen ? "sidebar sidebar-open" : "sidebar"}>
+        <div className="brand sidebar-brand">
+          <span className="brand-mark">
+            <ShieldCheck size={22} />
+          </span>
+          <span>
+            <strong>Portal de Ocorr√™ncias</strong>
+            <small>Suporte</small>
+          </span>
+        </div>
+        <nav className="main-nav" aria-label="Navega√ß√£o principal">
+          <p className="nav-label">Menu principal</p>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active =
+              view === item.id ||
+              (item.id === "registros" &&
+                ["novo", "detalhe"].includes(view));
+            return (
+              <button
+                key={item.id}
+                className={active ? "nav-item active" : "nav-item"}
+                onClick={() => navigate(item.id)}
+                aria-current={active ? "page" : undefined}
+              >
+                <Icon size={19} />
+                <span>{item.label}</span>
+                {item.id === "registros" && (
+                  <small>{visibleOccurrences.length}</small>
+                )}
+                {item.id === "acoes" && (
+                  <small>{currentUser.role === "desenvolvedor"
+                    ? developmentActions.filter((action) => action.status !== "Resolvida").length
+                    : overdueActions.length}</small>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+        <div className="sidebar-insight">
+          <span className="insight-icon">
+            <Activity size={18} />
+          </span>
+          <p>
+            {currentUser.role === "desenvolvedor" ? (
+              <><strong>{developmentActions.filter((action) => action.status !== "Resolvida").length} a√ß√µes abertas</strong>atribu√≠das a voc√™</>
+            ) : (
+              <><strong>{overdueActions.length} prazos atingidos</strong>aguardando verifica√ß√£o</>
+            )}
+          </p>
+        </div>
+        <div className="sidebar-footer">
+          <span className="status-dot" />
+          <span>
+            <strong>Ambiente operacional</strong>
+            <small>Dados do Supabase</small>
+          </span>
+        </div>
+      </aside>
+
+      <div className="portal-content">
+        <header className="topbar">
+          <button
+            className="icon-button menu-button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menu"
+          >
+            <Menu size={21} />
+          </button>
+          <div className="topbar-context">
+            <span className="status-dot" />
+            Opera√ß√£o de suporte
+          </div>
+          <div className="topbar-actions">
+            <span className="demo-pill">Dados reais</span>
+            <div className="profile-menu">
+              <button
+                className="profile-trigger"
+                onClick={() => setProfileOpen((current) => !current)}
+                aria-expanded={profileOpen}
+              >
+                <span className="avatar">{initials(currentUser.name)}</span>
+                <span className="profile-copy">
+                  <strong>{currentUser.name}</strong>
+                  <small>{roleLabel[currentUser.role]}</small>
+                </span>
+                <ChevronDown size={16} />
+              </button>
+              {profileOpen && (
+                <div className="profile-popover">
+                  <div>
+                    <span className="avatar avatar-large">
+                      {initials(currentUser.name)}
+                    </span>
+                    <p>
+                      <strong>{currentUser.name}</strong>
+                      <span>{currentUser.email}</span>
+                    </p>
+                  </div>
+                  <span className="role-line">
+                    <ShieldCheck size={16} />
+                    {currentUser.title}
+                  </span>
+                  <button onClick={logout}>
+                    <LogOut size={17} />
+                    Sair do portal
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="workspace">
+          {apiError && (
+            <div className="api-error-banner" role="alert">
+              <CircleAlert size={20} />
+              <div>
+                <strong>N√£o foi poss√≠vel concluir a opera√ß√£o</strong>
+                <span>{apiError}</span>
+              </div>
+              <button
+                type="button"
+                className="button button-ghost"
+                onClick={() => window.location.reload()}
+              >
+                <RefreshCcw size={16} />
+                Tentar novamente
+              </button>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => setApiError("")}
+                aria-label="Fechar aviso"
+              >
+                <X size={17} />
+              </button>
+            </div>
+          )}
+          {view === "agenda" && (
+            <AgendaView
+              currentUser={currentUser}
+              users={portalUsers}
+              clients={clients}
+              onNotify={setToast}
+            />
+          )}
+
+          {view === "acoes" && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">Desenvolvimento</span>
+                  <h1>A√ß√µes para Desenvolvedores</h1>
+                  <p>Acompanhe encaminhamentos, previs√µes, prazos e valida√ß√µes das corre√ß√µes.</p>
+                </div>
+                {currentUser.role !== "desenvolvedor" && (
+                  <button className="button button-primary" onClick={openNewDevelopmentAction}>
+                    <Plus size={18} /> Nova a√ß√£o
+                  </button>
+                )}
+              </div>
+
+              {currentUser.role !== "desenvolvedor" && overdueActions.length > 0 && (
+                <div className="development-deadline-alert" role="alert">
+                  <AlertTriangle size={22} />
+                  <div>
+                    <strong>{overdueActions.length} {overdueActions.length === 1 ? "prazo foi atingido" : "prazos foram atingidos"}</strong>
+                    <span>Verifique com o Desenvolvedor e valide se o problema foi solucionado.</span>
+                  </div>
+                </div>
+              )}
+
+              <section className="catalog-summary development-summary">
+                <div>
+                  <span className="metric-icon metric-blue"><Code2 size={20} /></span>
+                  <p><strong>{developmentActions.filter((action) => action.status !== "Resolvida").length}</strong>a√ß√µes abertas</p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-amber"><Clock3 size={20} /></span>
+                  <p><strong>{developmentActions.filter((action) => !action.dueAt && action.status !== "Resolvida").length}</strong>sem previs√£o</p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span>
+                  <p><strong>{developmentActions.filter((action) => action.status === "Aguardando valida√ß√£o").length}</strong>aguardando valida√ß√£o</p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-red"><AlertTriangle size={20} /></span>
+                  <p><strong>{overdueActions.length}</strong>prazo atingido</p>
+                </div>
+              </section>
+
+              {actionsError && <div className="users-error" role="alert"><CircleAlert size={18} /><span>{actionsError}</span></div>}
+              <section className="card records-card development-actions-card">
+                <div className="records-toolbar">
+                  <label className="search-control">
+                    <Search size={18} />
+                    <input value={actionSearch} onChange={(event) => setActionSearch(event.target.value)} placeholder="Buscar a√ß√£o, problema ou Desenvolvedor" aria-label="Buscar a√ß√µes" />
+                  </label>
+                  <label>
+                    <span className="sr-only">Status da a√ß√£o</span>
+                    <select value={actionStatusFilter} onChange={(event) => setActionStatusFilter(event.target.value)}>
+                      <option value="all">Todos os status</option>
+                      {DEVELOPMENT_STATUS_OPTIONS.map((status) => <option key={status}>{status}</option>)}
+                    </select>
+                  </label>
+                </div>
+                {actionsLoading ? (
+                  <div className="users-loading"><span className="spinner" />Carregando a√ß√µes‚Ä¶</div>
+                ) : filteredDevelopmentActions.length === 0 ? (
+                  <div className="empty-state"><Code2 size={32} /><h3>Nenhuma a√ß√£o encontrada</h3><p>Os encaminhamentos aparecer√£o aqui.</p></div>
+                ) : (
+                  <div className="table-wrap">
+                    <table>
+                      <thead><tr><th>A√ß√£o</th><th>Problema</th><th>Desenvolvedor</th><th>Registrado em</th><th>Previs√£o</th><th>Status</th><th /></tr></thead>
+                      <tbody>
+                        {filteredDevelopmentActions.map((action) => (
+                          <tr key={action.id} className={isActionOverdue(action) ? "deadline-row" : undefined}>
+                            <td><button className="table-primary-link" onClick={() => openDevelopmentAction(action)}>{action.number}</button></td>
+                            <td><strong>{action.title}</strong><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "‚Ä¶" : ""}</small></td>
+                            <td>{getActionUser(action.developerId)}</td>
+                            <td>{formatDate(action.identifiedAt)}</td>
+                            <td className={isActionOverdue(action) ? "deadline-text" : undefined}>{action.dueAt ? formatDate(action.dueAt) : "Aguardando defini√ß√£o"}</td>
+                            <td><span className="badge">{isActionOverdue(action) ? "Prazo atingido" : action.status}</span></td>
+                            <td><button className="icon-button" onClick={() => openDevelopmentAction(action)} aria-label={`Abrir ${action.number}`}><Eye size={17} /></button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {view === "dashboard" && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">Dashboard</span>
+                  <h1>Vis√£o geral da opera√ß√£o</h1>
+                  <p>
+                    Acompanhe volume, recorr√™ncia e impacto das ocorr√™ncias.
+                  </p>
+                </div>
+                <button
+                  className="button button-primary"
+                  onClick={startNewOccurrence}
+                >
+                  <Plus size={18} />
+                  Nova ocorr√™ncia
+                </button>
+              </div>
+
+              <section className="filter-panel" aria-label="Filtros do Dashboard">
+                <div className="filter-panel-title">
+                  <span>
+                    <SlidersHorizontal size={17} />
+                    Filtros
+                  </span>
+                  <button onClick={clearDashboardFilters}>Limpar filtros</button>
+                </div>
+                <div className="filter-grid">
+                  <label className="field field-compact">
+                    <span>Per√≠odo</span>
+                    <select
+                      value={dashPeriod}
+                      onChange={(event) => setDashPeriod(event.target.value)}
+                    >
+                      <option value="today">Hoje</option>
+                      <option value="week">Esta semana</option>
+                      <option value="7">√öltimos 7 dias</option>
+                      <option value="30">√öltimos 30 dias</option>
+                      <option value="custom">Personalizado</option>
+                      <option value="all">Todo o per√≠odo</option>
+                    </select>
+                  </label>
+                  {dashPeriod === "custom" && (
+                    <div
+                      className="custom-period-fields"
+                      role="group"
+                      aria-label="Per√≠odo personalizado"
+                    >
+                      <label className="field field-compact">
+                        <span>Data inicial</span>
+                        <input
+                          type="date"
+                          value={dashCustomStart}
+                          max={dashCustomEnd || toDateInput(new Date())}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setDashCustomStart(value);
+                            if (dashCustomEnd && value > dashCustomEnd) {
+                              setDashCustomEnd(value);
+                            }
+                          }}
+                        />
+                      </label>
+                      <label className="field field-compact">
+                        <span>Data final</span>
+                        <input
+                          type="date"
+                          value={dashCustomEnd}
+                          min={dashCustomStart}
+                          max={toDateInput(new Date())}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setDashCustomEnd(value);
+                            if (dashCustomStart && value < dashCustomStart) {
+                              setDashCustomStart(value);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  )}
+                  <label className="field field-compact">
+                    <span>Sistema</span>
+                    <select
+                      value={dashSystem}
+                      onChange={(event) => {
+                        setDashSystem(event.target.value);
+                        setDashModule("all");
+                      }}
+                    >
+                      <option value="all">Todos</option>
+                      {systems.map((system) => (
+                        <option key={system.id} value={system.id}>
+                          {system.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field field-compact">
+                    <span>M√≥dulo</span>
+                    <select
+                      value={dashModule}
+                      onChange={(event) => setDashModule(event.target.value)}
+                      disabled={dashSystem === "all"}
+                    >
+                      <option value="all">Todos</option>
+                      {systems.find(
+                        (system) => system.id === dashSystem,
+                      )?.modules.map((module) => (
+                        <option key={module.id} value={module.id}>
+                          {module.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field field-compact">
+                    <span>Status</span>
+                    <select
+                      value={dashStatus}
+                      onChange={(event) => setDashStatus(event.target.value)}
+                    >
+                      <option value="all">Todos</option>
+                      {STATUS_OPTIONS.map((status) => (
+                        <option key={status}>{status}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field field-compact">
+                    <span>Gravidade</span>
+                    <select
+                      value={dashSeverity}
+                      onChange={(event) => setDashSeverity(event.target.value)}
+                    >
+                      <option value="all">Todas</option>
+                      {SEVERITIES.map((severity) => (
+                        <option key={severity}>{severity}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field field-compact">
+                    <span>Cliente ou respons√°vel</span>
+                    <div className="input-with-icon compact-input">
+                      <Search size={16} />
+                      <input
+                        value={dashQuery}
+                        onChange={(event) => setDashQuery(event.target.value)}
+                        placeholder="Buscar"
+                      />
+                    </div>
+                  </label>
+                </div>
+              </section>
+
+              <section className="metric-grid" aria-label="Indicadores principais">
+                <article className="metric-card">
+                  <div className="metric-top">
+                    <span className="metric-icon metric-blue">
+                      <ClipboardList size={20} />
+                    </span>
+                    <span className="metric-trend">per√≠odo</span>
+                  </div>
+                  <strong>{dashboardData.length}</strong>
+                  <p>Total de ocorr√™ncias</p>
+                </article>
+                <article className="metric-card">
+                  <div className="metric-top">
+                    <span className="metric-icon metric-teal">
+                      <Clock3 size={20} />
+                    </span>
+                    <span className="metric-trend">aten√ß√£o</span>
+                  </div>
+                  <strong>{dashboardOpen}</strong>
+                  <p>Ocorr√™ncias em aberto</p>
+                </article>
+                <article className="metric-card">
+                  <div className="metric-top">
+                    <span className="metric-icon metric-amber">
+                      <AlertTriangle size={20} />
+                    </span>
+                    <span className="metric-trend">alta + cr√≠tica</span>
+                  </div>
+                  <strong>{dashboardCritical}</strong>
+                  <p>Maior gravidade</p>
+                </article>
+                <article className="metric-card metric-wide">
+                  <div className="metric-top">
+                    <span className="metric-icon metric-purple">
+                      <RefreshCcw size={20} />
+                    </span>
+                    <span className="metric-trend">{recurrent?.count || 0} casos</span>
+                  </div>
+                  <strong className="metric-name">
+                    {recurrent?.count ? recurrent.name : "Sem recorr√™ncia"}
+                  </strong>
+                  <p>Erro mais recorrente</p>
+                </article>
+                <article className="metric-card">
+                  <div className="metric-top">
+                    <span className="metric-icon metric-slate">
+                      <Gauge size={20} />
+                    </span>
+                    <span className="metric-trend">{mostAffected?.count || 0} casos</span>
+                  </div>
+                  <strong className="metric-name">
+                    {mostAffected?.count ? mostAffected.name : "‚Äî"}
+                  </strong>
+                  <p>Sistema mais afetado</p>
+                </article>
+              </section>
+
+              {dashboardData.length === 0 ? (
+                <section className="card">
+                  <EmptyState
+                    title="Nenhuma ocorr√™ncia encontrada"
+                    description="Ajuste os filtros para ampliar o per√≠odo ou consultar outros crit√©rios."
+                    action={
+                      <button
+                        className="button button-secondary"
+                        onClick={clearDashboardFilters}
+                      >
+                        Limpar filtros
+                      </button>
+                    }
+                  />
+                </section>
+              ) : (
+                <>
+                  <section className="chart-grid">
+                    <article className="card chart-card daily-evolution-card">
+                      <header className="card-header">
+                        <div>
+                          <span className="card-kicker">Tend√™ncia</span>
+                          <h2>Evolu√ß√£o di√°ria das ocorr√™ncias</h2>
+                        </div>
+                        <Activity size={20} />
+                      </header>
+                      <div className="daily-chart-wrap">
+                        <svg
+                          className="daily-chart"
+                          viewBox={`0 0 ${dailyChartWidth} ${dailyChartHeight}`}
+                          role="img"
+                          aria-labelledby="daily-chart-title daily-chart-description"
+                        >
+                          <title id="daily-chart-title">
+                            Evolu√ß√£o di√°ria das ocorr√™ncias filtradas
+                          </title>
+                          <desc id="daily-chart-description">
+                            {dashboardData.length} ocorr√™ncias distribu√≠das em{" "}
+                            {dailyEvolution.length} dias.
+                          </desc>
+                          <defs>
+                            <linearGradient
+                              id="daily-area-gradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop offset="0%" stopColor="#0f766e" stopOpacity="0.24" />
+                              <stop offset="100%" stopColor="#0f766e" stopOpacity="0.02" />
+                            </linearGradient>
+                          </defs>
+                          {[dailyChartTop, (dailyChartTop + dailyChartBaseline) / 2, dailyChartBaseline].map(
+                            (y) => (
+                              <line
+                                key={y}
+                                className="daily-grid-line"
+                                x1={dailyChartLeft}
+                                x2={dailyChartWidth - dailyChartRight}
+                                y1={y}
+                                y2={y}
+                              />
+                            ),
+                          )}
+                          <text className="daily-y-label" x="2" y={dailyChartTop + 4}>
+                            {dailyMax}
+                          </text>
+                          <text
+                            className="daily-y-label"
+                            x="2"
+                            y={(dailyChartTop + dailyChartBaseline) / 2 + 4}
+                          >
+                            {Math.ceil(dailyMax / 2)}
+                          </text>
+                          <text className="daily-y-label" x="2" y={dailyChartBaseline + 4}>
+                            0
+                          </text>
+                          <polygon
+                            className="daily-area"
+                            points={dailyAreaPoints}
+                          />
+                          <polyline
+                            className="daily-line"
+                            points={dailyLinePoints}
+                          />
+                          {dailyChartPoints.map((item) => (
+                            <g key={item.key}>
+                              {(dailyChartPoints.length <= 31 || item.count > 0) && (
+                                <circle
+                                  className="daily-point"
+                                  cx={item.x}
+                                  cy={item.y}
+                                  r={item.count > 0 ? 4 : 2.5}
+                                >
+                                  <title>
+                                    {item.label}: {item.count}{" "}
+                                    {item.count === 1 ? "ocorr√™ncia" : "ocorr√™ncias"}
+                                  </title>
+                                </circle>
+                              )}
+                              {(dailyChartPoints.length === 1 ||
+                                item === dailyChartPoints[dailyChartPoints.length - 1] ||
+                                dailyChartPoints.indexOf(item) % dailyLabelStep === 0) && (
+                                <text
+                                  className="daily-x-label"
+                                  x={item.x}
+                                  y={dailyChartBaseline + 21}
+                                  textAnchor={
+                                    item === dailyChartPoints[0]
+                                      ? "start"
+                                      : item === dailyChartPoints[dailyChartPoints.length - 1]
+                                        ? "end"
+                                        : "middle"
+                                  }
+                                >
+                                  {item.label}
+                                </text>
+                              )}
+                            </g>
+                          ))}
+                        </svg>
+                      </div>
+                      <div className="daily-chart-summary" aria-hidden="true">
+                        <span>
+                          <i /> Pico di√°rio
+                        </span>
+                        <strong>
+                          {dailyMax} {dailyMax === 1 ? "ocorr√™ncia" : "ocorr√™ncias"}
+                        </strong>
+                      </div>
+                    </article>
+                    <article className="card chart-card chart-card-wide">
+                      <header className="card-header">
+                        <div>
+                          <span className="card-kicker">Distribui√ß√£o</span>
+                          <h2>Ocorr√™ncias por sistema</h2>
+                        </div>
+                        <BarChart3 size={20} />
+                      </header>
+                      <div className="bar-list">
+                        {systemCounts.map((item, index) => (
+                          <div className="bar-row" key={item.id}>
+                            <div className="bar-label">
+                              <span>{item.name}</span>
+                              <strong>{item.count}</strong>
+                            </div>
+                            <div className="bar-track">
+                              <span
+                                className={"bar-fill bar-fill-" + index}
+                                style={{
+                                  width:
+                                    String((item.count / maxSystemCount) * 100) +
+                                    "%",
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </article>
+                    <article className="card chart-card">
+                      <header className="card-header">
+                        <div>
+                          <span className="card-kicker">Situa√ß√£o atual</span>
+                          <h2>Distribui√ß√£o por status</h2>
+                        </div>
+                      </header>
+                      <div className="donut-layout">
+                        <div className="donut" style={donutStyle}>
+                          <span>
+                            <strong>{dashboardData.length}</strong>
+                            registros
+                          </span>
+                        </div>
+                        <div className="donut-legend">
+                          {statusCounts.map((item, index) => (
+                            <div key={item.status}>
+                              <span
+                                style={{
+                                  background:
+                                    donutColors[index % donutColors.length],
+                                }}
+                              />
+                              <p>
+                                {item.status}
+                                <strong>{item.count}</strong>
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </article>
+                  </section>
+
+                  <section className="split-grid">
+                    <article className="card">
+                      <header className="card-header">
+                        <div>
+                          <span className="card-kicker">Cat√°logo</span>
+                          <h2>Erros mais recorrentes</h2>
+                        </div>
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("catalogo")}
+                        >
+                          Ver Cat√°logo
+                          <ChevronRight size={16} />
+                        </button>
+                      </header>
+                      <ol className="ranking-list">
+                        {catalogCounts.slice(0, 4).map((item, index) => (
+                          <li key={item.id}>
+                            <span className="rank-number">{index + 1}</span>
+                            <div>
+                              <strong>{item.name}</strong>
+                              <small>
+                                {item.count}{" "}
+                                {item.count === 1 ? "ocorr√™ncia" : "ocorr√™ncias"}
+                              </small>
+                            </div>
+                            <span className="rank-bar">
+                              <i
+                                style={{
+                                  width:
+                                    String(
+                                      recurrent?.count
+                                        ? (item.count / recurrent.count) * 100
+                                        : 0,
+                                    ) + "%",
+                                }}
+                              />
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
+                    </article>
+                    <article className="card">
+                      <header className="card-header">
+                        <div>
+                          <span className="card-kicker">Prioridade</span>
+                          <h2>Gravidade das ocorr√™ncias</h2>
+                        </div>
+                      </header>
+                      <div className="severity-list">
+                        {SEVERITIES.slice()
+                          .reverse()
+                          .map((severity) => {
+                            const count = dashboardData.filter(
+                              (item) => item.severity === severity,
+                            ).length;
+                            return (
+                              <div key={severity}>
+                                <span className={"severity-dot " + toneClass(severity)} />
+                                <p>{severity}</p>
+                                <strong>{count}</strong>
+                                <span className="severity-track">
+                                  <i
+                                    className={toneClass(severity)}
+                                    style={{
+                                      width:
+                                        String(
+                                          dashboardData.length
+                                            ? (count / dashboardData.length) * 100
+                                            : 0,
+                                        ) + "%",
+                                    }}
+                                  />
+                                </span>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </article>
+                  </section>
+
+                  <section className="card recent-card">
+                    <header className="card-header">
+                      <div>
+                        <span className="card-kicker">Atualiza√ß√µes</span>
+                        <h2>Ocorr√™ncias recentes</h2>
+                      </div>
+                      <button
+                        className="text-button"
+                        onClick={() => navigate("registros")}
+                      >
+                        Ver todos
+                        <ChevronRight size={16} />
+                      </button>
+                    </header>
+                    <div className="table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Ocorr√™ncia</th>
+                            <th>Cliente</th>
+                            <th>Erro</th>
+                            <th>Gravidade</th>
+                            <th>Status</th>
+                            <th>Respons√°vel</th>
+                            <th />
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dashboardData.slice(0, 5).map((item) => (
+                            <tr key={item.id}>
+                              <td>
+                                <button
+                                  className="table-primary"
+                                  onClick={() => openDetail(item.id)}
+                                >
+                                  {item.number}
+                                </button>
+                                <small>{formatDate(item.occurredAt)}</small>
+                              </td>
+                              <td>{getClient(item.clientId)}</td>
+                              <td className="table-error">
+                                {getCatalogName(item)}
+                              </td>
+                              <td>
+                                <Badge tone={item.severity}>{item.severity}</Badge>
+                              </td>
+                              <td>
+                                <Badge tone={item.status}>{item.status}</Badge>
+                              </td>
+                              <td>
+                                <span className="person-cell">
+                                  <span className="avatar avatar-tiny">
+                                    {initials(getUser(item.responsibleId))}
+                                  </span>
+                                  {getUser(item.responsibleId)}
+                                </span>
+                              </td>
+                              <td>
+                                <button
+                                  className="icon-button"
+                                  onClick={() => openDetail(item.id)}
+                                  aria-label={"Abrir " + item.number}
+                                >
+                                  <ChevronRight size={18} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </>
+              )}
+            </>
+          )}
+
+          {view === "registros" && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">Registro</span>
+                  <h1>Ocorr√™ncias registradas</h1>
+                  <p>
+                    Consulte, filtre e acompanhe cada ocorr√™ncia da opera√ß√£o.
+                  </p>
+                </div>
+                <button
+                  className="button button-primary"
+                  onClick={startNewOccurrence}
+                >
+                  <Plus size={18} />
+                  Novo registro
+                </button>
+              </div>
+              <section className="card records-card">
+                <div className="records-toolbar">
+                  <label className="search-control">
+                    <Search size={18} />
+                    <input
+                      value={recordSearch}
+                      onChange={(event) => {
+                        setRecordSearch(event.target.value);
+                        setRecordPage(1);
+                      }}
+                      placeholder="Buscar por cliente, erro, sistema ou respons√°vel"
+                      aria-label="Buscar registros"
+                    />
+                  </label>
+                  <div className="toolbar-filters">
+                    <label>
+                      <span className="sr-only">Per√≠odo</span>
+                      <select
+                        value={recordPeriod}
+                        onChange={(event) => {
+                          setRecordPeriod(event.target.value);
+                          setRecordPage(1);
+                        }}
+                        aria-label="Filtrar registros por per√≠odo"
+                      >
+                        <option value="all">Todo o per√≠odo</option>
+                        <option value="today">Hoje</option>
+                        <option value="week">Esta semana</option>
+                        <option value="7">√öltimos 7 dias</option>
+                        <option value="30">√öltimos 30 dias</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">Sistema</span>
+                      <select
+                        value={recordSystem}
+                        onChange={(event) => {
+                          setRecordSystem(event.target.value);
+                          setRecordModule("all");
+                          setRecordError("all");
+                          setRecordPage(1);
+                        }}
+                      >
+                        <option value="all">Todos os sistemas</option>
+                        {systems.map((system) => (
+                          <option key={system.id} value={system.id}>
+                            {system.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">M√≥dulo</span>
+                      <select
+                        value={recordModule}
+                        onChange={(event) => {
+                          setRecordModule(event.target.value);
+                          setRecordError("all");
+                          setRecordPage(1);
+                        }}
+                        disabled={recordSystem === "all"}
+                        aria-label="Filtrar registros por m√≥dulo"
+                      >
+                        <option value="all">
+                          {recordSystem === "all"
+                            ? "Selecione o sistema"
+                            : "Todos os m√≥dulos"}
+                        </option>
+                        {systems.find(
+                          (system) => system.id === recordSystem,
+                        )?.modules.map((module) => (
+                          <option key={module.id} value={module.id}>
+                            {module.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">Status</span>
+                      <select
+                        value={recordStatus}
+                        onChange={(event) => {
+                          setRecordStatus(event.target.value);
+                          setRecordPage(1);
+                        }}
+                      >
+                        <option value="all">Todos os status</option>
+                        {STATUS_OPTIONS.map((status) => (
+                          <option key={status}>{status}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">Erro</span>
+                      <select
+                        value={recordError}
+                        onChange={(event) => {
+                          setRecordError(event.target.value);
+                          setRecordPage(1);
+                        }}
+                        aria-label="Filtrar registros por erro"
+                      >
+                        <option value="all">Todos os erros</option>
+                        {recordErrorOptions.map((errorName) => (
+                          <option key={errorName} value={errorName}>{errorName}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      className="icon-button filter-indicator"
+                      aria-label="Filtros ativos"
+                    >
+                      <Filter size={18} />
+                    </button>
+                  </div>
+                </div>
+                <div className="results-summary">
+                  <span>
+                    <strong>{filteredRecords.length}</strong>{" "}
+                    {filteredRecords.length === 1
+                      ? "ocorr√™ncia encontrada"
+                      : "ocorr√™ncias encontradas"}
+                  </span>
+                  <small>Ordenado por data mais recente</small>
+                </div>
+                {filteredRecords.length === 0 ? (
+                  <EmptyState
+                    title="Nenhum registro corresponde √† busca"
+                    description="Remova um filtro ou use outro termo de pesquisa."
+                    action={
+                      <button
+                        className="button button-secondary"
+                        onClick={clearRecordFilters}
+                      >
+                        Limpar filtros
+                      </button>
+                    }
+                  />
+                ) : (
+                  <div className="table-wrap records-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Data e hora</th>
+                          <th>Cliente</th>
+                          <th>Sistema / m√≥dulo</th>
+                          <th>Erro</th>
+                          <th>Gravidade</th>
+                          <th>Status</th>
+                          <th>Respons√°vel</th>
+                          <th>A√ß√µes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paginatedRecords.map((item) => (
+                          <tr key={item.id}>
+                            <td>
+                              <strong>{formatDate(item.occurredAt)}</strong>
+                              <small>{item.number}</small>
+                            </td>
+                            <td>{getClient(item.clientId)}</td>
+                            <td>
+                              <strong>{getSystem(item.systemId)}</strong>
+                              <small>
+                                {getModule(item.systemId, item.moduleId)}
+                              </small>
+                            </td>
+                            <td className="table-error">
+                              {getCatalogName(item)}
+                              {!item.catalogItemId && (
+                                <small className="other-label">Outro erro</small>
+                              )}
+                            </td>
+                            <td>
+                              <Badge tone={item.severity}>{item.severity}</Badge>
+                            </td>
+                            <td>
+                              <Badge tone={item.status}>{item.status}</Badge>
+                            </td>
+                            <td>
+                              <span className="person-cell">
+                                <span className="avatar avatar-tiny">
+                                  {initials(getUser(item.responsibleId))}
+                                </span>
+                                {getUser(item.responsibleId)}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="table-actions">
+                                <button
+                                  className="icon-button"
+                                  onClick={() => openDetail(item.id)}
+                                  aria-label={"Visualizar " + item.number}
+                                  title="Visualizar"
+                                >
+                                  <Eye size={17} />
+                                </button>
+                                {canEditOccurrence(item) && (
+                                  <button
+                                    className="icon-button"
+                                    onClick={() => {
+                                      setSelectedOccurrenceId(item.id);
+                                      beginEditOccurrence(item);
+                                    }}
+                                    aria-label={"Editar " + item.number}
+                                    title="Editar"
+                                  >
+                                    <Pencil size={16} />
+                                  </button>
+                                )}
+                                {currentUser.role === "administrador" && (
+                                  <button
+                                    className="icon-button danger-icon-button"
+                                    onClick={() => setConfirmOccurrenceDeleteId(item.id)}
+                                    aria-label={"Excluir " + item.number}
+                                    title="Excluir com seguran√ßa"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                <footer className="table-footer">
+                  <span>
+                    Exibindo{" "}
+                    {filteredRecords.length === 0 ? 0 : recordPageStart + 1}‚Äì
+                    {Math.min(
+                      recordPageStart + RECORDS_PER_PAGE,
+                      filteredRecords.length,
+                    )}{" "}
+                    de {filteredRecords.length} registros
+                  </span>
+                  <div className="pagination" aria-label="Pagina√ß√£o">
+                    <button
+                      type="button"
+                      disabled={currentRecordPage === 1}
+                      onClick={() =>
+                        setRecordPage((page) => Math.max(1, page - 1))
+                      }
+                    >
+                      Anterior
+                    </button>
+                    <span className="page-indicator" aria-live="polite">
+                      P√°gina {currentRecordPage} de {recordPageCount}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={currentRecordPage === recordPageCount}
+                      onClick={() =>
+                        setRecordPage((page) =>
+                          Math.min(recordPageCount, page + 1),
+                        )
+                      }
+                    >
+                      Pr√≥xima
+                    </button>
+                  </div>
+                </footer>
+              </section>
+            </>
+          )}
+
+          {view === "novo" && (
+            <>
+              <button
+                className="back-button"
+                onClick={() => navigate("registros")}
+              >
+                <ArrowLeft size={17} />
+                Voltar para registros
+              </button>
+              <div className="page-heading form-heading">
+                <div>
+                  <span className="eyebrow">Registro</span>
+                  <h1>Nova ocorr√™ncia</h1>
+                  <p>
+                    Registre o relato com dados suficientes para classifica√ß√£o e
+                    acompanhamento.
+                  </p>
+                </div>
+              </div>
+              <form className="form-layout" onSubmit={submitOccurrence} noValidate>
+                <div className="form-main">
+                  <section className="card form-section">
+                    <header>
+                      <span className="step-number">1</span>
+                      <div>
+                        <h2>Contexto da ocorr√™ncia</h2>
+                        <p>Identifique o cliente e a √°rea afetada.</p>
+                      </div>
+                    </header>
+                    <div className="form-grid">
+                      <label className="field field-span-2">
+                        <span>
+                          Cliente afetado <b>*</b>
+                        </span>
+                        <select
+                          value={newForm.clientId}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              clientId: event.target.value,
+                            })
+                          }
+                          aria-invalid={Boolean(formErrors.clientId)}
+                          aria-describedby={
+                            formErrors.clientId ? "client-error" : undefined
+                          }
+                        >
+                          <option value="">Selecione um cliente</option>
+                          {clients.map((client) => (
+                            <option key={client.id} value={client.id}>
+                              {client.name}
+                            </option>
+                          ))}
+                        </select>
+                        {formErrors.clientId && (
+                          <small className="field-error" id="client-error">
+                            {formErrors.clientId}
+                          </small>
+                        )}
+                      </label>
+                      <label className="field">
+                        <span>
+                          Sistema <b>*</b>
+                        </span>
+                        <select
+                          value={newForm.systemId}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              systemId: event.target.value,
+                              moduleId: "",
+                              catalogChoice: "",
+                            })
+                          }
+                          aria-invalid={Boolean(formErrors.systemId)}
+                          aria-describedby={
+                            formErrors.systemId ? "system-error" : undefined
+                          }
+                        >
+                          <option value="">Selecione</option>
+                          {systems.map((system) => (
+                            <option key={system.id} value={system.id}>
+                              {system.name}
+                            </option>
+                          ))}
+                        </select>
+                        {formErrors.systemId && (
+                          <small className="field-error" id="system-error">
+                            {formErrors.systemId}
+                          </small>
+                        )}
+                      </label>
+                      <label className="field">
+                        <span>
+                          M√≥dulo ou funcionalidade <b>*</b>
+                        </span>
+                        <select
+                          value={newForm.moduleId}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              moduleId: event.target.value,
+                              catalogChoice: "",
+                            })
+                          }
+                          disabled={!newForm.systemId}
+                          aria-invalid={Boolean(formErrors.moduleId)}
+                          aria-describedby={
+                            formErrors.moduleId ? "module-error" : undefined
+                          }
+                        >
+                          <option value="">Selecione</option>
+                          {systems.find(
+                            (system) => system.id === newForm.systemId,
+                          )?.modules.map((module) => (
+                            <option key={module.id} value={module.id}>
+                              {module.name}
+                            </option>
+                          ))}
+                        </select>
+                        {formErrors.moduleId && (
+                          <small className="field-error" id="module-error">
+                            {formErrors.moduleId}
+                          </small>
+                        )}
+                      </label>
+                    </div>
+                  </section>
+
+                  <section className="card form-section">
+                    <header>
+                      <span className="step-number">2</span>
+                      <div>
+                        <h2>Classifica√ß√£o do erro</h2>
+                        <p>Use um item padronizado sempre que poss√≠vel.</p>
+                      </div>
+                    </header>
+                    <div className="form-grid">
+                      <label className="field field-span-2">
+                        <span>
+                          Erro padronizado <b>*</b>
+                        </span>
+                        <select
+                          value={newForm.catalogChoice}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              catalogChoice: event.target.value,
+                              otherError: "",
+                            })
+                          }
+                          disabled={!newForm.moduleId}
+                          aria-invalid={Boolean(formErrors.catalogChoice)}
+                          aria-describedby={
+                            formErrors.catalogChoice
+                              ? "catalog-choice-error"
+                              : undefined
+                          }
+                        >
+                          <option value="">Selecione um erro do Cat√°logo</option>
+                          {catalog
+                            .filter(
+                              (item) =>
+                                item.active &&
+                                item.systemId === newForm.systemId &&
+                                (item.moduleId === newForm.moduleId ||
+                                  generalModuleIds.has(item.moduleId)),
+                            )
+                            .map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.name}
+                              </option>
+                            ))}
+                          <option value="other">Outro erro</option>
+                        </select>
+                        {formErrors.catalogChoice && (
+                          <small
+                            className="field-error"
+                            id="catalog-choice-error"
+                          >
+                            {formErrors.catalogChoice}
+                          </small>
+                        )}
+                      </label>
+                      {newForm.catalogChoice === "other" && (
+                        <label className="field field-span-2">
+                          <span>
+                            Descreva o outro erro <b>*</b>
+                          </span>
+                          <input
+                            value={newForm.otherError}
+                            onChange={(event) =>
+                              setNewForm({
+                                ...newForm,
+                                otherError: event.target.value.slice(0, 120),
+                              })
+                            }
+                            placeholder="Nome curto e reconhec√≠vel para o erro"
+                            aria-invalid={Boolean(formErrors.otherError)}
+                            aria-describedby={
+                              formErrors.otherError
+                                ? "other-error-message"
+                                : undefined
+                            }
+                          />
+                          <small className="field-help">
+                            {newForm.otherError.length}/120 caracteres
+                          </small>
+                          {formErrors.otherError && (
+                            <small
+                              className="field-error"
+                              id="other-error-message"
+                            >
+                              {formErrors.otherError}
+                            </small>
+                          )}
+                        </label>
+                      )}
+                      <label className="field field-span-2">
+                        <span>Descri√ß√£o complementar</span>
+                        <textarea
+                          value={newForm.description}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              description: event.target.value.slice(0, 700),
+                            })
+                          }
+                          placeholder="Inclua contexto, passos realizados e impacto observado."
+                          rows={5}
+                        />
+                        <small className="field-help">
+                          {newForm.description.length}/700 caracteres
+                        </small>
+                      </label>
+                    </div>
+                  </section>
+
+                  <section className="card form-section">
+                    <header>
+                      <span className="step-number">3</span>
+                      <div>
+                        <h2>Impacto e acompanhamento</h2>
+                        <p>Defina prioridade, momento e respons√°vel.</p>
+                      </div>
+                    </header>
+                    <div className="form-grid">
+                      <label className="field">
+                        <span>
+                          Gravidade <b>*</b>
+                        </span>
+                        <select
+                          value={newForm.severity}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              severity: event.target.value as Severity,
+                            })
+                          }
+                        >
+                          {SEVERITIES.map((severity) => (
+                            <option key={severity}>{severity}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="field">
+                        <span>
+                          Data e hor√°rio <b>*</b>
+                        </span>
+                        <input
+                          type="datetime-local"
+                          value={newForm.occurredAt}
+                          max={toDateTimeLocal(new Date())}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              occurredAt: event.target.value,
+                            })
+                          }
+                          aria-invalid={Boolean(formErrors.occurredAt)}
+                          aria-describedby={
+                            formErrors.occurredAt ? "occurred-error" : undefined
+                          }
+                        />
+                        {formErrors.occurredAt && (
+                          <small className="field-error" id="occurred-error">
+                            {formErrors.occurredAt}
+                          </small>
+                        )}
+                      </label>
+                      <label className="field">
+                        <span>
+                          Status inicial <b>*</b>
+                        </span>
+                        <select
+                          value={newForm.status}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              status: event.target.value as OccurrenceStatus,
+                            })
+                          }
+                        >
+                          {STATUS_OPTIONS.slice(0, 3).map((status) => (
+                            <option key={status}>{status}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="field">
+                        <span>
+                          Respons√°vel <b>*</b>
+                        </span>
+                        <select
+                          value={newForm.responsibleId}
+                          onChange={(event) =>
+                            setNewForm({
+                              ...newForm,
+                              responsibleId: event.target.value,
+                            })
+                          }
+                          disabled={currentUser.role === "suporte"}
+                          aria-invalid={Boolean(formErrors.responsibleId)}
+                          aria-describedby={
+                            formErrors.responsibleId
+                              ? "responsible-error"
+                              : undefined
+                          }
+                        >
+                          {portalUsers.map((user) => (
+                            <option key={user.id} value={user.id}>
+                              {user.name}
+                            </option>
+                          ))}
+                        </select>
+                        {currentUser.role === "suporte" && (
+                          <small className="field-help">
+                            A ocorr√™ncia ser√° atribu√≠da a voc√™.
+                          </small>
+                        )}
+                        {formErrors.responsibleId && (
+                          <small className="field-error" id="responsible-error">
+                            {formErrors.responsibleId}
+                          </small>
+                        )}
+                      </label>
+                    </div>
+                  </section>
+
+                  <section className="card form-section">
+                    <header>
+                      <span className="step-number">4</span>
+                      <div>
+                        <h2>Evid√™ncias</h2>
+                        <p>Anexe at√© 3 imagens, v√≠deos curtos ou arquivos TXT.</p>
+                      </div>
+                    </header>
+                    <label className="upload-zone">
+                      <UploadCloud size={26} />
+                      <strong>Selecione os arquivos</strong>
+                      <span>PNG, JPG, WEBP, MP4 ou TXT</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept=".png,.jpg,.jpeg,.webp,.mp4,.txt"
+                        onChange={handleFiles}
+                        aria-describedby={
+                          formErrors.attachments ? "attachments-error" : undefined
+                        }
+                      />
+                    </label>
+                    {formErrors.attachments && (
+                      <small className="field-error" id="attachments-error">
+                        {formErrors.attachments}
+                      </small>
+                    )}
+                    {newForm.attachments.length > 0 && (
+                      <div className="attachment-list">
+                        {newForm.attachments.map((file) => (
+                          <span key={file}>
+                            <Paperclip size={15} />
+                            {file}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setNewForm({
+                                  ...newForm,
+                                  attachments: newForm.attachments.filter(
+                                    (item) => item !== file,
+                                  ),
+                                })
+                              }
+                              aria-label={"Remover " + file}
+                            >
+                              <X size={14} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                </div>
+                <aside className="form-aside">
+                  <section className="card summary-card">
+                    <h2>Resumo do registro</h2>
+                    <dl>
+                      <div>
+                        <dt>Cliente</dt>
+                        <dd>
+                          {newForm.clientId
+                            ? getClient(newForm.clientId)
+                            : "N√£o informado"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>√Årea afetada</dt>
+                        <dd>
+                          {newForm.systemId
+                            ? getSystem(newForm.systemId) +
+                              (newForm.moduleId
+                                ? " ¬∑ " +
+                                  getModule(
+                                    newForm.systemId,
+                                    newForm.moduleId,
+                                  )
+                                : "")
+                            : "N√£o informada"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Gravidade</dt>
+                        <dd>
+                          <Badge tone={newForm.severity}>
+                            {newForm.severity}
+                          </Badge>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Respons√°vel</dt>
+                        <dd>{getUser(newForm.responsibleId)}</dd>
+                      </div>
+                    </dl>
+                    <div className="summary-note">
+                      <ShieldCheck size={18} />
+                      <p>
+                        Os dados ser√£o validados antes de integrar os
+                        indicadores do Dashboard.
+                      </p>
+                    </div>
+                    <button
+                      type="submit"
+                      className="button button-primary button-wide"
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <>
+                          <span className="spinner" />
+                          Salvando‚Ä¶
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={18} />
+                          Salvar ocorr√™ncia
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      className="button button-ghost button-wide"
+                      onClick={() => navigate("registros")}
+                    >
+                      Cancelar
+                    </button>
+                  </section>
+                </aside>
+              </form>
+            </>
+          )}
+
+          {view === "detalhe" && currentOccurrence && (
+            <>
+              <button
+                className="back-button"
+                onClick={() => navigate("registros")}
+              >
+                <ArrowLeft size={17} />
+                Voltar para registros
+              </button>
+              <div className="detail-heading">
+                <div>
+                  <div className="detail-title-line">
+                    <span className="eyebrow">Registro</span>
+                    <span className="record-number">{currentOccurrence.number}</span>
+                  </div>
+                  <h1>{getCatalogName(currentOccurrence)}</h1>
+                  <p>
+                    Registrada em {formatDate(currentOccurrence.createdAt)} por{" "}
+                    {getUser(currentOccurrence.authorId)}.
+                  </p>
+                </div>
+                <div className="detail-actions">
+                  <Badge tone={currentOccurrence.severity}>
+                    {currentOccurrence.severity}
+                  </Badge>
+                  <Badge tone={currentOccurrence.status}>
+                    {currentOccurrence.status}
+                  </Badge>
+                  {canEditOccurrence(currentOccurrence) && (
+                    <button
+                      className="button button-secondary"
+                      onClick={() => beginEditOccurrence(currentOccurrence)}
+                    >
+                      <Pencil size={17} />
+                      Editar
+                    </button>
+                  )}
+                  {currentUser.role === "administrador" && (
+                    <button
+                      className="button button-danger-soft"
+                      onClick={() => setConfirmOccurrenceDeleteId(currentOccurrence.id)}
+                    >
+                      <Trash2 size={17} />
+                      Excluir
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="detail-layout">
+                <div className="detail-main">
+                  <section className="card detail-card">
+                    <header className="card-header">
+                      <div>
+                        <span className="card-kicker">Informa√ß√µes</span>
+                        <h2>Dados da ocorr√™ncia</h2>
+                      </div>
+                      <FileText size={20} />
+                    </header>
+                    <dl className="detail-grid">
+                      <div>
+                        <dt>Cliente afetado</dt>
+                        <dd>{getClient(currentOccurrence.clientId)}</dd>
+                      </div>
+                      <div>
+                        <dt>Data e hor√°rio</dt>
+                        <dd>{formatDate(currentOccurrence.occurredAt)}</dd>
+                      </div>
+                      <div>
+                        <dt>Sistema</dt>
+                        <dd>{getSystem(currentOccurrence.systemId)}</dd>
+                      </div>
+                      <div>
+                        <dt>M√≥dulo</dt>
+                        <dd>
+                          {getModule(
+                            currentOccurrence.systemId,
+                            currentOccurrence.moduleId,
+                          )}
+                        </dd>
+                      </div>
+                      <div className="detail-span-2">
+                        <dt>Erro classificado</dt>
+                        <dd>
+                          {getCatalogName(currentOccurrence)}
+                          {!currentOccurrence.catalogItemId && (
+                            <Badge tone="Outro erro">Outro erro</Badge>
+                          )}
+                        </dd>
+                      </div>
+                      <div className="detail-span-2">
+                        <dt>Descri√ß√£o complementar</dt>
+                        <dd className="detail-description">
+                          {currentOccurrence.description ||
+                            "Nenhuma descri√ß√£o complementar informada."}
+                        </dd>
+                      </div>
+                    </dl>
+                  </section>
+                  <section className="card detail-card">
+                    <header className="card-header">
+                      <div>
+                        <span className="card-kicker">Arquivos</span>
+                        <h2>Evid√™ncias</h2>
+                      </div>
+                      <Paperclip size={20} />
+                    </header>
+                    {currentOccurrence.attachments.length ? (
+                      <div className="evidence-grid">
+                        {currentOccurrence.attachments.map((file) => (
+                          <div key={file} className="evidence-item">
+                            <span>
+                              <FileText size={20} />
+                            </span>
+                            <p>
+                              <strong>{evidenceName(file)}</strong>
+                              <small>Arquivo anexado</small>
+                            </p>
+                            {file.includes("/") ? (
+                              <a
+                                className="icon-button"
+                                aria-label={"Ver " + evidenceName(file)}
+                                href={`/api/occurrences?evidence=1&occurrenceId=${encodeURIComponent(currentOccurrence.id)}&path=${encodeURIComponent(file)}`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                <Eye size={17} />
+                              </a>
+                            ) : (
+                              <span className="icon-button" title="Arquivo antigo sem conte√∫do armazenado">
+                                <FileText size={17} />
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="muted-copy">
+                        Nenhuma evid√™ncia foi anexada a esta ocorr√™ncia.
+                      </p>
+                    )}
+                  </section>
+                </div>
+                <aside className="detail-aside">
+                  <section className="card owner-card">
+                    <span className="card-kicker">Acompanhamento</span>
+                    <h2>Respons√°vel</h2>
+                    <div className="owner-profile">
+                      <span className="avatar avatar-large">
+                        {initials(getUser(currentOccurrence.responsibleId))}
+                      </span>
+                      <p>
+                        <strong>{getUser(currentOccurrence.responsibleId)}</strong>
+                        <small>
+                          {
+                            portalUsers.find(
+                              (user) =>
+                                user.id === currentOccurrence.responsibleId,
+                            )?.title
+                          }
+                        </small>
+                      </p>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Status atual</dt>
+                        <dd>
+                          <Badge tone={currentOccurrence.status}>
+                            {currentOccurrence.status}
+                          </Badge>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>√öltima atualiza√ß√£o</dt>
+                        <dd>{formatDate(currentOccurrence.updatedAt)}</dd>
+                      </div>
+                    </dl>
+                  </section>
+                  <section className="card timeline-card">
+                    <span className="card-kicker">Hist√≥rico</span>
+                    <h2>Atividade recente</h2>
+                    <div className="timeline">
+                      <div>
+                        <i />
+                        <p>
+                          <strong>Ocorr√™ncia atualizada</strong>
+                          <span>{formatDate(currentOccurrence.updatedAt)}</span>
+                        </p>
+                      </div>
+                      <div>
+                        <i />
+                        <p>
+                          <strong>Registro criado</strong>
+                          <span>
+                            {formatDate(currentOccurrence.createdAt)} por{" "}
+                            {getUser(currentOccurrence.authorId)}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </aside>
+              </div>
+            </>
+          )}
+
+          {view === "catalogo" && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">Cat√°logo</span>
+                  <h1>Erros padronizados</h1>
+                  <p>
+                    Mantenha uma base curta e consistente para classificar as
+                    ocorr√™ncias.
+                  </p>
+                </div>
+                {canManageCatalog && (
+                  <div className="page-heading-actions">
+                    <button
+                      className="button button-secondary"
+                      onClick={openReferenceManager}
+                    >
+                      <SlidersHorizontal size={18} />
+                      Sistemas e m√≥dulos
+                    </button>
+                    <button
+                      className="button button-primary"
+                      onClick={openNewCatalog}
+                    >
+                      <Plus size={18} />
+                      Novo item
+                    </button>
+                  </div>
+                )}
+              </div>
+              {canManageCatalog && systems.length === 0 && (
+                <section className="reference-empty-state">
+                  <div>
+                    <strong>Cadastre o primeiro sistema</strong>
+                    <p>
+                      Depois voc√™ poder√° criar os m√≥dulos e usar ambos nos itens
+                      do Cat√°logo.
+                    </p>
+                  </div>
+                  <button
+                    className="button button-primary"
+                    onClick={openReferenceManager}
+                  >
+                    <Plus size={18} />
+                    Criar sistema
+                  </button>
+                </section>
+              )}
+              <section className="catalog-summary">
+                <div>
+                  <span className="metric-icon metric-teal">
+                    <BookOpenCheck size={20} />
+                  </span>
+                  <p>
+                    <strong>{catalog.filter((item) => item.active).length}</strong>
+                    itens ativos
+                  </p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-blue">
+                    <RefreshCcw size={20} />
+                  </span>
+                  <p>
+                    <strong>
+                      {
+                        visibleOccurrences.filter((item) => item.catalogItemId)
+                          .length
+                      }
+                    </strong>
+                    ocorr√™ncias padronizadas
+                  </p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-amber">
+                    <AlertTriangle size={20} />
+                  </span>
+                  <p>
+                    <strong>
+                      {
+                        visibleOccurrences.filter((item) => !item.catalogItemId)
+                          .length
+                      }
+                    </strong>
+                    outros erros para revisar
+                  </p>
+                </div>
+              </section>
+              {!canManageCatalog && (
+                <div className="permission-note">
+                  <ShieldCheck size={18} />
+                  Voc√™ tem acesso de consulta. A manuten√ß√£o do Cat√°logo √©
+                  reservada ao perfil Administrador.
+                </div>
+              )}
+              <section className="card records-card">
+                <div className="records-toolbar">
+                  <label className="search-control">
+                    <Search size={18} />
+                    <input
+                      value={catalogSearch}
+                      onChange={(event) => setCatalogSearch(event.target.value)}
+                      placeholder="Buscar pelo nome ou termo alternativo"
+                      aria-label="Buscar no Cat√°logo"
+                    />
+                  </label>
+                  <div className="toolbar-filters">
+                    <label>
+                      <span className="sr-only">Sistema</span>
+                      <select
+                        value={catalogSystem}
+                        onChange={(event) => setCatalogSystem(event.target.value)}
+                      >
+                        <option value="all">Todos os sistemas</option>
+                        {systems.map((system) => (
+                          <option key={system.id} value={system.id}>
+                            {system.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">Status</span>
+                      <select
+                        value={catalogStatus}
+                        onChange={(event) => setCatalogStatus(event.target.value)}
+                      >
+                        <option value="all">Ativos e inativos</option>
+                        <option value="active">Ativos</option>
+                        <option value="inactive">Inativos</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+                <div className="results-summary">
+                  <span>
+                    <strong>{filteredCatalog.length}</strong>{" "}
+                    {filteredCatalog.length === 1
+                      ? "item encontrado"
+                      : "itens encontrados"}
+                  </span>
+                  <small>Duplicidades s√£o comparadas por sistema e m√≥dulo</small>
+                </div>
+                {filteredCatalog.length === 0 ? (
+                  <EmptyState
+                    title="Nenhum item encontrado"
+                    description="Tente outro termo ou remova os filtros aplicados."
+                  />
+                ) : (
+                  <div className="table-wrap catalog-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Nome padronizado</th>
+                          <th>Sistema / m√≥dulo</th>
+                          <th>Status</th>
+                          <th>Usos</th>
+                          <th>√öltima atualiza√ß√£o</th>
+                          <th>A√ß√µes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredCatalog.map((item) => (
+                          <tr key={item.id}>
+                            <td className="catalog-name">
+                              <strong>{item.name}</strong>
+                              <small>
+                                {item.aliases.length
+                                  ? item.aliases.join(" ¬∑ ")
+                                  : "Sem termos alternativos"}
+                              </small>
+                            </td>
+                            <td>
+                              <strong>{getSystem(item.systemId)}</strong>
+                              <small>
+                                {getModule(item.systemId, item.moduleId)}
+                              </small>
+                            </td>
+                            <td>
+                              <Badge tone={item.active ? "Ativo" : "Inativo"}>
+                                {item.active ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </td>
+                            <td>
+                              <strong className="usage-count">
+                                {catalogUsage(item.id)}
+                              </strong>
+                            </td>
+                            <td>{formatDate(item.updatedAt, false)}</td>
+                            <td>
+                              {canManageCatalog ? (
+                                <div className="table-actions">
+                                  <button
+                                    className="icon-button"
+                                    onClick={() => openEditCatalog(item)}
+                                    aria-label={"Editar " + item.name}
+                                    title="Editar"
+                                  >
+                                    <Pencil size={16} />
+                                  </button>
+                                  <button
+                                    className={
+                                      item.active
+                                        ? "status-action status-action-off"
+                                        : "status-action"
+                                    }
+                                    onClick={() => setConfirmCatalogId(item.id)}
+                                  >
+                                    {item.active ? "Inativar" : "Ativar"}
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="read-only">Somente leitura</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {view === "usuarios" && currentUser.role === "administrador" && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">Administra√ß√£o</span>
+                  <h1>Usu√°rios</h1>
+                  <p>
+                    Crie contas, acompanhe acessos e controle as permiss√µes de
+                    cada pessoa.
+                  </p>
+                </div>
+                <button className="button button-primary" onClick={openNewUser}>
+                  <UserPlus size={18} />
+                  Novo usu√°rio
+                </button>
+              </div>
+
+              <section className="catalog-summary users-summary">
+                <div>
+                  <span className="metric-icon metric-teal">
+                    <UsersRound size={20} />
+                  </span>
+                  <p>
+                    <strong>{managedUsers.filter((user) => user.active).length}</strong>
+                    usu√°rios ativos
+                  </p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-blue">
+                    <ShieldCheck size={20} />
+                  </span>
+                  <p>
+                    <strong>
+                      {
+                        managedUsers.filter(
+                          (user) => user.active && user.role === "administrador",
+                        ).length
+                      }
+                    </strong>
+                    administradores
+                  </p>
+                </div>
+                <div>
+                  <span className="metric-icon metric-amber">
+                    <UserCog size={20} />
+                  </span>
+                  <p>
+                    <strong>{managedUsers.filter((user) => !user.active).length}</strong>
+                    acessos bloqueados
+                  </p>
+                </div>
+              </section>
+
+              <div className="permission-note user-security-note">
+                <ShieldCheck size={18} />
+                Perfis definem o que cada pessoa pode consultar ou alterar. Ao
+                bloquear uma conta, as sess√µes abertas s√£o encerradas.
+              </div>
+
+              {usersError && (
+                <div className="users-error" role="alert">
+                  <span>{usersError}</span>
+                  <button className="button button-secondary" onClick={reloadManagedUsers}>
+                    Tentar novamente
+                  </button>
+                </div>
+              )}
+
+              <section className="card records-card">
+                <div className="records-toolbar">
+                  <label className="search-control">
+                    <Search size={18} />
+                    <input
+                      value={userSearch}
+                      onChange={(event) => setUserSearch(event.target.value)}
+                      placeholder="Buscar por nome ou e-mail"
+                      aria-label="Buscar usu√°rios"
+                    />
+                  </label>
+                  <div className="toolbar-filters">
+                    <label>
+                      <span className="sr-only">Perfil</span>
+                      <select
+                        value={userRoleFilter}
+                        onChange={(event) => setUserRoleFilter(event.target.value)}
+                      >
+                        <option value="all">Todos os perfis</option>
+                        <option value="suporte">Suporte</option>
+                        <option value="desenvolvedor">Desenvolvedor</option>
+                        <option value="administrador">Administrador</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">Status</span>
+                      <select
+                        value={userStatusFilter}
+                        onChange={(event) => setUserStatusFilter(event.target.value)}
+                      >
+                        <option value="all">Ativos e bloqueados</option>
+                        <option value="active">Ativos</option>
+                        <option value="inactive">Bloqueados</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="results-summary">
+                  <span>
+                    <strong>{filteredManagedUsers.length}</strong>{" "}
+                    {filteredManagedUsers.length === 1
+                      ? "usu√°rio encontrado"
+                      : "usu√°rios encontrados"}
+                  </span>
+                  <small>Somente administradores podem gerenciar contas</small>
+                </div>
+
+                {usersLoading ? (
+                  <div className="users-loading" aria-live="polite">
+                    <span className="spinner" />
+                    Carregando usu√°rios‚Ä¶
+                  </div>
+                ) : filteredManagedUsers.length === 0 ? (
+                  <EmptyState
+                    title="Nenhum usu√°rio encontrado"
+                    description="Tente outro termo ou remova os filtros aplicados."
+                  />
+                ) : (
+                  <div className="table-wrap users-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Usu√°rio</th>
+                          <th>Perfil e permiss√µes</th>
+                          <th>Status</th>
+                          <th>√öltimo acesso</th>
+                          <th>Criado em</th>
+                          <th>A√ß√µes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredManagedUsers.map((user) => (
+                          <tr key={user.id}>
+                            <td>
+                              <div className="user-cell">
+                                <span className="avatar">{initials(user.name)}</span>
+                                <p>
+                                  <strong>{user.name}</strong>
+                                  <small>{user.email}</small>
+                                </p>
+                              </div>
+                            </td>
+                            <td>
+                              <Badge tone={user.role}>{roleLabel[user.role]}</Badge>
+                              <div className="permission-list">
+                                {rolePermissions[user.role].slice(0, 2).map((permission) => (
+                                  <span key={permission}>{permission}</span>
+                                ))}
+                              </div>
+                            </td>
+                            <td>
+                              <Badge tone={user.active ? "Ativo" : "Bloqueado"}>
+                                {user.active ? "Ativo" : "Bloqueado"}
+                              </Badge>
+                            </td>
+                            <td>
+                              {user.lastLoginAt
+                                ? formatDate(user.lastLoginAt)
+                                : "Ainda n√£o acessou"}
+                            </td>
+                            <td>{formatDate(user.createdAt, false)}</td>
+                            <td>
+                              <div className="table-actions">
+                                <button
+                                  className="icon-button"
+                                  onClick={() => openEditUser(user)}
+                                  aria-label={"Editar " + user.name}
+                                  title="Editar usu√°rio e permiss√µes"
+                                >
+                                  <Pencil size={16} />
+                                </button>
+                                {user.id === currentUser.id ? (
+                                  <span className="self-account">Sua conta</span>
+                                ) : (
+                                  <>
+                                    <button
+                                      className={
+                                        user.active
+                                          ? "status-action status-action-off"
+                                          : "status-action"
+                                      }
+                                      onClick={() => setConfirmUserId(user.id)}
+                                    >
+                                      {user.active ? "Bloquear" : "Reativar"}
+                                    </button>
+                                    <button
+                                      className="icon-button danger-icon-button"
+                                      onClick={() => setConfirmUserDeleteId(user.id)}
+                                      aria-label={"Excluir " + user.name}
+                                      title="Excluir com seguran√ßa"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+        </main>
+      </div>
+
+      {actionModalOpen && currentUser.role !== "desenvolvedor" && (
+        <Modal
+          title="Nova a√ß√£o para Desenvolvedor"
+          description="Encaminhe o problema com contexto suficiente para an√°lise e corre√ß√£o."
+          size="large"
+          onClose={() => setActionModalOpen(false)}
+          footer={
+            <>
+              <button className="button button-ghost" onClick={() => setActionModalOpen(false)}>Cancelar</button>
+              <button className="button button-primary" onClick={createDevelopmentAction} disabled={saving}>
+                {saving ? <span className="spinner" /> : <Code2 size={17} />}
+                {saving ? "Encaminhando‚Ä¶" : "Encaminhar a√ß√£o"}
+              </button>
+            </>
+          }
+        >
+          <div className="form-grid">
+            <label className="field field-span-2">
+              <span>T√≠tulo da a√ß√£o <b>*</b></span>
+              <input value={actionDraft.title} onChange={(event) => setActionDraft({ ...actionDraft, title: event.target.value.slice(0, 120) })} placeholder="Resumo objetivo do problema" />
+            </label>
+            <label className="field field-span-2">
+              <span>Descri√ß√£o do problema <b>*</b></span>
+              <textarea rows={5} value={actionDraft.problemDescription} onChange={(event) => setActionDraft({ ...actionDraft, problemDescription: event.target.value.slice(0, 3000) })} placeholder="Explique o comportamento atual, impacto e como reproduzir" />
+            </label>
+            <label className="field field-span-2">
+              <span>Plano de a√ß√£o <b>*</b></span>
+              <textarea rows={4} value={actionDraft.actionPlan} onChange={(event) => setActionDraft({ ...actionDraft, actionPlan: event.target.value.slice(0, 3000) })} placeholder="Descreva o que precisa ser analisado, corrigido ou entregue" />
+            </label>
+            <label className="field field-span-2">
+              <span>Informa√ß√µes para an√°lise</span>
+              <textarea rows={4} value={actionDraft.analysisInformation} onChange={(event) => setActionDraft({ ...actionDraft, analysisInformation: event.target.value.slice(0, 3000) })} placeholder="Ambiente, cliente, passos, mensagens, vers√µes e demais detalhes" />
+            </label>
+            <label className="field">
+              <span>Data e hor√°rio da identifica√ß√£o <b>*</b></span>
+              <input type="datetime-local" value={actionDraft.identifiedAt} onChange={(event) => setActionDraft({ ...actionDraft, identifiedAt: event.target.value })} />
+            </label>
+            <label className="field">
+              <span>Desenvolvedor respons√°vel <b>*</b></span>
+              <select value={actionDraft.developerId} onChange={(event) => setActionDraft({ ...actionDraft, developerId: event.target.value })}>
+                <option value="">Selecione</option>
+                {developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}
+              </select>
+              {developerUsers.length === 0 && <small className="field-help">Crie primeiro uma conta com o perfil Desenvolvedor na aba Usu√°rios.</small>}
+            </label>
+            <div className="field field-span-2">
+              <span>Evid√™ncias do problema</span>
+              <label className="upload-zone">
+                <UploadCloud size={24} />
+                <strong>Selecionar evid√™ncias</strong>
+                <span>At√© 5 arquivos ¬∑ PNG, JPG, WEBP, MP4, PDF ou TXT ¬∑ m√°ximo 10 MB</span>
+                <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.mp4,.pdf,.txt" onChange={handleActionEvidence} />
+              </label>
+              {actionEvidenceFiles.length > 0 && (
+                <div className="attachment-list">
+                  {actionEvidenceFiles.map((file) => (
+                    <span key={file.name + file.lastModified}><Paperclip size={15} />{file.name}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+            {actionFormError && <div className="form-alert field-span-2" role="alert">{actionFormError}</div>}
+          </div>
+        </Modal>
+      )}
+
+      {selectedAction && (
+        <Modal
+          title={`${selectedAction.number} ¬∑ ${selectedAction.title}`}
+          description="Detalhes, prazo e acompanhamento da a√ß√£o encaminhada."
+          size="large"
+          onClose={() => setSelectedActionId(null)}
+          footer={<button className="button button-ghost" onClick={() => setSelectedActionId(null)}>Fechar</button>}
+        >
+          <div className="development-action-detail">
+            {isActionOverdue(selectedAction) && (
+              <div className="development-deadline-alert" role="alert">
+                <AlertTriangle size={20} /><div><strong>Prazo atingido</strong><span>Esta a√ß√£o precisa ser verificada.</span></div>
+              </div>
+            )}
+            <dl className="detail-grid">
+              <div><dt>Status</dt><dd><span className="badge">{selectedAction.status}</span></dd></div>
+              <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
+              <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
+              <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>
+              <div><dt>Previs√£o de resolu√ß√£o</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda n√£o definida"}</dd></div>
+              <div><dt>Encerrado em</dt><dd>{selectedAction.resolvedAt ? formatDate(selectedAction.resolvedAt) : "‚Äî"}</dd></div>
+              <div className="detail-span-2"><dt>Descri√ß√£o do problema</dt><dd className="detail-description">{selectedAction.problemDescription}</dd></div>
+              <div className="detail-span-2"><dt>Plano de a√ß√£o</dt><dd className="detail-description">{selectedAction.actionPlan}</dd></div>
+              <div className="detail-span-2"><dt>Informa√ß√µes para an√°lise</dt><dd className="detail-description">{selectedAction.analysisInformation || "Nenhuma informa√ß√£o complementar."}</dd></div>
+              <div className="detail-span-2"><dt>Anota√ß√µes do Desenvolvedor</dt><dd className="detail-description">{selectedAction.developerNotes || "Nenhuma anota√ß√£o registrada."}</dd></div>
+              {selectedAction.resolutionNotes && <div className="detail-span-2"><dt>Valida√ß√£o do Suporte</dt><dd className="detail-description">{selectedAction.resolutionNotes}</dd></div>}
+            </dl>
+
+            <section className="development-evidence-section">
+              <h3>Evid√™ncias</h3>
+              {selectedAction.evidencePaths.length ? (
+                <div className="evidence-grid">
+                  {selectedAction.evidencePaths.map((path) => (
+                    <div className="evidence-item" key={path}>
+                      <span><FileText size={20} /></span>
+                      <p><strong>{evidenceName(path)}</strong><small>Arquivo protegido</small></p>
+                      <a className="icon-button" href={`/api/catalog?scope=development-actions&evidence=1&actionId=${encodeURIComponent(selectedAction.id)}&path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer" aria-label={`Abrir ${evidenceName(path)}`}><Eye size={17} /></a>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="muted-copy">Nenhuma evid√™ncia anexada.</p>}
+            </section>
+
+            {currentUser.role === "desenvolvedor" && selectedAction.status !== "Resolvida" && (
+              <section className="development-workflow-panel">
+                <h3>Atualizar an√°lise e previs√£o</h3>
+                <div className="form-grid">
+                  <label className="field"><span>Data prevista para resolu√ß√£o <b>*</b></span><input type="datetime-local" value={developerActionDraft.dueAt} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, dueAt: event.target.value })} /></label>
+                  <label className="field"><span>Status <b>*</b></span><select value={developerActionDraft.status} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, status: event.target.value as DevelopmentActionStatus })}><option>Em an√°lise</option><option>Em desenvolvimento</option><option>Aguardando valida√ß√£o</option></select></label>
+                  <label className="field field-span-2"><span>Anota√ß√µes da an√°lise</span><textarea rows={5} value={developerActionDraft.developerNotes} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, developerNotes: event.target.value.slice(0, 3000) })} placeholder="Registre diagn√≥stico, solu√ß√£o aplicada e orienta√ß√µes para valida√ß√£o" /></label>
+                </div>
+                <button className="button button-primary" onClick={saveDeveloperAction} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando‚Ä¶" : "Salvar previs√£o e andamento"}</button>
+              </section>
+            )}
+
+            {currentUser.role !== "desenvolvedor" && selectedAction.status === "Aguardando valida√ß√£o" && (
+              <section className="development-workflow-panel">
+                <h3>Validar resolu√ß√£o</h3>
+                <label className="field"><span>Observa√ß√µes da valida√ß√£o</span><textarea rows={4} value={validationNotes} onChange={(event) => setValidationNotes(event.target.value.slice(0, 3000))} placeholder="Registre o resultado do teste ou o motivo da reabertura" /></label>
+                <div className="validation-actions">
+                  <button className="button button-secondary" onClick={() => validateDevelopmentAction("reopen")} disabled={saving}><RefreshCcw size={17} />N√£o foi solucionado</button>
+                  <button className="button button-primary" onClick={() => validateDevelopmentAction("resolved")} disabled={saving}><CheckCircle2 size={17} />Confirmar resolu√ß√£o</button>
+                </div>
+              </section>
+            )}
+            {actionFormError && <div className="form-alert" role="alert">{actionFormError}</div>}
+          </div>
+        </Modal>
+      )}
+
+      {editingOccurrence && currentOccurrence && (
+        <Modal
+          title={"Editar " + currentOccurrence.number}
+          description="Atualize os dados de acompanhamento permitidos para o seu perfil."
+          onClose={() => setEditingOccurrence(false)}
+          footer={
+            <>
+              <button
+                className="button button-ghost"
+                onClick={() => setEditingOccurrence(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="button button-primary"
+                onClick={saveOccurrenceEdit}
+                disabled={saving}
+              >
+                {saving ? <span className="spinner" /> : <Check size={17} />}
+                {saving ? "Salvando‚Ä¶" : "Salvar altera√ß√µes"}
+              </button>
+            </>
+          }
+        >
+          <div className="form-grid">
+            <label className="field">
+              <span>Gravidade</span>
+              <select
+                value={editDraft.severity}
+                onChange={(event) =>
+                  setEditDraft({
+                    ...editDraft,
+                    severity: event.target.value as Severity,
+                  })
+                }
+              >
+                {SEVERITIES.map((severity) => (
+                  <option key={severity}>{severity}</option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>Status</span>
+              <select
+                value={editDraft.status}
+                onChange={(event) =>
+                  setEditDraft({
+                    ...editDraft,
+                    status: event.target.value as OccurrenceStatus,
+                  })
+                }
+              >
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status}>{status}</option>
+                ))}
+              </select>
+            </label>
+            <label className="field field-span-2">
+              <span>Respons√°vel</span>
+              <select
+                value={editDraft.responsibleId}
+                onChange={(event) =>
+                  setEditDraft({
+                    ...editDraft,
+                    responsibleId: event.target.value,
+                  })
+                }
+                disabled={currentUser.role === "suporte"}
+              >
+                {portalUsers.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field field-span-2">
+              <span>Descri√ß√£o complementar</span>
+              <textarea
+                rows={5}
+                value={editDraft.description}
+                onChange={(event) =>
+                  setEditDraft({
+                    ...editDraft,
+                    description: event.target.value.slice(0, 700),
+                  })
+                }
+              />
+            </label>
+            <div className="field field-span-2">
+              <span>Evid√™ncias da altera√ß√£o</span>
+              <label className="upload-zone">
+                <UploadCloud size={24} />
+                <strong>Adicionar evid√™ncias</strong>
+                <span>At√© 3 arquivos no total ¬∑ PNG, JPG, WEBP, MP4 ou TXT ¬∑ m√°ximo 10 MB</span>
+                <input
+                  type="file"
+                  multiple
+                  accept=".png,.jpg,.jpeg,.webp,.mp4,.txt"
+                  onChange={handleEditEvidence}
+                />
+              </label>
+              {editEvidenceError && (
+                <small className="field-error" role="alert">{editEvidenceError}</small>
+              )}
+              {(editDraft.attachments.length > 0 || editEvidenceFiles.length > 0) && (
+                <div className="attachment-list">
+                  {editDraft.attachments.map((file) => (
+                    <span key={file}>
+                      <Paperclip size={15} />
+                      {evidenceName(file)}
+                      <small>salva</small>
+                    </span>
+                  ))}
+                  {editEvidenceFiles.map((file) => (
+                    <span key={file.name + file.lastModified}>
+                      <UploadCloud size={15} />
+                      {file.name}
+                      <button
+                        type="button"
+                        onClick={() => setEditEvidenceFiles((current) => current.filter((item) => item !== file))}
+                        aria-label={"Remover " + file.name}
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {referenceManagerOpen && (
+        <Modal
+          title="Sistemas e m√≥dulos"
+          description="Organize as op√ß√µes usadas no Cat√°logo e nos registros de ocorr√™ncia."
+          size="large"
+          onClose={() => {
+            setReferenceManagerOpen(false);
+            setReferenceError("");
+          }}
+          footer={
+            <button
+              className="button button-primary"
+              onClick={() => {
+                setReferenceManagerOpen(false);
+                setReferenceError("");
+              }}
+            >
+              Concluir
+            </button>
+          }
+        >
+          {referenceError && (
+            <div className="reference-error" role="alert">
+              <CircleAlert size={18} />
+              <span>{referenceError}</span>
+            </div>
+          )}
+          <div className="reference-manager">
+            <section className="reference-panel">
+              <div className="reference-panel-heading">
+                <div>
+                  <span className="card-kicker">Sistemas</span>
+                  <h3>{editingSystemId ? "Editar sistema" : "Novo sistema"}</h3>
+                </div>
+                <strong>{systems.length}</strong>
+              </div>
+              <div className="reference-form-row">
+                <label className="field">
+                  <span>Nome do sistema</span>
+                  <input
+                    value={systemDraft}
+                    onChange={(event) =>
+                      setSystemDraft(event.target.value.slice(0, 80))
+                    }
+                    placeholder="Ex.: Portal do Cliente"
+                  />
+                </label>
+                <button
+                  className="button button-primary"
+                  onClick={saveSystemReference}
+                  disabled={saving || systemDraft.trim().length < 2}
+                >
+                  {saving ? <span className="spinner" /> : <Check size={17} />}
+                  {editingSystemId ? "Atualizar" : "Adicionar"}
+                </button>
+                {editingSystemId && (
+                  <button
+                    className="button button-ghost"
+                    onClick={() => {
+                      setEditingSystemId(null);
+                      setSystemDraft("");
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
+              <div className="reference-list">
+                {systems.length === 0 ? (
+                  <p className="reference-list-empty">
+                    Nenhum sistema cadastrado.
+                  </p>
+                ) : (
+                  systems.map((system) => (
+                    <div className="reference-list-item" key={system.id}>
+                      <div>
+                        <strong>{system.name}</strong>
+                        <small>
+                          {system.modules.length}{" "}
+                          {system.modules.length === 1 ? "m√≥dulo" : "m√≥dulos"}
+                        </small>
+                      </div>
+                      <div className="reference-list-actions">
+                        <button
+                          className="icon-button"
+                          onClick={() => {
+                            setEditingSystemId(system.id);
+                            setSystemDraft(system.name);
+                            setReferenceError("");
+                          }}
+                          aria-label={`Editar sistema ${system.name}`}
+                          title="Editar"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          className="icon-button danger-icon-button"
+                          onClick={() =>
+                            setConfirmReferenceDelete({
+                              kind: "system",
+                              id: system.id,
+                              name: system.name,
+                            })
+                          }
+                          aria-label={`Excluir sistema ${system.name}`}
+                          title="Excluir"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            <section className="reference-panel">
+              <div className="reference-panel-heading">
+                <div>
+                  <span className="card-kicker">M√≥dulos</span>
+                  <h3>{editingModuleId ? "Editar m√≥dulo" : "Novo m√≥dulo"}</h3>
+                </div>
+                <strong>
+                  {systems.reduce(
+                    (total, system) => total + system.modules.length,
+                    0,
+                  )}
+                </strong>
+              </div>
+              <div className="reference-module-form">
+                <label className="field">
+                  <span>Sistema</span>
+                  <select
+                    value={moduleDraft.systemId}
+                    onChange={(event) =>
+                      setModuleDraft({
+                        systemId: event.target.value,
+                        name: "",
+                        isGeneral: false,
+                      })
+                    }
+                    disabled={systems.length === 0}
+                  >
+                    {systems.length === 0 && (
+                      <option value="">Cadastre um sistema primeiro</option>
+                    )}
+                    {systems.map((system) => (
+                      <option key={system.id} value={system.id}>
+                        {system.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <span>Nome do m√≥dulo</span>
+                  <input
+                    value={moduleDraft.name}
+                    onChange={(event) =>
+                      setModuleDraft({
+                        ...moduleDraft,
+                        name: event.target.value.slice(0, 80),
+                      })
+                    }
+                    placeholder="Ex.: Checklist"
+                    disabled={!moduleDraft.systemId}
+                  />
+                </label>
+                <label className="reference-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={moduleDraft.isGeneral}
+                    onChange={(event) =>
+                      setModuleDraft({
+                        ...moduleDraft,
+                        isGeneral: event.target.checked,
+                      })
+                    }
+                    disabled={!moduleDraft.systemId}
+                  />
+                  Usar como m√≥dulo geral
+                </label>
+                <div className="reference-form-actions">
+                  <button
+                    className="button button-primary"
+                    onClick={saveModuleReference}
+                    disabled={
+                      saving ||
+                      !moduleDraft.systemId ||
+                      moduleDraft.name.trim().length < 2
+                    }
+                  >
+                    {saving ? <span className="spinner" /> : <Check size={17} />}
+                    {editingModuleId ? "Atualizar" : "Adicionar"}
+                  </button>
+                  {editingModuleId && (
+                    <button
+                      className="button button-ghost"
+                      onClick={() => {
+                        setEditingModuleId(null);
+                        setModuleDraft((current) => ({
+                          ...current,
+                          name: "",
+                          isGeneral: false,
+                        }));
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="reference-list">
+                {systems
+                  .find((system) => system.id === moduleDraft.systemId)
+                  ?.modules.map((module) => (
+                    <div className="reference-list-item" key={module.id}>
+                      <div>
+                        <strong>{module.name}</strong>
+                        <small>{module.isGeneral ? "M√≥dulo geral" : "M√≥dulo espec√≠fico"}</small>
+                      </div>
+                      <div className="reference-list-actions">
+                        <button
+                          className="icon-button"
+                          onClick={() => {
+                            setEditingModuleId(module.id);
+                            setModuleDraft({
+                              systemId: moduleDraft.systemId,
+                              name: module.name,
+                              isGeneral: module.isGeneral,
+                            });
+                            setReferenceError("");
+                          }}
+                          aria-label={`Editar m√≥dulo ${module.name}`}
+                          title="Editar"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          className="icon-button danger-icon-button"
+                          onClick={() =>
+                            setConfirmReferenceDelete({
+                              kind: "module",
+                              id: module.id,
+                              name: module.name,
+                            })
+                          }
+                          aria-label={`Excluir m√≥dulo ${module.name}`}
+                          title="Excluir"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )) || (
+                  <p className="reference-list-empty">
+                    Selecione um sistema para ver os m√≥dulos.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+        </Modal>
+      )}
+
+      {confirmReferenceDelete && (
+        <Modal
+          title={
+            confirmReferenceDelete.kind === "system"
+              ? "Excluir sistema da visualiza√ß√£o?"
+              : "Excluir m√≥dulo da visualiza√ß√£o?"
+          }
+          description="O cadastro continuar√° preservado no banco para auditoria."
+          onClose={() => setConfirmReferenceDelete(null)}
+          footer={
+            <>
+              <button
+                className="button button-ghost"
+                onClick={() => setConfirmReferenceDelete(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="button button-danger"
+                onClick={deleteReference}
+                disabled={saving}
+              >
+                {saving ? <span className="spinner" /> : <Trash2 size={17} />}
+                Excluir da visualiza√ß√£o
+              </button>
+            </>
+          }
+        >
+          <div className="safe-delete-copy">
+            <strong>{confirmReferenceDelete.name}</strong>
+            <p>
+              Se estiver sendo usado em um item do Cat√°logo ou ocorr√™ncia, o
+              sistema impedir√° a exclus√£o e mostrar√° como corrigir.
+            </p>
+          </div>
+        </Modal>
+      )}
+
+      {catalogModal && (
+        <Modal
+          title={
+            catalogModal.mode === "new"
+              ? "Novo item do Cat√°logo"
+              : "Editar item do Cat√°logo"
+          }
+          description="Use um nome curto, oficial e reconhec√≠vel pela equipe."
+          onClose={() => setCatalogModal(null)}
+          footer={
+            <>
+              <button
+                className="button button-ghost"
+                onClick={() => setCatalogModal(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="button button-primary"
+                onClick={saveCatalog}
+                disabled={saving}
+              >
+                {saving ? <span className="spinner" /> : <Check size={17} />}
+                {saving ? "Salvando‚Ä¶" : "Salvar item"}
+              </button>
+            </>
+          }
+        >
+          <div className="form-grid">
+            <label className="field">
+              <span>
+                Sistema <b>*</b>
+              </span>
+              <select
+                value={catalogDraft.systemId}
+                onChange={(event) => {
+                  const system = systems.find(
+                    (item) => item.id === event.target.value,
+                  );
+                  setCatalogDraft({
+                    ...catalogDraft,
+                    systemId: event.target.value,
+                    moduleId: system?.modules[0].id || "",
+                  });
+                }}
+              >
+                {systems.map((system) => (
+                  <option key={system.id} value={system.id}>
+                    {system.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>
+                M√≥dulo <b>*</b>
+              </span>
+              <select
+                value={catalogDraft.moduleId}
+                onChange={(event) =>
+                  setCatalogDraft({
+                    ...catalogDraft,
+                    moduleId: event.target.value,
+                  })
+                }
+              >
+                {systems.find(
+                  (system) => system.id === catalogDraft.systemId,
+                )?.modules.map((module) => (
+                  <option key={module.id} value={module.id}>
+                    {module.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field field-span-2">
+              <span>
+                Nome padronizado do erro <b>*</b>
+              </span>
+              <input
+                value={catalogDraft.name}
+                onChange={(event) =>
+                  setCatalogDraft({
+                    ...catalogDraft,
+                    name: event.target.value.slice(0, 120),
+                  })
+                }
+                placeholder="Ex.: Falha ao carregar checklist"
+                aria-invalid={Boolean(catalogError)}
+              />
+              {catalogError && (
+                <small className="field-error">{catalogError}</small>
+              )}
+              {catalogDraft.name.length > 4 &&
+                catalog.some(
+                  (item) =>
+                    item.id !== catalogModal.id &&
+                    normalizeText(item.name).includes(
+                      normalizeText(catalogDraft.name),
+                    ),
+                ) && (
+                  <small className="field-warning">
+                    Encontramos itens parecidos. Revise antes de salvar.
+                  </small>
+                )}
+            </label>
+            <label className="field field-span-2">
+              <span>Termos alternativos para busca</span>
+              <input
+                value={catalogDraft.aliases}
+                onChange={(event) =>
+                  setCatalogDraft({
+                    ...catalogDraft,
+                    aliases: event.target.value.slice(0, 220),
+                  })
+                }
+                placeholder="Separe os termos por v√≠rgula"
+              />
+              <small className="field-help">
+                Estes termos ajudam na busca sem criar duplicidades.
+              </small>
+            </label>
+            <label className="field field-span-2">
+              <span>Status</span>
+              <select
+                value={catalogDraft.active ? "active" : "inactive"}
+                disabled={catalogModal.mode === "edit"}
+                onChange={(event) =>
+                  setCatalogDraft({
+                    ...catalogDraft,
+                    active: event.target.value === "active",
+                  })
+                }
+              >
+                <option value="active">Ativo</option>
+                <option value="inactive">Inativo</option>
+              </select>
+              {catalogModal.mode === "edit" && (
+                <small className="field-help">
+                  Use Ativar ou Inativar na lista para confirmar esta altera√ß√£o.
+                </small>
+              )}
+            </label>
+          </div>
+        </Modal>
+      )}
+
+      {confirmCatalogId && (
+        <Modal
+          title={
+            catalog.find((item) => item.id === confirmCatalogId)?.active
+              ? "Inativar item?"
+              : "Reativar item?"
+          }
+          description="Os registros hist√≥ricos continuar√£o vinculados a este item."
+          onClose={() => setConfirmCatalogId(null)}
+          footer={
+            <>
+              <button
+                className="button button-ghost"
+                onClick={() => setConfirmCatalogId(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="button button-primary"
+                onClick={() => toggleCatalogItem(confirmCatalogId)}
+                disabled={saving}
+              >
+                {saving ? "Processando‚Ä¶" : "Confirmar"}
+              </button>
+            </>
+          }
+        >
+          <div className="confirm-message">
+            <span>
+              <AlertTriangle size={23} />
+            </span>
+            <p>
+              <strong>
+                {catalog.find((item) => item.id === confirmCatalogId)?.name}
+              </strong>
+              {catalog.find((item) => item.id === confirmCatalogId)?.active
+                ? " deixar√° de aparecer em novos registros."
+                : " voltar√° a aparecer para novos registros."}
+            </p>
+          </div>
+        </Modal>
+      )}
+
+      {userModal && currentUser.role === "administrador" && (
+        <Modal
+          title={userModal.mode === "new" ? "Novo usu√°rio" : "Editar usu√°rio"}
+          description={
+            userModal.mode === "new"
+              ? "Crie a conta e entregue a senha tempor√°ria de forma segura."
+              : "Atualize o perfil, as permiss√µes ou redefina a senha."
+          }
+          onClose={() => setUserModal(null)}
+          footer={
+            <>
+              <button className="button button-ghost" onClick={() => setUserModal(null)}>
+                Cancelar
+              </button>
+              <button className="button button-primary" onClick={saveUser} disabled={saving}>
+                {saving ? <span className="spinner" /> : <Check size={17} />}
+                {saving ? "Salvando‚Ä¶" : "Salvar usu√°rio"}
+              </button>
+            </>
+          }
+        >
+          <div className="form-grid">
+            <label className="field field-span-2">
+              <span>Nome completo <b>*</b></span>
+              <input
+                value={userDraft.name}
+                onChange={(event) => setUserDraft({ ...userDraft, name: event.target.value.slice(0, 100) })}
+                placeholder="Nome da pessoa"
+              />
+            </label>
+            <label className="field field-span-2">
+              <span>E-mail de acesso <b>*</b></span>
+              <input
+                type="email"
+                value={userDraft.email}
+                disabled={userModal.mode === "edit"}
+                onChange={(event) => setUserDraft({ ...userDraft, email: event.target.value.slice(0, 160) })}
+                placeholder="nome@empresa.com"
+              />
+              {userModal.mode === "edit" && (
+                <small className="field-help">O e-mail de acesso n√£o pode ser alterado.</small>
+              )}
+            </label>
+            <label className="field field-span-2">
+              <span>Perfil de acesso <b>*</b></span>
+              <select
+                value={userDraft.role}
+                onChange={(event) => setUserDraft({ ...userDraft, role: event.target.value as Role })}
+              >
+                <option value="suporte">Suporte</option>
+                <option value="desenvolvedor">Desenvolvedor</option>
+                <option value="administrador">Administrador</option>
+              </select>
+            </label>
+            <div className="permission-preview field-span-2">
+              <span className="metric-icon metric-blue"><ShieldCheck size={18} /></span>
+              <div>
+                <strong>Permiss√µes do perfil {roleLabel[userDraft.role]}</strong>
+                <ul>
+                  {rolePermissions[userDraft.role].map((permission) => (
+                    <li key={permission}>{permission}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <label className="field field-span-2">
+              <span>{userModal.mode === "new" ? "Senha tempor√°ria *" : "Nova senha"}</span>
+              <input
+                type="password"
+                value={userDraft.password}
+                onChange={(event) => setUserDraft({ ...userDraft, password: event.target.value })}
+                placeholder={userModal.mode === "new" ? "M√≠nimo de 8 caracteres" : "Deixe em branco para manter"}
+              />
+              <small className="field-help">
+                {userModal.mode === "new"
+                  ? "A senha deve ter pelo menos 8 caracteres."
+                  : "Ao redefinir a senha, as sess√µes abertas ser√£o encerradas."}
+              </small>
+            </label>
+            {userFormError && (
+              <div className="form-alert field-span-2" role="alert">{userFormError}</div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {confirmUserId && currentUser.role === "administrador" && (
+        <Modal
+          title={managedUsers.find((user) => user.id === confirmUserId)?.active ? "Bloquear acesso?" : "Reativar acesso?"}
+          description="O hist√≥rico e os registros associados a esta pessoa ser√£o preservados."
+          onClose={() => setConfirmUserId(null)}
+          footer={
+            <>
+              <button className="button button-ghost" onClick={() => setConfirmUserId(null)}>
+                Cancelar
+              </button>
+              <button className="button button-primary" onClick={() => toggleUserAccess(confirmUserId)} disabled={saving}>
+                {saving ? "Processando‚Ä¶" : "Confirmar"}
+              </button>
+            </>
+          }
+        >
+          <div className="confirm-message">
+            <span><AlertTriangle size={23} /></span>
+            <p>
+              <strong>{managedUsers.find((user) => user.id === confirmUserId)?.name}</strong>
+              {managedUsers.find((user) => user.id === confirmUserId)?.active
+                ? " perder√° o acesso imediatamente e suas sess√µes ser√£o encerradas."
+                : " poder√° entrar novamente no sistema com sua senha atual."}
+            </p>
+          </div>
+        </Modal>
+      )}
+
+      {confirmOccurrenceDeleteId && currentUser.role === "administrador" && (
+        <Modal
+          title="Excluir registro da visualiza√ß√£o?"
+          description="Esta √© uma exclus√£o segura: o registro deixar√° de aparecer no portal, mas continuar√° armazenado para recupera√ß√£o e auditoria."
+          onClose={() => setConfirmOccurrenceDeleteId(null)}
+          footer={
+            <>
+              <button className="button button-ghost" onClick={() => setConfirmOccurrenceDeleteId(null)}>
+                Cancelar
+              </button>
+              <button className="button button-danger" onClick={() => deleteOccurrence(confirmOccurrenceDeleteId)} disabled={saving}>
+                {saving ? <span className="spinner" /> : <Trash2 size={17} />}
+                {saving ? "Excluindo‚Ä¶" : "Excluir da visualiza√ß√£o"}
+              </button>
+            </>
+          }
+        >
+          <div className="safe-delete-message">
+            <span><ShieldCheck size={23} /></span>
+            <p>
+              <strong>
+                {occurrences.find((item) => item.id === confirmOccurrenceDeleteId)?.number}
+              </strong>
+              Nenhum dado ser√° apagado definitivamente do banco de dados.
+            </p>
+          </div>
+        </Modal>
+      )}
+
+      {confirmUserDeleteId && currentUser.role === "administrador" && (
+        <Modal
+          title="Excluir usu√°rio da visualiza√ß√£o?"
+          description="A conta ser√° ocultada e perder√° o acesso, mas seus dados e v√≠nculos hist√≥ricos continuar√£o armazenados."
+          onClose={() => setConfirmUserDeleteId(null)}
+          footer={
+            <>
+              <button className="button button-ghost" onClick={() => setConfirmUserDeleteId(null)}>
+                Cancelar
+              </button>
+              <button className="button button-danger" onClick={() => deleteUser(confirmUserDeleteId)} disabled={saving}>
+                {saving ? <span className="spinner" /> : <Trash2 size={17} />}
+                {saving ? "Excluindo‚Ä¶" : "Excluir usu√°rio"}
+              </button>
+            </>
+          }
+        >
+          <div className="safe-delete-message">
+            <span><ShieldCheck size={23} /></span>
+            <p>
+              <strong>
+                {managedUsers.find((user) => user.id === confirmUserDeleteId)?.name}
+              </strong>
+              A exclus√£o n√£o apaga ocorr√™ncias, hist√≥rico de acesso ou dados de auditoria.
+            </p>
+          </div>
+        </Modal>
+      )}
+
+      {toast && (
+        <div className="toast" role="status">
+          <CheckCircle2 size={20} />
+          {toast}
+          <button onClick={() => setToast("")} aria-label="Fechar mensagem">
+            <X size={16} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
