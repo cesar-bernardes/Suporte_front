@@ -148,6 +148,16 @@ type DevelopmentAction = {
   updatedAt: string;
 };
 
+type ActionDetailsDraft = {
+  title: string;
+  problemDescription: string;
+  identifiedAt: string;
+  developerId: string;
+  systemId: string;
+  moduleId: string;
+  urgency: DevelopmentActionUrgency;
+};
+
 const STATUS_OPTIONS: OccurrenceStatus[] = [
   "Novo",
   "Em análise",
@@ -520,6 +530,11 @@ export default function PortalOcorrencias() {
   const [actionEvidenceFiles, setActionEvidenceFiles] = useState<File[]>([]);
   const [actionUpdateEvidenceFiles, setActionUpdateEvidenceFiles] = useState<File[]>([]);
   const [actionFormError, setActionFormError] = useState("");
+  const [editingActionDetails, setEditingActionDetails] = useState(false);
+  const [actionDetailsDraft, setActionDetailsDraft] = useState<ActionDetailsDraft>({
+    title: "", problemDescription: "", identifiedAt: "", developerId: "",
+    systemId: "", moduleId: "", urgency: "Médio",
+  });
   const [actionDraft, setActionDraft] = useState({
     title: "",
     problemDescription: "",
@@ -1078,6 +1093,7 @@ export default function PortalOcorrencias() {
 
   function openDevelopmentAction(action: DevelopmentAction) {
     setSelectedActionId(action.id);
+    setEditingActionDetails(false);
     setValidationNotes(action.resolutionNotes);
     setDeveloperActionDraft({
       dueAt: action.dueAt ? toDateTimeLocal(new Date(action.dueAt)) : "",
@@ -1086,6 +1102,45 @@ export default function PortalOcorrencias() {
     });
     setActionUpdateEvidenceFiles([]);
     setActionFormError("");
+  }
+
+  function startEditingActionDetails(action: DevelopmentAction) {
+    const selectedSystem = systems.find((system) => system.id === action.systemId) || systems[0];
+    const selectedModule = selectedSystem?.modules.find((module) => module.id === action.moduleId) || selectedSystem?.modules[0];
+    setActionDetailsDraft({
+      title: action.title,
+      problemDescription: action.problemDescription,
+      identifiedAt: toDateTimeLocal(new Date(action.identifiedAt)),
+      developerId: action.developerId,
+      systemId: selectedSystem?.id || "",
+      moduleId: selectedModule?.id || "",
+      urgency: action.urgency || "Médio",
+    });
+    setActionFormError("");
+    setEditingActionDetails(true);
+  }
+
+  async function saveActionDetails() {
+    if (!selectedAction) return;
+    if (!actionDetailsDraft.systemId || !actionDetailsDraft.moduleId) {
+      setActionFormError("Selecione um Sistema e um Módulo ativos.");
+      return;
+    }
+    setSaving(true);
+    setActionFormError("");
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
+        method: "PATCH",
+        body: JSON.stringify({ id: selectedAction.id, mode: "metadata", ...actionDetailsDraft }),
+      });
+      setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
+      setEditingActionDetails(false);
+      setToast("Informações da ação atualizadas.");
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "Não foi possível atualizar a ação.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function saveDeveloperAction() {
@@ -4522,7 +4577,7 @@ export default function PortalOcorrencias() {
           title={`${selectedAction.number} · ${selectedAction.title}`}
           description="Detalhes, prazo e acompanhamento da ação encaminhada."
           size="large"
-          onClose={() => { setSelectedActionId(null); setActionUpdateEvidenceFiles([]); }}
+          onClose={() => { setSelectedActionId(null); setEditingActionDetails(false); setActionUpdateEvidenceFiles([]); }}
           footer={
             <>
               {currentUser.role === "administrador" && (
@@ -4535,6 +4590,31 @@ export default function PortalOcorrencias() {
           }
         >
           <div className="development-action-detail">
+            <div className="development-action-card-toolbar">
+              <div><span>Informações da ação</span><strong>{selectedAction.number}</strong></div>
+              <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>
+            </div>
+            {editingActionDetails && (
+              <section className="development-action-edit-panel">
+                <div className="development-action-edit-heading">
+                  <div><h3>Editar informações</h3><p>Atualize os dados principais sem alterar o histórico da ação.</p></div>
+                  <button type="button" className="icon-button" onClick={() => setEditingActionDetails(false)} aria-label="Cancelar edição"><X size={17} /></button>
+                </div>
+                <div className="form-grid">
+                  <label className="field field-span-2"><span>Título <b>*</b></span><input value={actionDetailsDraft.title} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, title: event.target.value.slice(0, 120) })} /></label>
+                  <label className="field field-span-2"><span>Descrição do problema <b>*</b></span><textarea rows={5} value={actionDetailsDraft.problemDescription} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, problemDescription: event.target.value.slice(0, 3000) })} /></label>
+                  <label className="field"><span>Sistema <b>*</b></span><select value={actionDetailsDraft.systemId} onChange={(event) => { const system = systems.find((item) => item.id === event.target.value); setActionDetailsDraft({ ...actionDetailsDraft, systemId: event.target.value, moduleId: system?.modules[0]?.id || "" }); }}><option value="">Selecione</option>{systems.map((system) => <option key={system.id} value={system.id}>{system.name}</option>)}</select></label>
+                  <label className="field"><span>Módulo <b>*</b></span><select value={actionDetailsDraft.moduleId} disabled={!actionDetailsDraft.systemId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, moduleId: event.target.value })}><option value="">Selecione</option>{systems.find((system) => system.id === actionDetailsDraft.systemId)?.modules.map((module) => <option key={module.id} value={module.id}>{module.name}</option>)}</select></label>
+                  <label className="field"><span>Urgência <b>*</b></span><select value={actionDetailsDraft.urgency} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, urgency: event.target.value as DevelopmentActionUrgency })}>{DEVELOPMENT_URGENCY_OPTIONS.map((urgency) => <option key={urgency}>{urgency}</option>)}</select></label>
+                  <label className="field"><span>Data da identificação <b>*</b></span><input type="datetime-local" value={actionDetailsDraft.identifiedAt} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, identifiedAt: event.target.value })} /></label>
+                  {currentUser.role !== "desenvolvedor" && <label className="field field-span-2"><span>Desenvolvedor responsável <b>*</b></span><select value={actionDetailsDraft.developerId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, developerId: event.target.value })}>{developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>}
+                </div>
+                <div className="development-action-edit-actions">
+                  <button type="button" className="button button-ghost" onClick={() => setEditingActionDetails(false)} disabled={saving}>Cancelar</button>
+                  <button type="button" className="button button-primary" onClick={saveActionDetails} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : "Salvar alterações"}</button>
+                </div>
+              </section>
+            )}
             {isActionOverdue(selectedAction) && (
               <div className="development-deadline-alert" role="alert">
                 <AlertTriangle size={20} /><div><strong>Prazo atingido</strong><span>Esta ação precisa ser verificada.</span></div>

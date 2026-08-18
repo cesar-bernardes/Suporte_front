@@ -2571,6 +2571,81 @@ td small {
   gap: 20px;
 }
 
+.development-action-card-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.development-action-card-toolbar > div {
+  display: grid;
+  gap: 2px;
+}
+
+.development-action-card-toolbar span {
+  color: var(--text-faint);
+  font-size: 0.62rem;
+  font-weight: 760;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.development-action-card-toolbar strong {
+  color: var(--navy-900);
+  font-size: 0.78rem;
+}
+
+.development-action-card-toolbar .icon-button {
+  border-color: #b9d5f4;
+  background: #eaf4ff;
+  color: #1f67a5;
+}
+
+.development-action-edit-panel {
+  padding: 18px;
+  border: 1px solid #b9d5f4;
+  border-radius: 12px;
+  background: #f7fbff;
+}
+
+.development-action-edit-heading,
+.development-action-edit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.development-action-edit-heading {
+  margin-bottom: 17px;
+}
+
+.development-action-edit-heading h3 {
+  margin: 0 0 3px;
+  color: var(--navy-900);
+  font-size: 0.96rem;
+}
+
+.development-action-edit-heading p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+}
+
+.development-action-edit-panel .form-grid {
+  margin-bottom: 0;
+}
+
+.development-action-edit-actions {
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
 .development-evidence-section,
 .development-workflow-panel {
   padding-top: 18px;
@@ -3836,6 +3911,15 @@ td small {
 
   .action-timeline-cell {
     min-width: 215px;
+  }
+
+  .development-action-edit-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .development-action-edit-actions .button {
+    width: 100%;
   }
 
   .filter-grid,
