@@ -949,8 +949,11 @@ export default function PortalOcorrencias() {
       action.number, action.title, action.problemDescription,
       getActionUser(action.developerId), action.status,
     ].join(" "));
-    return (!query || searchable.includes(query)) &&
-      (actionStatusFilter === "all" || action.status === actionStatusFilter);
+    const matchesStatus = actionStatusFilter === "all"
+      || (actionStatusFilter === "overdue"
+        ? isActionOverdue(action)
+        : action.status === actionStatusFilter);
+    return (!query || searchable.includes(query)) && matchesStatus;
   });
 
   function openNewDevelopmentAction() {
@@ -2391,6 +2394,7 @@ export default function PortalOcorrencias() {
                     <span className="sr-only">Status da ação</span>
                     <select value={actionStatusFilter} onChange={(event) => setActionStatusFilter(event.target.value)}>
                       <option value="all">Todos os status</option>
+                      <option value="overdue">Prazo atingido</option>
                       {DEVELOPMENT_STATUS_OPTIONS.map((status) => <option key={status}>{status}</option>)}
                     </select>
                   </label>
