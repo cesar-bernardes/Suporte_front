@@ -4592,9 +4592,9 @@ export default function PortalOcorrencias() {
           <div className="development-action-detail">
             <div className="development-action-card-toolbar">
               <div><span>Informações da ação</span><strong>{selectedAction.number}</strong></div>
-              <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>
+              {currentUser.role !== "desenvolvedor" && <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>}
             </div>
-            {editingActionDetails && (
+            {editingActionDetails && currentUser.role !== "desenvolvedor" && (
               <section className="development-action-edit-panel">
                 <div className="development-action-edit-heading">
                   <div><h3>Editar informações</h3><p>Atualize os dados principais sem alterar o histórico da ação.</p></div>
@@ -4607,7 +4607,7 @@ export default function PortalOcorrencias() {
                   <label className="field"><span>Módulo <b>*</b></span><select value={actionDetailsDraft.moduleId} disabled={!actionDetailsDraft.systemId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, moduleId: event.target.value })}><option value="">Selecione</option>{systems.find((system) => system.id === actionDetailsDraft.systemId)?.modules.map((module) => <option key={module.id} value={module.id}>{module.name}</option>)}</select></label>
                   <label className="field"><span>Urgência <b>*</b></span><select value={actionDetailsDraft.urgency} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, urgency: event.target.value as DevelopmentActionUrgency })}>{DEVELOPMENT_URGENCY_OPTIONS.map((urgency) => <option key={urgency}>{urgency}</option>)}</select></label>
                   <label className="field"><span>Data da identificação <b>*</b></span><input type="datetime-local" value={actionDetailsDraft.identifiedAt} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, identifiedAt: event.target.value })} /></label>
-                  {currentUser.role !== "desenvolvedor" && <label className="field field-span-2"><span>Desenvolvedor responsável <b>*</b></span><select value={actionDetailsDraft.developerId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, developerId: event.target.value })}>{developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>}
+                  <label className="field field-span-2"><span>Desenvolvedor responsável <b>*</b></span><select value={actionDetailsDraft.developerId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, developerId: event.target.value })}>{developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
                 </div>
                 <div className="development-action-edit-actions">
                   <button type="button" className="button button-ghost" onClick={() => setEditingActionDetails(false)} disabled={saving}>Cancelar</button>
