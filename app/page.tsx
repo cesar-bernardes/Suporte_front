@@ -123,6 +123,7 @@ type DevelopmentActionStatus =
   | "Em desenvolvimento"
   | "Aguardando validação"
   | "Resolvida";
+type DevelopmentActionUrgency = "Leve" | "Médio" | "Urgente";
 
 type DevelopmentAction = {
   id: string;
@@ -134,6 +135,7 @@ type DevelopmentAction = {
   identifiedAt: string;
   supportId: string;
   developerId: string;
+  urgency: DevelopmentActionUrgency;
   dueAt: string | null;
   status: DevelopmentActionStatus;
   developerNotes: string;
@@ -158,6 +160,7 @@ const DEVELOPMENT_STATUS_OPTIONS: DevelopmentActionStatus[] = [
   "Aguardando validação",
   "Resolvida",
 ];
+const DEVELOPMENT_URGENCY_OPTIONS: DevelopmentActionUrgency[] = ["Leve", "Médio", "Urgente"];
 const SEVERITIES: Severity[] = ["Baixa", "Média", "Alta", "Crítica"];
 
 const roleLabel: Record<Role, string> = {
@@ -520,6 +523,7 @@ export default function PortalOcorrencias() {
     problemDescription: "",
     identifiedAt: "",
     developerId: "",
+    urgency: "Médio" as DevelopmentActionUrgency,
   });
   const [developerActionDraft, setDeveloperActionDraft] = useState({
     dueAt: "",
@@ -947,7 +951,7 @@ export default function PortalOcorrencias() {
     const query = normalizeText(actionSearch);
     const searchable = normalizeText([
       action.number, action.title, action.problemDescription,
-      getActionUser(action.developerId), action.status,
+      getActionUser(action.developerId), action.urgency || "Médio", action.status,
     ].join(" "));
     const matchesStatus = actionStatusFilter === "all"
       || (actionStatusFilter === "overdue"
@@ -960,6 +964,7 @@ export default function PortalOcorrencias() {
     setActionDraft({
       title: "", problemDescription: "",
       identifiedAt: toDateTimeLocal(new Date()), developerId: developerUsers[0]?.id || "",
+      urgency: "Médio",
     });
     setActionEvidenceFiles([]);
     setActionFormError("");
@@ -2406,13 +2411,13 @@ export default function PortalOcorrencias() {
                 ) : (
                   <div className="table-wrap">
                     <table>
-                      <thead><tr><th>Ação</th><th>Problema</th><th>Desenvolvedor</th><th>Previsão</th><th>Status</th><th /></tr></thead>
+                      <thead><tr><th>Problema</th><th>Desenvolvedor</th><th>Urgência</th><th>Previsão</th><th>Status</th><th /></tr></thead>
                       <tbody>
                         {filteredDevelopmentActions.map((action) => (
                           <tr key={action.id} className={isActionOverdue(action) ? "deadline-row" : undefined}>
-                            <td><button className="table-primary-link" onClick={() => openDevelopmentAction(action)}>{action.number}</button></td>
-                            <td><strong>{action.title}</strong><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "…" : ""}</small></td>
+                            <td><button className="table-primary-link action-problem-link" onClick={() => openDevelopmentAction(action)}>{action.title}</button><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "…" : ""}</small></td>
                             <td>{getActionUser(action.developerId)}</td>
+                            <td><Badge tone={action.urgency || "Médio"}>{action.urgency || "Médio"}</Badge></td>
                             <td className={`action-timeline-cell${isActionOverdue(action) ? " deadline-text" : ""}`}>
                               <div className="action-date-stack">
                                 <div className={`action-date-line ${action.resolvedAt ? "is-resolved" : "is-pending"}`}><span>Resolvida</span><strong>{action.resolvedAt ? formatDate(action.resolvedAt) : "Em aberto"}</strong></div>
@@ -4442,6 +4447,12 @@ export default function PortalOcorrencias() {
               </select>
               {developerUsers.length === 0 && <small className="field-help">Crie primeiro uma conta com o perfil Desenvolvedor na aba Usuários.</small>}
             </label>
+            <label className="field">
+              <span>Urgência <b>*</b></span>
+              <select value={actionDraft.urgency} onChange={(event) => setActionDraft({ ...actionDraft, urgency: event.target.value as DevelopmentActionUrgency })}>
+                {DEVELOPMENT_URGENCY_OPTIONS.map((urgency) => <option key={urgency}>{urgency}</option>)}
+              </select>
+            </label>
             <div className="field field-span-2">
               <span>Evidências do problema</span>
               <label className="upload-zone">
@@ -4489,6 +4500,7 @@ export default function PortalOcorrencias() {
             <dl className="detail-grid">
               <div><dt>Status</dt><dd><Badge tone={selectedAction.status}>{selectedAction.status}</Badge></dd></div>
               <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
+              <div><dt>Urgência</dt><dd><Badge tone={selectedAction.urgency || "Médio"}>{selectedAction.urgency || "Médio"}</Badge></dd></div>
               <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
               <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>
               <div><dt>Criada em</dt><dd>{formatDate(selectedAction.createdAt)}</dd></div>

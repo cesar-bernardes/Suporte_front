@@ -2153,6 +2153,24 @@ td small {
   color: #b4232f;
 }
 
+.badge-leve {
+  border-color: #c8e3d3;
+  background: #eef8f2;
+  color: #39765a;
+}
+
+.badge-medio {
+  border-color: #efddae;
+  background: #fff6df;
+  color: #916016;
+}
+
+.badge-urgente {
+  border-color: #efb8b8;
+  background: #fff0f0;
+  color: #b4232f;
+}
+
 /* Records and catalog */
 
 .records-card {
@@ -2516,6 +2534,13 @@ td small {
   font: inherit;
   font-weight: 800;
   cursor: pointer;
+}
+
+.action-problem-link {
+  max-width: 430px;
+  padding: 0;
+  line-height: 1.35;
+  text-align: left;
 }
 
 .deadline-row {
