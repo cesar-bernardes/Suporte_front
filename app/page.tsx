@@ -510,6 +510,7 @@ export default function PortalOcorrencias() {
   const [confirmActionDeleteId, setConfirmActionDeleteId] = useState<string | null>(null);
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [actionEvidenceFiles, setActionEvidenceFiles] = useState<File[]>([]);
+  const [actionUpdateEvidenceFiles, setActionUpdateEvidenceFiles] = useState<File[]>([]);
   const [actionFormError, setActionFormError] = useState("");
   const [actionDraft, setActionDraft] = useState({
     title: "",
@@ -956,11 +957,10 @@ export default function PortalOcorrencias() {
   function handleActionEvidence(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files || []);
     const allowed = files.filter((file) =>
-      /image\/(png|jpeg|webp)/.test(file.type) || file.type === "video/mp4" ||
-      file.type === "text/plain" || file.type === "application/pdf",
+      /image\/(png|jpeg|webp)/.test(file.type) || file.type === "application/pdf",
     );
     if (allowed.length !== files.length) {
-      setActionFormError("Use PNG, JPG, WEBP, MP4, PDF ou TXT.");
+      setActionFormError("Use arquivos JPG, PNG, WEBP ou PDF.");
       return;
     }
     if (allowed.length > 5 || allowed.some((file) => file.size > 10 * 1024 * 1024)) {
@@ -968,6 +968,30 @@ export default function PortalOcorrencias() {
       return;
     }
     setActionEvidenceFiles(allowed);
+    setActionFormError("");
+  }
+
+  function handleActionUpdateEvidence(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    const allowed = files.filter((file) =>
+      /image\/(png|jpeg|webp)/.test(file.type) || file.type === "application/pdf",
+    );
+    if (allowed.length !== files.length) {
+      setActionFormError("Use arquivos JPG, PNG, WEBP ou PDF.");
+      event.target.value = "";
+      return;
+    }
+    if ((selectedAction?.evidencePaths.length || 0) + allowed.length > 5) {
+      setActionFormError("A ação pode ter no máximo 5 evidências.");
+      event.target.value = "";
+      return;
+    }
+    if (allowed.some((file) => file.size > 10 * 1024 * 1024)) {
+      setActionFormError("Cada evidência pode ter no máximo 10 MB.");
+      event.target.value = "";
+      return;
+    }
+    setActionUpdateEvidenceFiles(allowed);
     setActionFormError("");
   }
 
@@ -1019,6 +1043,7 @@ export default function PortalOcorrencias() {
       status: action.status === "Encaminhada" ? "Em análise" : action.status === "Resolvida" ? "Em análise" : action.status,
       developerNotes: action.developerNotes,
     });
+    setActionUpdateEvidenceFiles([]);
     setActionFormError("");
   }
 
@@ -1027,12 +1052,19 @@ export default function PortalOcorrencias() {
     setSaving(true);
     setActionFormError("");
     try {
+      if (actionUpdateEvidenceFiles.length) {
+        const actionWithEvidence = await uploadDevelopmentEvidence(selectedAction.id, actionUpdateEvidenceFiles);
+        if (actionWithEvidence) {
+          setDevelopmentActions((current) => current.map((item) => item.id === actionWithEvidence.id ? actionWithEvidence : item));
+        }
+      }
       const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
         method: "PATCH",
         body: JSON.stringify({ id: selectedAction.id, ...developerActionDraft }),
       });
       setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
-      setToast("Previsão e andamento salvos.");
+      setActionUpdateEvidenceFiles([]);
+      setToast(actionUpdateEvidenceFiles.length ? "Andamento e evidências salvos." : "Previsão e andamento salvos.");
     } catch (error) {
       setActionFormError(error instanceof Error ? error.message : "Não foi possível atualizar a ação.");
     } finally {
@@ -1057,11 +1089,18 @@ export default function PortalOcorrencias() {
     setSaving(true);
     setActionFormError("");
     try {
+      if (actionUpdateEvidenceFiles.length) {
+        const actionWithEvidence = await uploadDevelopmentEvidence(selectedAction.id, actionUpdateEvidenceFiles);
+        if (actionWithEvidence) {
+          setDevelopmentActions((current) => current.map((item) => item.id === actionWithEvidence.id ? actionWithEvidence : item));
+        }
+      }
       const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
         method: "PATCH",
         body: JSON.stringify({ id: selectedAction.id, validation, resolutionNotes: validationNotes }),
       });
       setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
+      setActionUpdateEvidenceFiles([]);
       setToast(validation === "resolved" ? "Ação resolvida e encerrada." : "Ação reaberta para nova previsão.");
     } catch (error) {
       setActionFormError(error instanceof Error ? error.message : "Não foi possível validar a ação.");
@@ -4360,8 +4399,8 @@ export default function PortalOcorrencias() {
               <label className="upload-zone">
                 <UploadCloud size={24} />
                 <strong>Selecionar evidências</strong>
-                <span>Até 5 arquivos · PNG, JPG, WEBP, MP4, PDF ou TXT · máximo 10 MB</span>
-                <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.mp4,.pdf,.txt" onChange={handleActionEvidence} />
+                <span>Até 5 arquivos · JPG, PNG, WEBP ou PDF · máximo 10 MB</span>
+                <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf" onChange={handleActionEvidence} />
               </label>
               {actionEvidenceFiles.length > 0 && (
                 <div className="attachment-list">
@@ -4381,7 +4420,7 @@ export default function PortalOcorrencias() {
           title={`${selectedAction.number} · ${selectedAction.title}`}
           description="Detalhes, prazo e acompanhamento da ação encaminhada."
           size="large"
-          onClose={() => setSelectedActionId(null)}
+          onClose={() => { setSelectedActionId(null); setActionUpdateEvidenceFiles([]); }}
           footer={
             <>
               {currentUser.role === "administrador" && (
@@ -4433,8 +4472,27 @@ export default function PortalOcorrencias() {
                   <label className="field"><span>Data prevista para resolução <b>*</b></span><input type="datetime-local" value={developerActionDraft.dueAt} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, dueAt: event.target.value })} /></label>
                   <label className="field"><span>Status <b>*</b></span><select value={developerActionDraft.status} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, status: event.target.value as DevelopmentActionStatus })}><option>Em análise</option><option>Em desenvolvimento</option><option>Aguardando validação</option></select></label>
                   <label className="field field-span-2"><span>Anotações da análise</span><textarea rows={5} value={developerActionDraft.developerNotes} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, developerNotes: event.target.value.slice(0, 3000) })} placeholder="Registre diagnóstico, solução aplicada e orientações para validação" /></label>
+                  <div className="field field-span-2">
+                    <span>Evidências da análise ou solução</span>
+                    <label className="upload-zone">
+                      <UploadCloud size={24} />
+                      <strong>Adicionar fotos ou PDF</strong>
+                      <span>JPG, PNG, WEBP ou PDF · máximo 10 MB por arquivo</span>
+                      <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf" onChange={handleActionUpdateEvidence} />
+                    </label>
+                    {actionUpdateEvidenceFiles.length > 0 && (
+                      <div className="attachment-list">
+                        {actionUpdateEvidenceFiles.map((file) => (
+                          <span key={file.name + file.lastModified}>
+                            <Paperclip size={15} />{file.name}
+                            <button type="button" onClick={() => setActionUpdateEvidenceFiles((current) => current.filter((item) => item !== file))} aria-label={`Remover ${file.name}`}><X size={14} /></button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <button className="button button-primary" onClick={saveDeveloperAction} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : "Salvar previsão e andamento"}</button>
+                <button className="button button-primary" onClick={saveDeveloperAction} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : actionUpdateEvidenceFiles.length ? "Salvar andamento e evidências" : "Salvar previsão e andamento"}</button>
               </section>
             )}
 
@@ -4458,6 +4516,25 @@ export default function PortalOcorrencias() {
                   <span>{selectedActionIsBeforeDeadline ? "Justificativa da finalização antecipada *" : "Observações da finalização"}</span>
                   <textarea rows={4} value={validationNotes} onChange={(event) => setValidationNotes(event.target.value.slice(0, 3000))} placeholder={selectedActionIsBeforeDeadline ? "Explique por que esta ação está sendo finalizada antes do prazo" : "Registre o resultado da verificação realizada pelo Suporte"} />
                 </label>
+                <div className="field">
+                  <span>Evidências da validação</span>
+                  <label className="upload-zone">
+                    <UploadCloud size={24} />
+                    <strong>Adicionar fotos ou PDF</strong>
+                    <span>JPG, PNG, WEBP ou PDF · máximo 10 MB por arquivo</span>
+                    <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf" onChange={handleActionUpdateEvidence} />
+                  </label>
+                  {actionUpdateEvidenceFiles.length > 0 && (
+                    <div className="attachment-list">
+                      {actionUpdateEvidenceFiles.map((file) => (
+                        <span key={file.name + file.lastModified}>
+                          <Paperclip size={15} />{file.name}
+                          <button type="button" onClick={() => setActionUpdateEvidenceFiles((current) => current.filter((item) => item !== file))} aria-label={`Remover ${file.name}`}><X size={14} /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="validation-actions">
                   {selectedAction.status === "Aguardando validação" && (
                     <button className="button button-secondary" onClick={() => validateDevelopmentAction("reopen")} disabled={saving}><RefreshCcw size={17} />Não foi solucionado</button>
