@@ -506,6 +506,9 @@ export default function PortalOcorrencias() {
   const [actionsError, setActionsError] = useState("");
   const [actionStatusFilter, setActionStatusFilter] = useState("all");
   const [actionSearch, setActionSearch] = useState("");
+  const [actionDatePeriod, setActionDatePeriod] = useState("all");
+  const [actionDateStart, setActionDateStart] = useState("");
+  const [actionDateEnd, setActionDateEnd] = useState("");
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
   const [confirmActionDeleteId, setConfirmActionDeleteId] = useState<string | null>(null);
   const [actionModalOpen, setActionModalOpen] = useState(false);
@@ -934,7 +937,13 @@ export default function PortalOcorrencias() {
   const selectedActionIsBeforeDeadline = Boolean(
     selectedAction?.dueAt && new Date(selectedAction.dueAt).getTime() > currentTime,
   );
-  const filteredDevelopmentActions = developmentActions.filter((action) => {
+  const actionDateBounds = getPeriodBounds(actionDatePeriod, actionDateStart, actionDateEnd);
+  const periodDevelopmentActions = developmentActions.filter((action) => {
+    const createdAt = new Date(action.createdAt).getTime();
+    return createdAt >= actionDateBounds.start && createdAt <= actionDateBounds.end;
+  });
+  const periodOverdueActions = periodDevelopmentActions.filter(isActionOverdue);
+  const filteredDevelopmentActions = periodDevelopmentActions.filter((action) => {
     const query = normalizeText(actionSearch);
     const searchable = normalizeText([
       action.number, action.title, action.problemDescription,
@@ -2309,11 +2318,44 @@ export default function PortalOcorrencias() {
                 )}
               </div>
 
-              {currentUser.role !== "desenvolvedor" && overdueActions.length > 0 && (
+              <section className="action-period-panel" aria-label="Filtro de período das ações">
+                <div className="action-period-copy">
+                  <span><CalendarDays size={18} /></span>
+                  <div><strong>Período das ações</strong><small>O período filtra os indicadores e a relação abaixo.</small></div>
+                </div>
+                <div className="action-period-controls">
+                  <label className="field field-compact">
+                    <span>Período</span>
+                    <select value={actionDatePeriod} onChange={(event) => setActionDatePeriod(event.target.value)}>
+                      <option value="all">Todo o período</option>
+                      <option value="today">Hoje</option>
+                      <option value="week">Esta semana</option>
+                      <option value="7">Últimos 7 dias</option>
+                      <option value="30">Últimos 30 dias</option>
+                      <option value="custom">Personalizado</option>
+                    </select>
+                  </label>
+                  {actionDatePeriod === "custom" && (
+                    <>
+                      <label className="field field-compact"><span>Data inicial</span><input type="date" value={actionDateStart} onChange={(event) => {
+                        const nextStart = event.target.value;
+                        setActionDateStart(nextStart);
+                        if (actionDateEnd && actionDateEnd < nextStart) setActionDateEnd(nextStart);
+                      }} /></label>
+                      <label className="field field-compact"><span>Data final</span><input type="date" value={actionDateEnd} min={actionDateStart || undefined} onChange={(event) => setActionDateEnd(event.target.value)} /></label>
+                    </>
+                  )}
+                  {actionDatePeriod !== "all" && (
+                    <button type="button" className="button button-ghost" onClick={() => { setActionDatePeriod("all"); setActionDateStart(""); setActionDateEnd(""); }}><RefreshCcw size={15} />Limpar</button>
+                  )}
+                </div>
+              </section>
+
+              {currentUser.role !== "desenvolvedor" && periodOverdueActions.length > 0 && (
                 <div className="development-deadline-alert" role="alert">
                   <AlertTriangle size={22} />
                   <div>
-                    <strong>{overdueActions.length} {overdueActions.length === 1 ? "prazo foi atingido" : "prazos foram atingidos"}</strong>
+                    <strong>{periodOverdueActions.length} {periodOverdueActions.length === 1 ? "prazo foi atingido" : "prazos foram atingidos"}</strong>
                     <span>Verifique com o Desenvolvedor e valide se o problema foi solucionado.</span>
                   </div>
                 </div>
@@ -2322,19 +2364,19 @@ export default function PortalOcorrencias() {
               <section className="catalog-summary development-summary">
                 <div>
                   <span className="metric-icon metric-blue"><Code2 size={20} /></span>
-                  <p><strong>{developmentActions.filter((action) => action.status !== "Resolvida").length}</strong>ações abertas</p>
+                  <p><strong>{periodDevelopmentActions.filter((action) => action.status !== "Resolvida").length}</strong>ações abertas</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-amber"><Clock3 size={20} /></span>
-                  <p><strong>{developmentActions.filter((action) => !action.dueAt && action.status !== "Resolvida").length}</strong>sem previsão</p>
+                  <p><strong>{periodDevelopmentActions.filter((action) => !action.dueAt && action.status !== "Resolvida").length}</strong>sem previsão</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span>
-                  <p><strong>{developmentActions.filter((action) => action.status === "Aguardando validação").length}</strong>aguardando validação</p>
+                  <p><strong>{periodDevelopmentActions.filter((action) => action.status === "Em desenvolvimento").length}</strong>em desenvolvimento</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-red"><AlertTriangle size={20} /></span>
-                  <p><strong>{overdueActions.length}</strong>prazo atingido</p>
+                  <p><strong>{periodOverdueActions.length}</strong>prazo atingido</p>
                 </div>
               </section>
 
@@ -2360,17 +2402,19 @@ export default function PortalOcorrencias() {
                 ) : (
                   <div className="table-wrap">
                     <table>
-                      <thead><tr><th>Ação</th><th>Problema</th><th>Desenvolvedor</th><th>Registrado em</th><th>Previsão</th><th>Status</th><th /></tr></thead>
+                      <thead><tr><th>Ação</th><th>Problema</th><th>Desenvolvedor</th><th>Previsão</th><th>Status</th><th /></tr></thead>
                       <tbody>
                         {filteredDevelopmentActions.map((action) => (
                           <tr key={action.id} className={isActionOverdue(action) ? "deadline-row" : undefined}>
                             <td><button className="table-primary-link" onClick={() => openDevelopmentAction(action)}>{action.number}</button></td>
                             <td><strong>{action.title}</strong><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "…" : ""}</small></td>
                             <td>{getActionUser(action.developerId)}</td>
-                            <td>{formatDate(action.identifiedAt)}</td>
-                            <td className={isActionOverdue(action) ? "deadline-text" : undefined}>
-                              <strong>{action.dueAt ? formatDate(action.dueAt) : "Aguardando definição"}</strong>
-                              {action.dueAt && <small>Prazo definido pelo Desenvolvedor</small>}
+                            <td className={`action-timeline-cell${isActionOverdue(action) ? " deadline-text" : ""}`}>
+                              <div className="action-date-stack">
+                                <div className={`action-date-line ${action.resolvedAt ? "is-resolved" : "is-pending"}`}><span>Resolvida</span><strong>{action.resolvedAt ? formatDate(action.resolvedAt) : "Em aberto"}</strong></div>
+                                <div className="action-date-line is-forecast"><span>Previsão</span><strong>{action.dueAt ? formatDate(action.dueAt) : "Não definida"}</strong></div>
+                                <div className="action-date-line is-created"><span>Criada</span><strong>{formatDate(action.createdAt)}</strong></div>
+                              </div>
                             </td>
                             <td><Badge tone={isActionOverdue(action) ? "Prazo atingido" : action.status}>{isActionOverdue(action) ? "Prazo atingido" : action.status}</Badge></td>
                             <td><button className="icon-button" onClick={() => openDevelopmentAction(action)} aria-label={`Abrir ${action.number}`}><Eye size={17} /></button></td>
@@ -4443,6 +4487,7 @@ export default function PortalOcorrencias() {
               <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
               <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
               <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>
+              <div><dt>Criada em</dt><dd>{formatDate(selectedAction.createdAt)}</dd></div>
               <div className="development-due-date"><dt>Prazo definido pelo Desenvolvedor</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda não definido"}</dd></div>
               <div><dt>Encerrado em</dt><dd>{selectedAction.resolvedAt ? formatDate(selectedAction.resolvedAt) : "—"}</dd></div>
               <div className="detail-span-2"><dt>Descrição do problema</dt><dd className="detail-description">{selectedAction.problemDescription}</dd></div>

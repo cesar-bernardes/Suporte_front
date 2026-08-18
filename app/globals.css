@@ -2357,6 +2357,76 @@ td small {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.action-period-panel {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 15px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.action-period-copy {
+  display: flex;
+  min-width: 235px;
+  align-items: center;
+  gap: 11px;
+}
+
+.action-period-copy > span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: #eaf3fb;
+  color: var(--blue-600);
+}
+
+.action-period-copy > div {
+  display: grid;
+  gap: 2px;
+}
+
+.action-period-copy strong {
+  color: var(--navy-900);
+  font-size: 0.78rem;
+}
+
+.action-period-copy small {
+  color: var(--text-soft);
+  font-size: 0.67rem;
+  line-height: 1.35;
+}
+
+.action-period-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.action-period-controls .field {
+  min-width: 155px;
+  margin-bottom: 0;
+}
+
+.action-period-controls .field > span {
+  font-size: 0.68rem;
+}
+
+.action-period-controls .field input,
+.action-period-controls .field select,
+.action-period-controls .button {
+  min-height: 39px;
+}
+
 .development-deadline-alert {
   display: flex;
   align-items: center;
@@ -2387,6 +2457,56 @@ td small {
   max-width: 370px;
   margin-top: 4px;
   color: var(--text-soft);
+}
+
+.action-timeline-cell {
+  min-width: 245px;
+}
+
+.action-date-stack {
+  display: grid;
+  gap: 5px;
+}
+
+.action-date-line {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+}
+
+.action-date-line span {
+  color: var(--text-faint);
+  font-size: 0.57rem;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.action-date-line strong {
+  color: var(--navy-800);
+  font-size: 0.68rem;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.action-date-line.is-resolved span,
+.action-date-line.is-resolved strong {
+  color: var(--green);
+}
+
+.action-date-line.is-pending strong {
+  color: var(--text-soft);
+}
+
+.action-date-line.is-forecast span,
+.action-date-line.is-forecast strong {
+  color: var(--blue-600);
+}
+
+.deadline-text .action-date-line.is-forecast span,
+.deadline-text .action-date-line.is-forecast strong {
+  color: #b45309;
 }
 
 .table-primary-link {
@@ -3457,6 +3577,15 @@ td small {
     flex-direction: column;
   }
 
+  .action-period-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .action-period-controls {
+    justify-content: flex-start;
+  }
+
   .search-control {
     max-width: none;
   }
@@ -3658,6 +3787,21 @@ td small {
 
   .detail-actions {
     flex-wrap: wrap;
+  }
+
+  .action-period-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .action-period-controls .field,
+  .action-period-controls .button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .action-timeline-cell {
+    min-width: 215px;
   }
 
   .filter-grid,
