@@ -135,6 +135,8 @@ type DevelopmentAction = {
   identifiedAt: string;
   supportId: string;
   developerId: string;
+  systemId: string | null;
+  moduleId: string | null;
   urgency: DevelopmentActionUrgency;
   dueAt: string | null;
   status: DevelopmentActionStatus;
@@ -523,6 +525,8 @@ export default function PortalOcorrencias() {
     problemDescription: "",
     identifiedAt: "",
     developerId: "",
+    systemId: "",
+    moduleId: "",
     urgency: "Médio" as DevelopmentActionUrgency,
   });
   const [developerActionDraft, setDeveloperActionDraft] = useState({
@@ -650,6 +654,15 @@ export default function PortalOcorrencias() {
             systemId: current.systemId || firstSystem?.id || "",
             moduleId: current.moduleId || firstSystem?.modules[0]?.id || "",
           }));
+          setActionDraft((current) => {
+            const selectedSystem = referencePayload.systems.find((system) => system.id === current.systemId) || firstSystem;
+            const selectedModule = selectedSystem?.modules.find((module) => module.id === current.moduleId) || selectedSystem?.modules[0];
+            return {
+              ...current,
+              systemId: selectedSystem?.id || "",
+              moduleId: selectedModule?.id || "",
+            };
+          });
         }
         const assignableResponse = await fetch(
           "/api/users?scope=assignable",
@@ -750,6 +763,10 @@ export default function PortalOcorrencias() {
     systems.find((system) => system.id === systemId)?.modules.find(
       (module) => module.id === moduleId,
     )?.name || "Módulo";
+  const getActionSystemModule = (action: DevelopmentAction) =>
+    action.systemId && action.moduleId
+      ? `${getSystem(action.systemId)} / ${getModule(action.systemId, action.moduleId)}`
+      : "Não informado";
   const getCatalogName = (item: Occurrence) =>
     item.catalogItemId
       ? catalog.find((entry) => entry.id === item.catalogItemId)?.name ||
@@ -951,7 +968,8 @@ export default function PortalOcorrencias() {
     const query = normalizeText(actionSearch);
     const searchable = normalizeText([
       action.number, action.title, action.problemDescription,
-      getActionUser(action.developerId), action.urgency || "Médio", action.status,
+      getActionSystemModule(action), getActionUser(action.developerId),
+      action.urgency || "Médio", action.status,
     ].join(" "));
     const matchesStatus = actionStatusFilter === "all"
       || (actionStatusFilter === "overdue"
@@ -961,9 +979,11 @@ export default function PortalOcorrencias() {
   });
 
   function openNewDevelopmentAction() {
+    const firstSystem = systems[0];
     setActionDraft({
       title: "", problemDescription: "",
       identifiedAt: toDateTimeLocal(new Date()), developerId: developerUsers[0]?.id || "",
+      systemId: firstSystem?.id || "", moduleId: firstSystem?.modules[0]?.id || "",
       urgency: "Médio",
     });
     setActionEvidenceFiles([]);
@@ -1027,6 +1047,10 @@ export default function PortalOcorrencias() {
 
   async function createDevelopmentAction() {
     setActionFormError("");
+    if (!actionDraft.systemId || !actionDraft.moduleId) {
+      setActionFormError("Cadastre e selecione um Sistema e um Módulo ativos.");
+      return;
+    }
     if (!actionDraft.developerId) {
       setActionFormError("Cadastre e selecione um Desenvolvedor ativo.");
       return;
@@ -2411,11 +2435,12 @@ export default function PortalOcorrencias() {
                 ) : (
                   <div className="table-wrap">
                     <table>
-                      <thead><tr><th>Problema</th><th>Desenvolvedor</th><th>Urgência</th><th>Previsão</th><th>Status</th><th /></tr></thead>
+                      <thead><tr><th>Problema</th><th>Sistema / módulo</th><th>Desenvolvedor</th><th>Urgência</th><th>Previsão</th><th>Status</th><th /></tr></thead>
                       <tbody>
                         {filteredDevelopmentActions.map((action) => (
                           <tr key={action.id} className={isActionOverdue(action) ? "deadline-row" : undefined}>
                             <td><button className="table-primary-link action-problem-link" onClick={() => openDevelopmentAction(action)}>{action.title}</button><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "…" : ""}</small></td>
+                            <td className="action-system-module">{action.systemId && action.moduleId ? <><strong>{getSystem(action.systemId)}</strong><small>{getModule(action.systemId, action.moduleId)}</small></> : <span>Não informado</span>}</td>
                             <td>{getActionUser(action.developerId)}</td>
                             <td><Badge tone={action.urgency || "Médio"}>{action.urgency || "Médio"}</Badge></td>
                             <td className={`action-timeline-cell${isActionOverdue(action) ? " deadline-text" : ""}`}>
@@ -4436,6 +4461,23 @@ export default function PortalOcorrencias() {
               <textarea rows={5} value={actionDraft.problemDescription} onChange={(event) => setActionDraft({ ...actionDraft, problemDescription: event.target.value.slice(0, 3000) })} placeholder="Explique o comportamento atual, impacto e como reproduzir" />
             </label>
             <label className="field">
+              <span>Sistema <b>*</b></span>
+              <select value={actionDraft.systemId} onChange={(event) => {
+                const system = systems.find((item) => item.id === event.target.value);
+                setActionDraft({ ...actionDraft, systemId: event.target.value, moduleId: system?.modules[0]?.id || "" });
+              }}>
+                <option value="">Selecione</option>
+                {systems.map((system) => <option key={system.id} value={system.id}>{system.name}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Módulo <b>*</b></span>
+              <select value={actionDraft.moduleId} disabled={!actionDraft.systemId} onChange={(event) => setActionDraft({ ...actionDraft, moduleId: event.target.value })}>
+                <option value="">Selecione</option>
+                {systems.find((system) => system.id === actionDraft.systemId)?.modules.map((module) => <option key={module.id} value={module.id}>{module.name}</option>)}
+              </select>
+            </label>
+            <label className="field">
               <span>Data e horário da identificação <b>*</b></span>
               <input type="datetime-local" value={actionDraft.identifiedAt} onChange={(event) => setActionDraft({ ...actionDraft, identifiedAt: event.target.value })} />
             </label>
@@ -4453,6 +4495,7 @@ export default function PortalOcorrencias() {
                 {DEVELOPMENT_URGENCY_OPTIONS.map((urgency) => <option key={urgency}>{urgency}</option>)}
               </select>
             </label>
+            {systems.length === 0 && <div className="form-alert field-span-2" role="alert">Cadastre primeiro um Sistema e um Módulo na aba Catálogo.</div>}
             <div className="field field-span-2">
               <span>Evidências do problema</span>
               <label className="upload-zone">
@@ -4500,6 +4543,7 @@ export default function PortalOcorrencias() {
             <dl className="detail-grid">
               <div><dt>Status</dt><dd><Badge tone={selectedAction.status}>{selectedAction.status}</Badge></dd></div>
               <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
+              <div><dt>Sistema / módulo</dt><dd>{getActionSystemModule(selectedAction)}</dd></div>
               <div><dt>Urgência</dt><dd><Badge tone={selectedAction.urgency || "Médio"}>{selectedAction.urgency || "Médio"}</Badge></dd></div>
               <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
               <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>

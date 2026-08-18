@@ -2543,6 +2543,15 @@ td small {
   text-align: left;
 }
 
+.action-system-module {
+  min-width: 155px;
+}
+
+.action-system-module span {
+  color: var(--text-faint);
+  font-size: 0.7rem;
+}
+
 .deadline-row {
   background: #fffaf0;
 }
