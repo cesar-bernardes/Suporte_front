@@ -3,6 +3,8 @@
 import {
   Activity,
   AlertTriangle,
+  Archive,
+  ArchiveRestore,
   ArrowLeft,
   BarChart3,
   BookOpenCheck,
@@ -20,6 +22,7 @@ import {
   FileText,
   Filter,
   Gauge,
+  GripVertical,
   LayoutDashboard,
   ListFilter,
   LockKeyhole,
@@ -43,6 +46,7 @@ import {
 import {
   type ChangeEvent,
   type CSSProperties,
+  type DragEvent,
   type FormEvent,
   type ReactNode,
   useEffect,
@@ -122,6 +126,7 @@ type DevelopmentActionStatus =
   | "Em análise"
   | "Em desenvolvimento"
   | "Aguardando validação"
+  | "Reprovada"
   | "Resolvida";
 type DevelopmentActionUrgency = "Leve" | "Médio" | "Urgente";
 
@@ -144,6 +149,8 @@ type DevelopmentAction = {
   resolutionNotes: string;
   evidencePaths: string[];
   resolvedAt: string | null;
+  archivedAt: string | null;
+  archivedBy: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -167,10 +174,9 @@ const STATUS_OPTIONS: OccurrenceStatus[] = [
 ];
 const DEVELOPMENT_STATUS_OPTIONS: DevelopmentActionStatus[] = [
   "Encaminhada",
-  "Em análise",
   "Em desenvolvimento",
-  "Aguardando validação",
   "Resolvida",
+  "Reprovada",
 ];
 const DEVELOPMENT_URGENCY_OPTIONS: DevelopmentActionUrgency[] = ["Leve", "Médio", "Urgente"];
 const SEVERITIES: Severity[] = ["Baixa", "Média", "Alta", "Crítica"];
@@ -516,14 +522,19 @@ export default function PortalOcorrencias() {
   } | null>(null);
   const [saving, setSaving] = useState(false);
   const [developmentActions, setDevelopmentActions] = useState<DevelopmentAction[]>([]);
+  const [archivedDevelopmentActions, setArchivedDevelopmentActions] = useState<DevelopmentAction[]>([]);
+  const [actionListMode, setActionListMode] = useState<"active" | "archived">("active");
   const [developerUsers, setDeveloperUsers] = useState<PortalUser[]>([]);
   const [actionsLoading, setActionsLoading] = useState(false);
   const [actionsError, setActionsError] = useState("");
-  const [actionStatusFilter, setActionStatusFilter] = useState("all");
   const [actionSearch, setActionSearch] = useState("");
   const [actionDatePeriod, setActionDatePeriod] = useState("all");
   const [actionDateStart, setActionDateStart] = useState("");
   const [actionDateEnd, setActionDateEnd] = useState("");
+  const [draggedActionId, setDraggedActionId] = useState<string | null>(null);
+  const [dragOverStatus, setDragOverStatus] = useState<DevelopmentActionStatus | null>(null);
+  const [movingActionId, setMovingActionId] = useState<string | null>(null);
+  const draggedActionIdRef = useRef<string | null>(null);
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
   const [confirmActionDeleteId, setConfirmActionDeleteId] = useState<string | null>(null);
   const [actionModalOpen, setActionModalOpen] = useState(false);
@@ -546,7 +557,7 @@ export default function PortalOcorrencias() {
   });
   const [developerActionDraft, setDeveloperActionDraft] = useState({
     dueAt: "",
-    status: "Em análise" as DevelopmentActionStatus,
+    status: "Em desenvolvimento" as DevelopmentActionStatus,
     developerNotes: "",
   });
   const [validationNotes, setValidationNotes] = useState("");
@@ -712,7 +723,9 @@ export default function PortalOcorrencias() {
           message?: string;
         };
         if (actionsResponse.ok) {
-          if (active) setDevelopmentActions(actionsPayload.actions || []);
+          if (active) setDevelopmentActions((actionsPayload.actions || []).map((action) =>
+            action.status === "Em análise" || action.status === "Aguardando validação" ? { ...action, status: "Em desenvolvimento" } : action,
+          ));
         } else if (active) {
           setActionsError(actionsPayload.message || "Não foi possível carregar as ações de desenvolvimento.");
         }
@@ -966,15 +979,17 @@ export default function PortalOcorrencias() {
 
   const getActionUser = (id: string) =>
     [...developerUsers, ...portalUsers, ...managedUsers].find((user) => user.id === id)?.name || "Usuário indisponível";
+  const isActionClosed = (action: DevelopmentAction) => action.status === "Resolvida" || action.status === "Reprovada";
   const isActionOverdue = (action: DevelopmentAction) =>
-    Boolean(action.dueAt && action.status !== "Resolvida" && new Date(action.dueAt).getTime() <= currentTime);
+    Boolean(action.dueAt && !isActionClosed(action) && new Date(action.dueAt).getTime() <= currentTime);
   const overdueActions = developmentActions.filter(isActionOverdue);
-  const selectedAction = developmentActions.find((action) => action.id === selectedActionId) || null;
+  const selectedAction = [...developmentActions, ...archivedDevelopmentActions].find((action) => action.id === selectedActionId) || null;
   const selectedActionIsBeforeDeadline = Boolean(
     selectedAction?.dueAt && new Date(selectedAction.dueAt).getTime() > currentTime,
   );
   const actionDateBounds = getPeriodBounds(actionDatePeriod, actionDateStart, actionDateEnd);
-  const periodDevelopmentActions = developmentActions.filter((action) => {
+  const listedDevelopmentActions = actionListMode === "archived" ? archivedDevelopmentActions : developmentActions;
+  const periodDevelopmentActions = listedDevelopmentActions.filter((action) => {
     const createdAt = new Date(action.createdAt).getTime();
     return createdAt >= actionDateBounds.start && createdAt <= actionDateBounds.end;
   });
@@ -986,11 +1001,7 @@ export default function PortalOcorrencias() {
       getActionSystemModule(action), getActionUser(action.developerId),
       action.urgency || "Médio", action.status,
     ].join(" "));
-    const matchesStatus = actionStatusFilter === "all"
-      || (actionStatusFilter === "overdue"
-        ? isActionOverdue(action)
-        : action.status === actionStatusFilter);
-    return (!query || searchable.includes(query)) && matchesStatus;
+    return !query || searchable.includes(query);
   });
 
   function openNewDevelopmentAction() {
@@ -1097,7 +1108,7 @@ export default function PortalOcorrencias() {
     setValidationNotes(action.resolutionNotes);
     setDeveloperActionDraft({
       dueAt: action.dueAt ? toDateTimeLocal(new Date(action.dueAt)) : "",
-      status: action.status === "Encaminhada" ? "Em análise" : action.status === "Resolvida" ? "Em análise" : action.status,
+      status: action.status === "Encaminhada" || action.status === "Em análise" || action.status === "Aguardando validação" || isActionClosed(action) ? "Em desenvolvimento" : action.status,
       developerNotes: action.developerNotes,
     });
     setActionUpdateEvidenceFiles([]);
@@ -1168,6 +1179,67 @@ export default function PortalOcorrencias() {
     }
   }
 
+  async function moveDevelopmentAction(actionId: string, status: DevelopmentActionStatus) {
+    if (currentUser?.role !== "desenvolvedor") return;
+    const previousAction = developmentActions.find((action) => action.id === actionId);
+    if (!previousAction || previousAction.status === status || movingActionId) return;
+
+    const now = new Date().toISOString();
+    const optimisticAction: DevelopmentAction = {
+      ...previousAction,
+      status,
+      resolvedAt: status === "Resolvida" ? previousAction.resolvedAt || now : null,
+      updatedAt: now,
+    };
+
+    setMovingActionId(actionId);
+    setActionsError("");
+    setDevelopmentActions((current) => current.map((action) => action.id === actionId ? optimisticAction : action));
+
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
+        method: "PATCH",
+        body: JSON.stringify({ id: actionId, mode: "status", status }),
+      });
+      setDevelopmentActions((current) => current.map((action) => action.id === actionId ? payload.action : action));
+      setToast(`Ação movida para ${status}.`);
+    } catch (error) {
+      setDevelopmentActions((current) => current.map((action) => action.id === actionId ? previousAction : action));
+      setActionsError(error instanceof Error ? error.message : "Não foi possível mover a ação.");
+    } finally {
+      draggedActionIdRef.current = null;
+      setDraggedActionId(null);
+      setDragOverStatus(null);
+      setMovingActionId(null);
+    }
+  }
+
+  function startDevelopmentActionDrag(event: DragEvent<HTMLElement>, actionId: string) {
+    if (currentUser?.role !== "desenvolvedor" || movingActionId) {
+      event.preventDefault();
+      return;
+    }
+    draggedActionIdRef.current = actionId;
+    setDraggedActionId(actionId);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", actionId);
+  }
+
+  function dropDevelopmentAction(event: DragEvent<HTMLElement>, status: DevelopmentActionStatus) {
+    event.preventDefault();
+    const actionId = event.dataTransfer.getData("text/plain") || draggedActionIdRef.current;
+    draggedActionIdRef.current = null;
+    setDraggedActionId(null);
+    setDragOverStatus(null);
+    if (actionId) void moveDevelopmentAction(actionId, status);
+  }
+
+  function finishDevelopmentActionDrag() {
+    draggedActionIdRef.current = null;
+    setDraggedActionId(null);
+    setDragOverStatus(null);
+  }
+
   async function validateDevelopmentAction(validation: "resolved" | "reopen") {
     if (!selectedAction) return;
     if (validation === "resolved" && !selectedAction.dueAt) {
@@ -1220,6 +1292,50 @@ export default function PortalOcorrencias() {
     } catch (error) {
       setActionFormError(error instanceof Error ? error.message : "Não foi possível excluir a ação.");
       setConfirmActionDeleteId(null);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function loadArchivedDevelopmentActions() {
+    if (currentUser?.role !== "administrador") return;
+    setActionsLoading(true);
+    setActionsError("");
+    try {
+      const payload = await portalRequest<{ actions: DevelopmentAction[] }>("/api/catalog?scope=development-actions&archived=1", {});
+      setArchivedDevelopmentActions((payload.actions || []).map((action) =>
+        action.status === "Em análise" || action.status === "Aguardando validação" ? { ...action, status: "Em desenvolvimento" } : action,
+      ));
+      setActionListMode("archived");
+    } catch (error) {
+      setActionsError(error instanceof Error ? error.message : "Não foi possível carregar as ações arquivadas.");
+    } finally {
+      setActionsLoading(false);
+    }
+  }
+
+  async function setDevelopmentActionArchived(action: DevelopmentAction, archived: boolean) {
+    if (currentUser?.role !== "administrador") return;
+    setSaving(true);
+    setActionFormError("");
+    try {
+      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
+        method: "PATCH",
+        body: JSON.stringify({ id: action.id, mode: "archive", archived }),
+      });
+      if (archived) {
+        setDevelopmentActions((current) => current.filter((item) => item.id !== action.id));
+        setArchivedDevelopmentActions((current) => [payload.action, ...current.filter((item) => item.id !== action.id)]);
+        setSelectedActionId(null);
+        setToast("Ação arquivada com segurança.");
+      } else {
+        setArchivedDevelopmentActions((current) => current.filter((item) => item.id !== action.id));
+        setDevelopmentActions((current) => [payload.action, ...current.filter((item) => item.id !== action.id)]);
+        setSelectedActionId(null);
+        setToast("Ação restaurada para o quadro ativo.");
+      }
+    } catch (error) {
+      setActionFormError(error instanceof Error ? error.message : "Não foi possível atualizar o arquivamento.");
     } finally {
       setSaving(false);
     }
@@ -2273,7 +2389,7 @@ export default function PortalOcorrencias() {
                 )}
                 {item.id === "acoes" && (
                   <small>{currentUser.role === "desenvolvedor"
-                    ? developmentActions.filter((action) => action.status !== "Resolvida").length
+                    ? developmentActions.filter((action) => !isActionClosed(action)).length
                     : overdueActions.length}</small>
                 )}
               </button>
@@ -2286,7 +2402,7 @@ export default function PortalOcorrencias() {
           </span>
           <p>
             {currentUser.role === "desenvolvedor" ? (
-              <><strong>{developmentActions.filter((action) => action.status !== "Resolvida").length} ações abertas</strong>atribuídas a você</>
+              <><strong>{developmentActions.filter((action) => !isActionClosed(action)).length} ações abertas</strong>atribuídas a você</>
             ) : (
               <><strong>{overdueActions.length} prazos atingidos</strong>aguardando verificação</>
             )}
@@ -2398,11 +2514,19 @@ export default function PortalOcorrencias() {
                   <h1>Ações para Desenvolvedores</h1>
                   <p>Acompanhe encaminhamentos, previsões, prazos e validações das correções.</p>
                 </div>
-                {currentUser.role !== "desenvolvedor" && (
-                  <button className="button button-primary" onClick={openNewDevelopmentAction}>
-                    <Plus size={18} /> Nova ação
-                  </button>
-                )}
+                <div className="development-heading-actions">
+                  {currentUser.role === "administrador" && (
+                    <div className="development-view-switch" aria-label="Visualização das ações">
+                      <button type="button" className={actionListMode === "active" ? "is-active" : ""} onClick={() => setActionListMode("active")}><Code2 size={16} />Quadro ativo</button>
+                      <button type="button" className={actionListMode === "archived" ? "is-active" : ""} onClick={() => void loadArchivedDevelopmentActions()}><Archive size={16} />Arquivadas</button>
+                    </div>
+                  )}
+                  {currentUser.role !== "desenvolvedor" && actionListMode === "active" && (
+                    <button className="button button-primary" onClick={openNewDevelopmentAction}>
+                      <Plus size={18} /> Nova ação
+                    </button>
+                  )}
+                </div>
               </div>
 
               <section className="action-period-panel" aria-label="Filtro de período das ações">
@@ -2438,7 +2562,7 @@ export default function PortalOcorrencias() {
                 </div>
               </section>
 
-              {currentUser.role !== "desenvolvedor" && periodOverdueActions.length > 0 && (
+              {actionListMode === "active" && currentUser.role !== "desenvolvedor" && periodOverdueActions.length > 0 && (
                 <div className="development-deadline-alert" role="alert">
                   <AlertTriangle size={22} />
                   <div>
@@ -2448,14 +2572,14 @@ export default function PortalOcorrencias() {
                 </div>
               )}
 
-              <section className="catalog-summary development-summary">
+              {actionListMode === "active" ? <section className="catalog-summary development-summary">
                 <div>
                   <span className="metric-icon metric-blue"><Code2 size={20} /></span>
-                  <p><strong>{periodDevelopmentActions.filter((action) => action.status !== "Resolvida").length}</strong>ações abertas</p>
+                  <p><strong>{periodDevelopmentActions.filter((action) => !isActionClosed(action)).length}</strong>ações abertas</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-amber"><Clock3 size={20} /></span>
-                  <p><strong>{periodDevelopmentActions.filter((action) => !action.dueAt && action.status !== "Resolvida").length}</strong>sem previsão</p>
+                  <p><strong>{periodDevelopmentActions.filter((action) => !action.dueAt && !isActionClosed(action)).length}</strong>sem previsão</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span>
@@ -2465,7 +2589,11 @@ export default function PortalOcorrencias() {
                   <span className="metric-icon metric-red"><AlertTriangle size={20} /></span>
                   <p><strong>{periodOverdueActions.length}</strong>prazo atingido</p>
                 </div>
-              </section>
+              </section> : <section className="catalog-summary development-summary archived-summary">
+                <div><span className="metric-icon metric-blue"><Archive size={20} /></span><p><strong>{periodDevelopmentActions.length}</strong>ações arquivadas</p></div>
+                <div><span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span><p><strong>{periodDevelopmentActions.filter((action) => action.status === "Resolvida").length}</strong>resolvidas</p></div>
+                <div><span className="metric-icon metric-red"><CircleAlert size={20} /></span><p><strong>{periodDevelopmentActions.filter((action) => action.status === "Reprovada").length}</strong>reprovadas</p></div>
+              </section>}
 
               {actionsError && <div className="users-error" role="alert"><CircleAlert size={18} /><span>{actionsError}</span></div>}
               <section className="card records-card development-actions-card">
@@ -2474,43 +2602,68 @@ export default function PortalOcorrencias() {
                     <Search size={18} />
                     <input value={actionSearch} onChange={(event) => setActionSearch(event.target.value)} placeholder="Buscar ação, problema ou Desenvolvedor" aria-label="Buscar ações" />
                   </label>
-                  <label>
-                    <span className="sr-only">Status da ação</span>
-                    <select value={actionStatusFilter} onChange={(event) => setActionStatusFilter(event.target.value)}>
-                      <option value="all">Todos os status</option>
-                      <option value="overdue">Prazo atingido</option>
-                      {DEVELOPMENT_STATUS_OPTIONS.map((status) => <option key={status}>{status}</option>)}
-                    </select>
-                  </label>
+                  <div className="development-kanban-summary"><strong>{filteredDevelopmentActions.length}</strong><span>{filteredDevelopmentActions.length === 1 ? "ação" : "ações"} {actionListMode === "archived" ? "arquivadas" : "no quadro"}</span>{actionListMode === "active" && currentUser.role === "desenvolvedor" && <small>Arraste os cartões para alterar o status</small>}</div>
                 </div>
                 {actionsLoading ? (
                   <div className="users-loading"><span className="spinner" />Carregando ações…</div>
-                ) : filteredDevelopmentActions.length === 0 ? (
-                  <div className="empty-state"><Code2 size={32} /><h3>Nenhuma ação encontrada</h3><p>Os encaminhamentos aparecerão aqui.</p></div>
                 ) : (
-                  <div className="table-wrap">
-                    <table>
-                      <thead><tr><th>Problema</th><th>Sistema / módulo</th><th>Desenvolvedor</th><th>Urgência</th><th>Previsão</th><th>Status</th><th /></tr></thead>
-                      <tbody>
-                        {filteredDevelopmentActions.map((action) => (
-                          <tr key={action.id} className={isActionOverdue(action) ? "deadline-row" : undefined}>
-                            <td><button className="table-primary-link action-problem-link" onClick={() => openDevelopmentAction(action)}>{action.title}</button><small>{action.problemDescription.slice(0, 80)}{action.problemDescription.length > 80 ? "…" : ""}</small></td>
-                            <td className="action-system-module">{action.systemId && action.moduleId ? <><strong>{getSystem(action.systemId)}</strong><small>{getModule(action.systemId, action.moduleId)}</small></> : <span>Não informado</span>}</td>
-                            <td>{getActionUser(action.developerId)}</td>
-                            <td><Badge tone={action.urgency || "Médio"}>{action.urgency || "Médio"}</Badge></td>
-                            <td className={`action-timeline-cell${isActionOverdue(action) ? " deadline-text" : ""}`}>
-                              <div className="action-date-stack">
-                                <div className={`action-date-line ${action.resolvedAt ? "is-resolved" : "is-pending"}`}><span>Resolvida</span><strong>{action.resolvedAt ? formatDate(action.resolvedAt) : "Em aberto"}</strong></div>
-                                <div className="action-date-line is-forecast"><span>Previsão</span><strong>{action.dueAt ? formatDate(action.dueAt) : "Não definida"}</strong></div>
-                                <div className="action-date-line is-created"><span>Criada</span><strong>{formatDate(action.createdAt)}</strong></div>
-                              </div>
-                            </td>
-                            <td><Badge tone={isActionOverdue(action) ? "Prazo atingido" : action.status}>{isActionOverdue(action) ? "Prazo atingido" : action.status}</Badge></td>
-                            <td><button className="icon-button" onClick={() => openDevelopmentAction(action)} aria-label={`Abrir ${action.number}`}><Eye size={17} /></button></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className={`development-kanban${actionListMode === "archived" ? " is-archived" : ""}`} aria-label={actionListMode === "archived" ? "Ações arquivadas" : "Quadro Kanban das ações"}>
+                    {(actionListMode === "archived" ? (["Resolvida", "Reprovada"] as DevelopmentActionStatus[]) : DEVELOPMENT_STATUS_OPTIONS).map((status) => {
+                      const columnActions = filteredDevelopmentActions.filter((action) => action.status === status);
+                      return (
+                        <section
+                          className={`development-kanban-column kanban-${toneClass(status)}${dragOverStatus === status ? " is-drag-over" : ""}`}
+                          key={status}
+                          aria-label={`${status}: ${columnActions.length} ações`}
+                          onDragEnter={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => { event.preventDefault(); setDragOverStatus(status); } : undefined}
+                          onDragOver={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; setDragOverStatus(status); } : undefined}
+                          onDragLeave={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragOverStatus(null); } : undefined}
+                          onDrop={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => dropDevelopmentAction(event, status) : undefined}
+                        >
+                          <header>
+                            <span className="kanban-status-mark" aria-hidden="true" />
+                            <strong>{status}</strong>
+                            <b>{columnActions.length}</b>
+                          </header>
+                          <div className="development-kanban-list">
+                            {columnActions.length === 0 ? (
+                              <div className="development-kanban-empty"><Code2 size={20} /><span>Nenhuma ação</span></div>
+                            ) : columnActions.map((action) => (
+                              <button
+                                type="button"
+                                className={`development-kanban-card${isActionOverdue(action) ? " is-overdue" : ""}${draggedActionId === action.id ? " is-dragging" : ""}${movingActionId === action.id ? " is-saving" : ""}`}
+                                key={action.id}
+                                aria-label={`${action.title}. Status ${action.status}. Clique para ver detalhes.`}
+                                aria-busy={movingActionId === action.id}
+                                onClick={() => openDevelopmentAction(action)}
+                              >
+                                <span className="development-kanban-card-top">
+                                  <span className="development-kanban-card-identity">
+                                    {actionListMode === "active" && currentUser.role === "desenvolvedor" && <span
+                                      className="development-kanban-drag-handle"
+                                      draggable={movingActionId !== action.id}
+                                      title="Arrastar cartão"
+                                      onClick={(event) => event.stopPropagation()}
+                                      onDragStart={(event) => startDevelopmentActionDrag(event, action.id)}
+                                      onDragEnd={finishDevelopmentActionDrag}
+                                    ><GripVertical size={16} /></span>}
+                                    <small>{action.number}</small>
+                                  </span>
+                                  <Badge tone={action.urgency || "Médio"}>{action.urgency || "Médio"}</Badge>
+                                </span>
+                                <strong className="development-kanban-title">{action.title}</strong>
+                                <span className="development-kanban-reference"><span><Code2 size={14} /></span><span><strong>{action.systemId ? getSystem(action.systemId) : "Sistema não informado"}</strong><small>{action.systemId && action.moduleId ? getModule(action.systemId, action.moduleId) : "Módulo não informado"}</small></span></span>
+                                <span className="development-kanban-person"><UserRound size={14} />{getActionUser(action.developerId)}</span>
+                                <span className="development-kanban-deadline"><Clock3 size={14} /><span><small>Previsão</small><strong>{action.dueAt ? formatDate(action.dueAt) : "Não definida"}</strong></span></span>
+                                {isActionOverdue(action) && <span className="development-kanban-overdue"><AlertTriangle size={14} />Prazo atingido</span>}
+                                {action.archivedAt && <span className="development-kanban-archived"><Archive size={14} />Arquivada em {formatDate(action.archivedAt)}</span>}
+                                <span className="development-kanban-open"><Eye size={14} />Ver detalhes</span>
+                              </button>
+                            ))}
+                          </div>
+                        </section>
+                      );
+                    })}
                   </div>
                 )}
               </section>
@@ -4580,7 +4733,17 @@ export default function PortalOcorrencias() {
           onClose={() => { setSelectedActionId(null); setEditingActionDetails(false); setActionUpdateEvidenceFiles([]); }}
           footer={
             <>
-              {currentUser.role === "administrador" && (
+              {currentUser.role === "administrador" && selectedAction.archivedAt && (
+                <button className="button button-secondary" onClick={() => void setDevelopmentActionArchived(selectedAction, false)} disabled={saving}>
+                  <ArchiveRestore size={17} /> Restaurar ação
+                </button>
+              )}
+              {currentUser.role === "administrador" && !selectedAction.archivedAt && isActionClosed(selectedAction) && (
+                <button className="button button-secondary" onClick={() => void setDevelopmentActionArchived(selectedAction, true)} disabled={saving}>
+                  <Archive size={17} /> Arquivar ação
+                </button>
+              )}
+              {currentUser.role === "administrador" && !selectedAction.archivedAt && (
                 <button className="button button-danger" onClick={() => setConfirmActionDeleteId(selectedAction.id)}>
                   <Trash2 size={17} /> Excluir ação
                 </button>
@@ -4592,7 +4755,7 @@ export default function PortalOcorrencias() {
           <div className="development-action-detail">
             <div className="development-action-card-toolbar">
               <div><span>Informações da ação</span><strong>{selectedAction.number}</strong></div>
-              {currentUser.role !== "desenvolvedor" && <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>}
+              {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>}
             </div>
             {editingActionDetails && currentUser.role !== "desenvolvedor" && (
               <section className="development-action-edit-panel">
@@ -4630,6 +4793,8 @@ export default function PortalOcorrencias() {
               <div><dt>Criada em</dt><dd>{formatDate(selectedAction.createdAt)}</dd></div>
               <div className="development-due-date"><dt>Prazo definido pelo Desenvolvedor</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda não definido"}</dd></div>
               <div><dt>Encerrado em</dt><dd>{selectedAction.resolvedAt ? formatDate(selectedAction.resolvedAt) : "—"}</dd></div>
+              {selectedAction.archivedAt && <div><dt>Arquivada em</dt><dd>{formatDate(selectedAction.archivedAt)}</dd></div>}
+              {selectedAction.archivedAt && <div><dt>Arquivada por</dt><dd>{selectedAction.archivedBy ? getActionUser(selectedAction.archivedBy) : "Administrador"}</dd></div>}
               <div className="detail-span-2"><dt>Descrição do problema</dt><dd className="detail-description">{selectedAction.problemDescription}</dd></div>
               <div className="detail-span-2"><dt>Anotações do Desenvolvedor</dt><dd className="detail-description">{selectedAction.developerNotes || "Nenhuma anotação registrada."}</dd></div>
               {selectedAction.resolutionNotes && <div className="detail-span-2"><dt>Validação do Suporte</dt><dd className="detail-description">{selectedAction.resolutionNotes}</dd></div>}
@@ -4650,12 +4815,12 @@ export default function PortalOcorrencias() {
               ) : <p className="muted-copy">Nenhuma evidência anexada.</p>}
             </section>
 
-            {currentUser.role === "desenvolvedor" && selectedAction.status !== "Resolvida" && (
+            {currentUser.role === "desenvolvedor" && !selectedAction.archivedAt && !isActionClosed(selectedAction) && (
               <section className="development-workflow-panel">
                 <h3>Atualizar análise e previsão</h3>
                 <div className="form-grid">
                   <label className="field"><span>Data prevista para resolução <b>*</b></span><input type="datetime-local" value={developerActionDraft.dueAt} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, dueAt: event.target.value })} /></label>
-                  <label className="field"><span>Status <b>*</b></span><select value={developerActionDraft.status} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, status: event.target.value as DevelopmentActionStatus })}><option>Em análise</option><option>Em desenvolvimento</option><option>Aguardando validação</option></select></label>
+                  <label className="field"><span>Status <b>*</b></span><select value={developerActionDraft.status} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, status: event.target.value as DevelopmentActionStatus })}><option>Em desenvolvimento</option></select></label>
                   <label className="field field-span-2"><span>Anotações da análise</span><textarea rows={5} value={developerActionDraft.developerNotes} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, developerNotes: event.target.value.slice(0, 3000) })} placeholder="Registre diagnóstico, solução aplicada e orientações para validação" /></label>
                   <div className="field field-span-2">
                     <span>Evidências da análise ou solução</span>
@@ -4681,14 +4846,14 @@ export default function PortalOcorrencias() {
               </section>
             )}
 
-            {currentUser.role !== "desenvolvedor" && selectedAction.status !== "Resolvida" && !selectedAction.dueAt && (
+            {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && !isActionClosed(selectedAction) && !selectedAction.dueAt && (
               <section className="development-workflow-panel development-waiting-panel">
                 <h3>Aguardando prazo do Desenvolvedor</h3>
                 <p>Esta ação poderá ser finalizada pelo Suporte assim que o Desenvolvedor registrar a previsão de resolução.</p>
               </section>
             )}
 
-            {currentUser.role !== "desenvolvedor" && selectedAction.status !== "Resolvida" && selectedAction.dueAt && (
+            {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && !isActionClosed(selectedAction) && selectedAction.dueAt && (
               <section className="development-workflow-panel">
                 <h3>Finalizar ação</h3>
                 {selectedActionIsBeforeDeadline && (
