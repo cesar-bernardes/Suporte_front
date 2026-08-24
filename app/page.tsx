@@ -560,7 +560,6 @@ export default function PortalOcorrencias() {
     status: "Em desenvolvimento" as DevelopmentActionStatus,
     developerNotes: "",
   });
-  const [validationNotes, setValidationNotes] = useState("");
   const [newForm, setNewForm] = useState({
     clientId: "",
     systemId: "",
@@ -984,9 +983,6 @@ export default function PortalOcorrencias() {
     Boolean(action.dueAt && !isActionClosed(action) && new Date(action.dueAt).getTime() <= currentTime);
   const overdueActions = developmentActions.filter(isActionOverdue);
   const selectedAction = [...developmentActions, ...archivedDevelopmentActions].find((action) => action.id === selectedActionId) || null;
-  const selectedActionIsBeforeDeadline = Boolean(
-    selectedAction?.dueAt && new Date(selectedAction.dueAt).getTime() > currentTime,
-  );
   const actionDateBounds = getPeriodBounds(actionDatePeriod, actionDateStart, actionDateEnd);
   const listedDevelopmentActions = actionListMode === "archived" ? archivedDevelopmentActions : developmentActions;
   const periodDevelopmentActions = listedDevelopmentActions.filter((action) => {
@@ -1105,7 +1101,6 @@ export default function PortalOcorrencias() {
   function openDevelopmentAction(action: DevelopmentAction) {
     setSelectedActionId(action.id);
     setEditingActionDetails(false);
-    setValidationNotes(action.resolutionNotes);
     setDeveloperActionDraft({
       dueAt: action.dueAt ? toDateTimeLocal(new Date(action.dueAt)) : "",
       status: action.status === "Encaminhada" || action.status === "Em análise" || action.status === "Aguardando validação" || isActionClosed(action) ? "Em desenvolvimento" : action.status,
@@ -1154,7 +1149,7 @@ export default function PortalOcorrencias() {
     }
   }
 
-  async function saveDeveloperAction() {
+  async function saveDeveloperAction(statusOverride?: DevelopmentActionStatus) {
     if (!selectedAction) return;
     setSaving(true);
     setActionFormError("");
@@ -1167,11 +1162,21 @@ export default function PortalOcorrencias() {
       }
       const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
         method: "PATCH",
-        body: JSON.stringify({ id: selectedAction.id, ...developerActionDraft }),
+        body: JSON.stringify({
+          id: selectedAction.id,
+          ...developerActionDraft,
+          status: statusOverride || developerActionDraft.status,
+        }),
       });
       setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
       setActionUpdateEvidenceFiles([]);
-      setToast(actionUpdateEvidenceFiles.length ? "Andamento e evidências salvos." : "Previsão e andamento salvos.");
+      setToast(
+        statusOverride === "Resolvida"
+          ? "Ação finalizada pelo Desenvolvedor."
+          : actionUpdateEvidenceFiles.length
+            ? "Andamento e evidências salvos."
+            : "Previsão e andamento salvos.",
+      );
     } catch (error) {
       setActionFormError(error instanceof Error ? error.message : "Não foi possível atualizar a ação.");
     } finally {
@@ -1238,43 +1243,6 @@ export default function PortalOcorrencias() {
     draggedActionIdRef.current = null;
     setDraggedActionId(null);
     setDragOverStatus(null);
-  }
-
-  async function validateDevelopmentAction(validation: "resolved" | "reopen") {
-    if (!selectedAction) return;
-    if (validation === "resolved" && !selectedAction.dueAt) {
-      setActionFormError("O Desenvolvedor precisa definir uma previsão antes da finalização.");
-      return;
-    }
-    if (
-      validation === "resolved" &&
-      selectedActionIsBeforeDeadline &&
-      validationNotes.trim().length < 10
-    ) {
-      setActionFormError("Justifique a finalização antes do prazo com pelo menos 10 caracteres.");
-      return;
-    }
-    setSaving(true);
-    setActionFormError("");
-    try {
-      if (actionUpdateEvidenceFiles.length) {
-        const actionWithEvidence = await uploadDevelopmentEvidence(selectedAction.id, actionUpdateEvidenceFiles);
-        if (actionWithEvidence) {
-          setDevelopmentActions((current) => current.map((item) => item.id === actionWithEvidence.id ? actionWithEvidence : item));
-        }
-      }
-      const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
-        method: "PATCH",
-        body: JSON.stringify({ id: selectedAction.id, validation, resolutionNotes: validationNotes }),
-      });
-      setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
-      setActionUpdateEvidenceFiles([]);
-      setToast(validation === "resolved" ? "Ação resolvida e encerrada." : "Ação reaberta para nova previsão.");
-    } catch (error) {
-      setActionFormError(error instanceof Error ? error.message : "Não foi possível validar a ação.");
-    } finally {
-      setSaving(false);
-    }
   }
 
   async function deleteDevelopmentAction(id: string) {
@@ -4843,54 +4811,9 @@ export default function PortalOcorrencias() {
                     )}
                   </div>
                 </div>
-                <button className="button button-primary" onClick={saveDeveloperAction} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : actionUpdateEvidenceFiles.length ? "Salvar andamento e evidências" : "Salvar previsão e andamento"}</button>
-              </section>
-            )}
-
-            {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && !isActionClosed(selectedAction) && !selectedAction.dueAt && (
-              <section className="development-workflow-panel development-waiting-panel">
-                <h3>Aguardando prazo do Desenvolvedor</h3>
-                <p>Esta ação poderá ser finalizada pelo Suporte assim que o Desenvolvedor registrar a previsão de resolução.</p>
-              </section>
-            )}
-
-            {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && !isActionClosed(selectedAction) && selectedAction.dueAt && (
-              <section className="development-workflow-panel">
-                <h3>Finalizar ação</h3>
-                {selectedActionIsBeforeDeadline && (
-                  <div className="early-closure-notice" role="note">
-                    <AlertTriangle size={18} />
-                    <span>O prazo ainda não chegou. Para finalizar agora, informe obrigatoriamente o motivo.</span>
-                  </div>
-                )}
-                <label className="field">
-                  <span>{selectedActionIsBeforeDeadline ? "Justificativa da finalização antecipada *" : "Observações da finalização"}</span>
-                  <textarea rows={4} value={validationNotes} onChange={(event) => setValidationNotes(event.target.value.slice(0, 3000))} placeholder={selectedActionIsBeforeDeadline ? "Explique por que esta ação está sendo finalizada antes do prazo" : "Registre o resultado da verificação realizada pelo Suporte"} />
-                </label>
-                <div className="field">
-                  <span>Evidências da validação</span>
-                  <label className="upload-zone">
-                    <UploadCloud size={24} />
-                    <strong>Adicionar fotos ou PDF</strong>
-                    <span>JPG, PNG, WEBP ou PDF · máximo 10 MB por arquivo</span>
-                    <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf" onChange={handleActionUpdateEvidence} />
-                  </label>
-                  {actionUpdateEvidenceFiles.length > 0 && (
-                    <div className="attachment-list">
-                      {actionUpdateEvidenceFiles.map((file) => (
-                        <span key={file.name + file.lastModified}>
-                          <Paperclip size={15} />{file.name}
-                          <button type="button" onClick={() => setActionUpdateEvidenceFiles((current) => current.filter((item) => item !== file))} aria-label={`Remover ${file.name}`}><X size={14} /></button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
                 <div className="validation-actions">
-                  {selectedAction.status === "Aguardando validação" && (
-                    <button className="button button-secondary" onClick={() => validateDevelopmentAction("reopen")} disabled={saving}><RefreshCcw size={17} />Não foi solucionado</button>
-                  )}
-                  <button className="button button-primary" onClick={() => validateDevelopmentAction("resolved")} disabled={saving}><CheckCircle2 size={17} />Finalizar ação</button>
+                  <button className="button button-secondary" onClick={() => void saveDeveloperAction()} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : actionUpdateEvidenceFiles.length ? "Salvar andamento e evidências" : "Salvar previsão e andamento"}</button>
+                  <button className="button button-primary" onClick={() => void saveDeveloperAction("Resolvida")} disabled={saving}>{saving ? <span className="spinner" /> : <CheckCircle2 size={17} />}{saving ? "Finalizando…" : "Finalizar ação"}</button>
                 </div>
               </section>
             )}
