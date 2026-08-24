@@ -1315,7 +1315,8 @@ export default function PortalOcorrencias() {
   }
 
   async function setDevelopmentActionArchived(action: DevelopmentAction, archived: boolean) {
-    if (currentUser?.role !== "administrador") return;
+    if (!currentUser || currentUser.role === "desenvolvedor") return;
+    if (!archived && currentUser.role !== "administrador") return;
     setSaving(true);
     setActionFormError("");
     try {
@@ -4738,7 +4739,7 @@ export default function PortalOcorrencias() {
                   <ArchiveRestore size={17} /> Restaurar ação
                 </button>
               )}
-              {currentUser.role === "administrador" && !selectedAction.archivedAt && isActionClosed(selectedAction) && (
+              {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && isActionClosed(selectedAction) && (
                 <button className="button button-secondary" onClick={() => void setDevelopmentActionArchived(selectedAction, true)} disabled={saving}>
                   <Archive size={17} /> Arquivar ação
                 </button>
