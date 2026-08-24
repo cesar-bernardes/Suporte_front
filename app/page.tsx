@@ -1149,7 +1149,7 @@ export default function PortalOcorrencias() {
     }
   }
 
-  async function saveDeveloperAction(statusOverride?: DevelopmentActionStatus) {
+  async function saveDeveloperAction() {
     if (!selectedAction) return;
     setSaving(true);
     setActionFormError("");
@@ -1162,17 +1162,15 @@ export default function PortalOcorrencias() {
       }
       const payload = await portalRequest<{ action: DevelopmentAction }>("/api/catalog?scope=development-actions", {
         method: "PATCH",
-        body: JSON.stringify({
-          id: selectedAction.id,
-          ...developerActionDraft,
-          status: statusOverride || developerActionDraft.status,
-        }),
+        body: JSON.stringify({ id: selectedAction.id, ...developerActionDraft }),
       });
       setDevelopmentActions((current) => current.map((item) => item.id === payload.action.id ? payload.action : item));
       setActionUpdateEvidenceFiles([]);
       setToast(
-        statusOverride === "Resolvida"
+        developerActionDraft.status === "Resolvida"
           ? "Ação finalizada pelo Desenvolvedor."
+          : developerActionDraft.status === "Reprovada"
+            ? "Ação marcada como reprovada."
           : actionUpdateEvidenceFiles.length
             ? "Andamento e evidências salvos."
             : "Previsão e andamento salvos.",
@@ -4788,8 +4786,8 @@ export default function PortalOcorrencias() {
               <section className="development-workflow-panel">
                 <h3>Atualizar análise e previsão</h3>
                 <div className="form-grid">
-                  <label className="field"><span>Data prevista para resolução <b>*</b></span><input type="datetime-local" value={developerActionDraft.dueAt} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, dueAt: event.target.value })} /></label>
-                  <label className="field"><span>Status <b>*</b></span><select value={developerActionDraft.status} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, status: event.target.value as DevelopmentActionStatus })}><option>Em desenvolvimento</option></select></label>
+                  <label className="field"><span>Data prevista para resolução {developerActionDraft.status === "Em desenvolvimento" && <b>*</b>}</span><input type="datetime-local" value={developerActionDraft.dueAt} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, dueAt: event.target.value })} /></label>
+                  <label className="field"><span>Status <b>*</b></span><select value={developerActionDraft.status} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, status: event.target.value as DevelopmentActionStatus })}><option>Em desenvolvimento</option><option>Resolvida</option><option>Reprovada</option></select></label>
                   <label className="field field-span-2"><span>Anotações da análise</span><textarea rows={5} value={developerActionDraft.developerNotes} onChange={(event) => setDeveloperActionDraft({ ...developerActionDraft, developerNotes: event.target.value.slice(0, 3000) })} placeholder="Registre diagnóstico, solução aplicada e orientações para validação" /></label>
                   <div className="field field-span-2">
                     <span>Evidências da análise ou solução</span>
@@ -4811,10 +4809,7 @@ export default function PortalOcorrencias() {
                     )}
                   </div>
                 </div>
-                <div className="validation-actions">
-                  <button className="button button-secondary" onClick={() => void saveDeveloperAction()} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : actionUpdateEvidenceFiles.length ? "Salvar andamento e evidências" : "Salvar previsão e andamento"}</button>
-                  <button className="button button-primary" onClick={() => void saveDeveloperAction("Resolvida")} disabled={saving}>{saving ? <span className="spinner" /> : <CheckCircle2 size={17} />}{saving ? "Finalizando…" : "Finalizar ação"}</button>
-                </div>
+                <button className="button button-primary" onClick={() => void saveDeveloperAction()} disabled={saving}>{saving ? <span className="spinner" /> : <Check size={17} />}{saving ? "Salvando…" : developerActionDraft.status === "Resolvida" ? "Salvar e finalizar ação" : developerActionDraft.status === "Reprovada" ? "Salvar como reprovada" : actionUpdateEvidenceFiles.length ? "Salvar andamento e evidências" : "Salvar previsão e andamento"}</button>
               </section>
             )}
             {actionFormError && <div className="form-alert" role="alert">{actionFormError}</div>}
