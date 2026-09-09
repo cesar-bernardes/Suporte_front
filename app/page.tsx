@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   BarChart3,
   BookOpenCheck,
+  Building2,
   CalendarDays,
   Check,
   CheckCircle2,
@@ -71,6 +72,7 @@ type View =
   | "agenda"
   | "acoes"
   | "catalogo"
+  | "empresas"
   | "usuarios";
 
 type PortalUser = {
@@ -107,6 +109,7 @@ type Occurrence = {
   number: string;
   occurredAt: string;
   clientId: string;
+  otherClient?: string;
   systemId: string;
   moduleId: string;
   catalogItemId?: string;
@@ -129,6 +132,7 @@ type DevelopmentActionStatus =
   | "Reprovada"
   | "Resolvida";
 type DevelopmentActionUrgency = "Leve" | "Médio" | "Urgente";
+type ActionPriority = "Urgente" | "Alta" | "Média" | "Baixa";
 
 type DevelopmentAction = {
   id: string;
@@ -447,6 +451,7 @@ export default function PortalOcorrencias() {
   const [dataRefreshVersion, setDataRefreshVersion] = useState(0);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [administrationOpen, setAdministrationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -506,6 +511,8 @@ export default function PortalOcorrencias() {
   const [catalogError, setCatalogError] = useState("");
   const [confirmCatalogId, setConfirmCatalogId] = useState<string | null>(null);
   const [referenceManagerOpen, setReferenceManagerOpen] = useState(false);
+  const [clientDraft, setClientDraft] = useState("");
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const [systemDraft, setSystemDraft] = useState("");
   const [editingSystemId, setEditingSystemId] = useState<string | null>(null);
   const [moduleDraft, setModuleDraft] = useState({
@@ -516,7 +523,7 @@ export default function PortalOcorrencias() {
   const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
   const [referenceError, setReferenceError] = useState("");
   const [confirmReferenceDelete, setConfirmReferenceDelete] = useState<{
-    kind: "system" | "module";
+    kind: "client" | "system" | "module";
     id: string;
     name: string;
   } | null>(null);
@@ -528,9 +535,11 @@ export default function PortalOcorrencias() {
   const [actionsLoading, setActionsLoading] = useState(false);
   const [actionsError, setActionsError] = useState("");
   const [actionSearch, setActionSearch] = useState("");
-  const [actionDatePeriod, setActionDatePeriod] = useState("all");
-  const [actionDateStart, setActionDateStart] = useState("");
-  const [actionDateEnd, setActionDateEnd] = useState("");
+  const [actionSystemFilter, setActionSystemFilter] = useState("all");
+  const [actionStatusFilter, setActionStatusFilter] = useState("all");
+  const [actionDeadlineFilter, setActionDeadlineFilter] = useState("all");
+  const [actionFiltersOpen, setActionFiltersOpen] = useState(false);
+  const actionFiltersReadyRef = useRef(false);
   const [draggedActionId, setDraggedActionId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<DevelopmentActionStatus | null>(null);
   const [movingActionId, setMovingActionId] = useState<string | null>(null);
@@ -562,6 +571,7 @@ export default function PortalOcorrencias() {
   });
   const [newForm, setNewForm] = useState({
     clientId: "",
+    otherClient: "",
     systemId: "",
     moduleId: "",
     catalogChoice: "",
@@ -585,7 +595,10 @@ export default function PortalOcorrencias() {
       .then((payload) => {
         if (active && payload?.user) {
           setCurrentUser(payload.user);
-          if (payload.user.role === "desenvolvedor") setView("acoes");
+          if (
+            payload.user.role === "desenvolvedor" ||
+            new URLSearchParams(window.location.search).get("view") === "acoes"
+          ) setView("acoes");
           setPortalUsers((current) =>
             current.some((user) => user.id === payload.user.id)
               ? current.map((user) =>
@@ -615,6 +628,35 @@ export default function PortalOcorrencias() {
     const timer = window.setTimeout(() => setToast(""), 3200);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const timer = window.setTimeout(() => {
+      setActionSystemFilter(params.get("sistema") || "all");
+      setActionStatusFilter(params.get("status") || "all");
+      setActionDeadlineFilter(params.get("prazo") || "all");
+      setActionSearch(params.get("busca") || "");
+      actionFiltersReadyRef.current = true;
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!actionFiltersReadyRef.current || view !== "acoes") return;
+    const params = new URLSearchParams();
+    params.set("view", "acoes");
+    if (actionSystemFilter !== "all") params.set("sistema", actionSystemFilter);
+    if (actionStatusFilter !== "all") params.set("status", actionStatusFilter);
+    if (actionDeadlineFilter !== "all") params.set("prazo", actionDeadlineFilter);
+    if (actionSearch.trim()) params.set("busca", actionSearch.trim());
+    window.history.replaceState(null, "", `/?${params.toString()}`);
+  }, [
+    view,
+    actionSystemFilter,
+    actionStatusFilter,
+    actionDeadlineFilter,
+    actionSearch,
+  ]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -783,7 +825,9 @@ export default function PortalOcorrencias() {
   }, [currentUser]);
 
   const getClient = (id: string) =>
-    clients.find((client) => client.id === id)?.name || "Cliente";
+    clients.find((client) => client.id === id)?.name || "Empresa";
+  const getOccurrenceClient = (item: Occurrence) =>
+    item.otherClient || getClient(item.clientId);
   const getSystem = (id: string) =>
     systems.find((system) => system.id === id)?.name || "Sistema";
   const getModule = (systemId: string, moduleId: string) =>
@@ -871,7 +915,7 @@ export default function PortalOcorrencias() {
       const occurredAt = new Date(item.occurredAt).getTime();
       const searchable = normalizeText(
         [
-          getClient(item.clientId),
+          getOccurrenceClient(item),
           getUser(item.responsibleId),
           getCatalogName(item),
         ].join(" "),
@@ -897,7 +941,7 @@ export default function PortalOcorrencias() {
         const searchable = normalizeText(
           [
             item.number,
-            getClient(item.clientId),
+            getOccurrenceClient(item),
             getSystem(item.systemId),
             getCatalogName(item),
             getUser(item.responsibleId),
@@ -978,27 +1022,62 @@ export default function PortalOcorrencias() {
 
   const getActionUser = (id: string) =>
     [...developerUsers, ...portalUsers, ...managedUsers].find((user) => user.id === id)?.name || "Usuário indisponível";
+  const getActionPriority = (action: DevelopmentAction): ActionPriority => {
+    const urgency = action.urgency as string;
+    if (urgency === "Urgente") return "Urgente";
+    if (urgency === "Alta") return "Alta";
+    if (urgency === "Média" || urgency === "Médio") return "Média";
+    return "Baixa";
+  };
   const isActionClosed = (action: DevelopmentAction) => action.status === "Resolvida" || action.status === "Reprovada";
   const isActionOverdue = (action: DevelopmentAction) =>
     Boolean(action.dueAt && !isActionClosed(action) && new Date(action.dueAt).getTime() <= currentTime);
   const overdueActions = developmentActions.filter(isActionOverdue);
   const selectedAction = [...developmentActions, ...archivedDevelopmentActions].find((action) => action.id === selectedActionId) || null;
-  const actionDateBounds = getPeriodBounds(actionDatePeriod, actionDateStart, actionDateEnd);
   const listedDevelopmentActions = actionListMode === "archived" ? archivedDevelopmentActions : developmentActions;
-  const periodDevelopmentActions = listedDevelopmentActions.filter((action) => {
-    const createdAt = new Date(action.createdAt).getTime();
-    return createdAt >= actionDateBounds.start && createdAt <= actionDateBounds.end;
-  });
-  const periodOverdueActions = periodDevelopmentActions.filter(isActionOverdue);
-  const filteredDevelopmentActions = periodDevelopmentActions.filter((action) => {
+  const periodDevelopmentActions = listedDevelopmentActions;
+  const actionMatchesFilters = (action: DevelopmentAction, ignoreSystem = false) => {
     const query = normalizeText(actionSearch);
     const searchable = normalizeText([
       action.number, action.title, action.problemDescription,
       getActionSystemModule(action), getActionUser(action.developerId),
-      action.urgency || "Médio", action.status,
+      getActionPriority(action), action.urgency || "Médio", action.status,
     ].join(" "));
-    return !query || searchable.includes(query);
-  });
+    const deadlineMatches =
+      actionDeadlineFilter === "all" ||
+      (actionDeadlineFilter === "overdue" && isActionOverdue(action)) ||
+      (actionDeadlineFilter === "scheduled" && Boolean(action.dueAt)) ||
+      (actionDeadlineFilter === "unscheduled" && !action.dueAt);
+    return (
+      (!query || searchable.includes(query)) &&
+      (ignoreSystem || actionSystemFilter === "all" || action.systemId === actionSystemFilter) &&
+      (actionStatusFilter === "all" || action.status === actionStatusFilter) &&
+      deadlineMatches
+    );
+  };
+  const filteredDevelopmentActions = periodDevelopmentActions.filter((action) => actionMatchesFilters(action));
+  const filteredOverdueActions = filteredDevelopmentActions.filter(isActionOverdue);
+  const systemChipActions = periodDevelopmentActions.filter((action) => actionMatchesFilters(action, true));
+  const actionSystemChips = systems
+    .map((system) => ({
+      id: system.id,
+      name: system.name,
+      count: systemChipActions.filter((action) => action.systemId === system.id).length,
+    }))
+    .filter((system) => system.count > 0 || system.id === actionSystemFilter);
+  const hasActionFilters = Boolean(
+    actionSearch.trim() ||
+    actionSystemFilter !== "all" ||
+    actionStatusFilter !== "all" ||
+    actionDeadlineFilter !== "all",
+  );
+
+  function clearActionFilters() {
+    setActionSearch("");
+    setActionSystemFilter("all");
+    setActionStatusFilter("all");
+    setActionDeadlineFilter("all");
+  }
 
   function openNewDevelopmentAction() {
     const firstSystem = systems[0];
@@ -1384,6 +1463,7 @@ export default function PortalOcorrencias() {
   function resetNewForm() {
     setNewForm({
       clientId: "",
+      otherClient: "",
       systemId: "",
       moduleId: "",
       catalogChoice: "",
@@ -1428,7 +1508,10 @@ export default function PortalOcorrencias() {
   async function submitOccurrence(event: FormEvent) {
     event.preventDefault();
     const errors: Record<string, string> = {};
-    if (!newForm.clientId) errors.clientId = "Selecione o cliente.";
+    if (!newForm.clientId) errors.clientId = "Selecione a empresa ou Outros.";
+    if (newForm.clientId === "other" && newForm.otherClient.trim().length < 2) {
+      errors.otherClient = "Informe o nome da pessoa ou outra identificação.";
+    }
     if (!newForm.systemId) errors.systemId = "Selecione o sistema.";
     if (!newForm.moduleId) errors.moduleId = "Selecione o módulo.";
     if (!newForm.catalogChoice) {
@@ -1647,6 +1730,39 @@ export default function PortalOcorrencias() {
     setReferenceManagerOpen(true);
   }
 
+  async function saveClientReference() {
+    const name = clientDraft.trim().replace(/\s+/g, " ");
+    if (name.length < 2) {
+      setReferenceError("Informe o nome da empresa.");
+      return;
+    }
+    setSaving(true);
+    setReferenceError("");
+    try {
+      const payload = await portalRequest<{
+        clients: PortalClient[];
+        systems: PortalSystem[];
+      }>("/api/reference-data", {
+        method: editingClientId ? "PATCH" : "POST",
+        body: JSON.stringify({
+          kind: "client",
+          id: editingClientId,
+          name,
+        }),
+      });
+      applyReferenceData(payload);
+      setClientDraft("");
+      setEditingClientId(null);
+      setToast(editingClientId ? "Empresa atualizada." : "Empresa cadastrada.");
+    } catch (error) {
+      setReferenceError(
+        error instanceof Error ? error.message : "Não foi possível salvar a empresa.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function saveSystemReference() {
     const name = systemDraft.trim().replace(/\s+/g, " ");
     if (name.length < 2) {
@@ -1747,9 +1863,11 @@ export default function PortalOcorrencias() {
       applyReferenceData(payload);
       setConfirmReferenceDelete(null);
       setToast(
-        confirmReferenceDelete.kind === "system"
-          ? "Sistema removido da visualização."
-          : "Módulo removido da visualização.",
+        confirmReferenceDelete.kind === "client"
+          ? "Empresa removida da visualização."
+          : confirmReferenceDelete.kind === "system"
+            ? "Sistema removido da visualização."
+            : "Módulo removido da visualização.",
       );
     } catch (error) {
       setReferenceError(
@@ -2312,11 +2430,18 @@ export default function PortalOcorrencias() {
         { id: "registros" as View, label: "Registro", icon: ClipboardList },
         { id: "agenda" as View, label: "Agenda", icon: CalendarDays },
         { id: "acoes" as View, label: "Ações para Desenvolvedores", icon: Code2 },
+      ];
+  const administrationItems = currentUser.role === "desenvolvedor"
+    ? []
+    : [
+        { id: "empresas" as View, label: "Empresas", icon: Building2 },
         { id: "catalogo" as View, label: "Catálogo", icon: BookOpenCheck },
         ...(currentUser.role === "administrador"
           ? [{ id: "usuarios" as View, label: "Usuários", icon: UsersRound }]
           : []),
       ];
+  const administrationActive = administrationItems.some((item) => item.id === view);
+  const administrationExpanded = administrationActive || administrationOpen;
 
   return (
     <div className="portal-shell">
@@ -2362,6 +2487,41 @@ export default function PortalOcorrencias() {
               </button>
             );
           })}
+          {administrationItems.length > 0 && (
+            <div className="nav-group">
+              <button
+                type="button"
+                className={`nav-item nav-group-trigger${administrationActive ? " active" : ""}`}
+                onClick={() => setAdministrationOpen((current) => !current)}
+                aria-expanded={administrationExpanded}
+                aria-controls="administration-menu"
+              >
+                <UserCog size={19} />
+                <span>Administração</span>
+                <ChevronDown className={administrationExpanded ? "is-open" : ""} size={17} />
+              </button>
+              {administrationExpanded && (
+                <div className="nav-submenu" id="administration-menu">
+                  {administrationItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = view === item.id;
+                    return (
+                      <button
+                        type="button"
+                        key={item.id}
+                        className={active ? "nav-subitem active" : "nav-subitem"}
+                        onClick={() => navigate(item.id)}
+                        aria-current={active ? "page" : undefined}
+                      >
+                        <Icon size={17} />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
         <div className="sidebar-insight">
           <span className="insight-icon">
@@ -2496,44 +2656,40 @@ export default function PortalOcorrencias() {
                 </div>
               </div>
 
-              <section className="action-period-panel" aria-label="Filtro de período das ações">
-                <div className="action-period-copy">
-                  <span><CalendarDays size={18} /></span>
-                  <div><strong>Período das ações</strong><small>O período filtra os indicadores e a relação abaixo.</small></div>
+              <section className={`action-filter-panel${actionFiltersOpen ? " is-open" : ""}`} aria-label="Filtros das ações">
+                <div className="action-filter-heading">
+                  <div>
+                    <span><ListFilter size={18} /></span>
+                    <div><strong>Filtros operacionais</strong><small>Combine sistema, status e prazo.</small></div>
+                  </div>
+                  <button type="button" className="button button-secondary action-filter-toggle" onClick={() => setActionFiltersOpen((current) => !current)} aria-expanded={actionFiltersOpen}>
+                    <Filter size={16} />Filtros
+                  </button>
                 </div>
-                <div className="action-period-controls">
-                  <label className="field field-compact">
-                    <span>Período</span>
-                    <select value={actionDatePeriod} onChange={(event) => setActionDatePeriod(event.target.value)}>
-                      <option value="all">Todo o período</option>
-                      <option value="today">Hoje</option>
-                      <option value="week">Esta semana</option>
-                      <option value="7">Últimos 7 dias</option>
-                      <option value="30">Últimos 30 dias</option>
-                      <option value="custom">Personalizado</option>
-                    </select>
-                  </label>
-                  {actionDatePeriod === "custom" && (
-                    <>
-                      <label className="field field-compact"><span>Data inicial</span><input type="date" value={actionDateStart} onChange={(event) => {
-                        const nextStart = event.target.value;
-                        setActionDateStart(nextStart);
-                        if (actionDateEnd && actionDateEnd < nextStart) setActionDateEnd(nextStart);
-                      }} /></label>
-                      <label className="field field-compact"><span>Data final</span><input type="date" value={actionDateEnd} min={actionDateStart || undefined} onChange={(event) => setActionDateEnd(event.target.value)} /></label>
-                    </>
-                  )}
-                  {actionDatePeriod !== "all" && (
-                    <button type="button" className="button button-ghost" onClick={() => { setActionDatePeriod("all"); setActionDateStart(""); setActionDateEnd(""); }}><RefreshCcw size={15} />Limpar</button>
-                  )}
+                <div className="action-filter-content">
+                  <div className="action-filter-grid">
+                    <label className="field field-compact action-search-field">
+                      <span>Buscar</span>
+                      <span className="search-control"><Search size={17} /><input value={actionSearch} onChange={(event) => setActionSearch(event.target.value)} placeholder="Título, sistema, módulo, responsável ou ID DEV" aria-label="Buscar ações" /></span>
+                    </label>
+                    <label className="field field-compact"><span>Sistema</span><select value={actionSystemFilter} onChange={(event) => setActionSystemFilter(event.target.value)}><option value="all">Todos os sistemas</option>{systems.map((system) => <option key={system.id} value={system.id}>{system.name}</option>)}</select></label>
+                    <label className="field field-compact"><span>Status</span><select value={actionStatusFilter} onChange={(event) => setActionStatusFilter(event.target.value)}><option value="all">Todos os status</option>{DEVELOPMENT_STATUS_OPTIONS.map((status) => <option key={status}>{status}</option>)}</select></label>
+                    <label className="field field-compact"><span>Prazo</span><select value={actionDeadlineFilter} onChange={(event) => setActionDeadlineFilter(event.target.value)}><option value="all">Todos</option><option value="overdue">Prazo atingido</option><option value="scheduled">Com previsão</option><option value="unscheduled">Sem previsão</option></select></label>
+                  </div>
+                  {hasActionFilters && <button type="button" className="action-clear-filters" onClick={clearActionFilters}><X size={15} />Limpar filtros</button>}
                 </div>
               </section>
 
-              {actionListMode === "active" && currentUser.role !== "desenvolvedor" && periodOverdueActions.length > 0 && (
+              <nav className="action-system-chips" aria-label="Filtrar rapidamente por sistema">
+                <button type="button" className={actionSystemFilter === "all" ? "is-active" : ""} onClick={() => setActionSystemFilter("all")}><span>Todos</span><strong>{systemChipActions.length}</strong></button>
+                {actionSystemChips.map((system) => <button type="button" key={system.id} className={actionSystemFilter === system.id ? "is-active" : ""} onClick={() => setActionSystemFilter(system.id)}><Building2 size={15} /><span>{system.name}</span><strong>{system.count}</strong></button>)}
+              </nav>
+
+              {actionListMode === "active" && currentUser.role !== "desenvolvedor" && filteredOverdueActions.length > 0 && (
                 <div className="development-deadline-alert" role="alert">
                   <AlertTriangle size={22} />
                   <div>
-                    <strong>{periodOverdueActions.length} {periodOverdueActions.length === 1 ? "prazo foi atingido" : "prazos foram atingidos"}</strong>
+                    <strong>{filteredOverdueActions.length} {filteredOverdueActions.length === 1 ? "prazo foi atingido" : "prazos foram atingidos"}</strong>
                     <span>Verifique com o Desenvolvedor e valide se o problema foi solucionado.</span>
                   </div>
                 </div>
@@ -2542,37 +2698,44 @@ export default function PortalOcorrencias() {
               {actionListMode === "active" ? <section className="catalog-summary development-summary">
                 <div>
                   <span className="metric-icon metric-blue"><Code2 size={20} /></span>
-                  <p><strong>{periodDevelopmentActions.filter((action) => !isActionClosed(action)).length}</strong>ações abertas</p>
+                  <p><strong>{filteredDevelopmentActions.filter((action) => !isActionClosed(action)).length}</strong>ações abertas</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-amber"><Clock3 size={20} /></span>
-                  <p><strong>{periodDevelopmentActions.filter((action) => !action.dueAt && !isActionClosed(action)).length}</strong>sem previsão</p>
+                  <p><strong>{filteredDevelopmentActions.filter((action) => !action.dueAt && !isActionClosed(action)).length}</strong>sem previsão</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span>
-                  <p><strong>{periodDevelopmentActions.filter((action) => action.status === "Em desenvolvimento").length}</strong>em desenvolvimento</p>
+                  <p><strong>{filteredDevelopmentActions.filter((action) => action.status === "Em desenvolvimento").length}</strong>em desenvolvimento</p>
                 </div>
                 <div>
                   <span className="metric-icon metric-red"><AlertTriangle size={20} /></span>
-                  <p><strong>{periodOverdueActions.length}</strong>prazo atingido</p>
+                  <p><strong>{filteredOverdueActions.length}</strong>prazo atingido</p>
                 </div>
               </section> : <section className="catalog-summary development-summary archived-summary">
-                <div><span className="metric-icon metric-blue"><Archive size={20} /></span><p><strong>{periodDevelopmentActions.length}</strong>ações arquivadas</p></div>
-                <div><span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span><p><strong>{periodDevelopmentActions.filter((action) => action.status === "Resolvida").length}</strong>resolvidas</p></div>
-                <div><span className="metric-icon metric-red"><CircleAlert size={20} /></span><p><strong>{periodDevelopmentActions.filter((action) => action.status === "Reprovada").length}</strong>reprovadas</p></div>
+                <div><span className="metric-icon metric-blue"><Archive size={20} /></span><p><strong>{filteredDevelopmentActions.length}</strong>ações arquivadas</p></div>
+                <div><span className="metric-icon metric-teal"><CheckCircle2 size={20} /></span><p><strong>{filteredDevelopmentActions.filter((action) => action.status === "Resolvida").length}</strong>resolvidas</p></div>
+                <div><span className="metric-icon metric-red"><CircleAlert size={20} /></span><p><strong>{filteredDevelopmentActions.filter((action) => action.status === "Reprovada").length}</strong>reprovadas</p></div>
               </section>}
 
               {actionsError && <div className="users-error" role="alert"><CircleAlert size={18} /><span>{actionsError}</span></div>}
               <section className="card records-card development-actions-card">
                 <div className="records-toolbar">
-                  <label className="search-control">
-                    <Search size={18} />
-                    <input value={actionSearch} onChange={(event) => setActionSearch(event.target.value)} placeholder="Buscar ação, problema ou Desenvolvedor" aria-label="Buscar ações" />
-                  </label>
+                  <div className="development-board-context">
+                    <Building2 size={18} />
+                    <span>{actionSystemFilter === "all" ? "Todos os sistemas" : systems.find((system) => system.id === actionSystemFilter)?.name || "Sistema selecionado"}</span>
+                  </div>
                   <div className="development-kanban-summary"><strong>{filteredDevelopmentActions.length}</strong><span>{filteredDevelopmentActions.length === 1 ? "ação" : "ações"} {actionListMode === "archived" ? "arquivadas" : "no quadro"}</span>{actionListMode === "active" && currentUser.role === "desenvolvedor" && <small>Arraste os cartões para alterar o status</small>}</div>
                 </div>
                 {actionsLoading ? (
                   <div className="users-loading"><span className="spinner" />Carregando ações…</div>
+                ) : filteredDevelopmentActions.length === 0 ? (
+                  <div className="development-filter-empty">
+                    <span><ListFilter size={22} /></span>
+                    <strong>Nenhuma ação encontrada</strong>
+                    <p>Não há ações que correspondam aos filtros selecionados.</p>
+                    {hasActionFilters && <button type="button" className="button button-secondary" onClick={clearActionFilters}><RefreshCcw size={16} />Limpar filtros</button>}
+                  </div>
                 ) : (
                   <div className={`development-kanban${actionListMode === "archived" ? " is-archived" : ""}`} aria-label={actionListMode === "archived" ? "Ações arquivadas" : "Quadro Kanban das ações"}>
                     {(actionListMode === "archived" ? (["Resolvida", "Reprovada"] as DevelopmentActionStatus[]) : DEVELOPMENT_STATUS_OPTIONS).map((status) => {
@@ -2600,7 +2763,7 @@ export default function PortalOcorrencias() {
                                 type="button"
                                 className={`development-kanban-card${isActionOverdue(action) ? " is-overdue" : ""}${draggedActionId === action.id ? " is-dragging" : ""}${movingActionId === action.id ? " is-saving" : ""}`}
                                 key={action.id}
-                                aria-label={`${action.title}. Status ${action.status}. Clique para ver detalhes.`}
+                                aria-label={`${action.systemId ? getSystem(action.systemId) : "Sistema não informado"}. ${action.title}. Prioridade ${getActionPriority(action)}. Status ${action.status}. Clique para ver detalhes.`}
                                 aria-busy={movingActionId === action.id}
                                 onClick={() => openDevelopmentAction(action)}
                               >
@@ -2614,12 +2777,13 @@ export default function PortalOcorrencias() {
                                       onDragStart={(event) => startDevelopmentActionDrag(event, action.id)}
                                       onDragEnd={finishDevelopmentActionDrag}
                                     ><GripVertical size={16} /></span>}
-                                    <small>{action.number}</small>
+                                    <Building2 size={15} />
+                                    <strong>{action.systemId ? getSystem(action.systemId) : "Sistema não informado"}</strong>
                                   </span>
-                                  <Badge tone={action.urgency || "Médio"}>{action.urgency || "Médio"}</Badge>
+                                  <Badge tone={action.urgency || "Médio"}>{getActionPriority(action)}</Badge>
                                 </span>
                                 <strong className="development-kanban-title">{action.title}</strong>
-                                <span className="development-kanban-reference"><span><Code2 size={14} /></span><span><strong>{action.systemId ? getSystem(action.systemId) : "Sistema não informado"}</strong><small>{action.systemId && action.moduleId ? getModule(action.systemId, action.moduleId) : "Módulo não informado"}</small></span></span>
+                                <span className="development-kanban-reference"><span><BookOpenCheck size={14} /></span><span><strong>{action.systemId && action.moduleId ? getModule(action.systemId, action.moduleId) : "Módulo não informado"}</strong><small>Categoria / módulo</small></span></span>
                                 <span className="development-kanban-person"><UserRound size={14} />{getActionUser(action.developerId)}</span>
                                 <span className="development-kanban-deadline"><Clock3 size={14} /><span><small>Previsão</small><strong>{action.dueAt ? formatDate(action.dueAt) : "Não definida"}</strong></span></span>
                                 {isActionOverdue(action) && <span className="development-kanban-overdue"><AlertTriangle size={14} />Prazo atingido</span>}
@@ -3161,7 +3325,7 @@ export default function PortalOcorrencias() {
                                 </button>
                                 <small>{formatDate(item.occurredAt)}</small>
                               </td>
-                              <td>{getClient(item.clientId)}</td>
+                              <td>{getOccurrenceClient(item)}</td>
                               <td className="table-error">
                                 {getCatalogName(item)}
                               </td>
@@ -3377,7 +3541,7 @@ export default function PortalOcorrencias() {
                               <strong>{formatDate(item.occurredAt)}</strong>
                               <small>{item.number}</small>
                             </td>
-                            <td>{getClient(item.clientId)}</td>
+                            <td>{getOccurrenceClient(item)}</td>
                             <td>
                               <strong>{getSystem(item.systemId)}</strong>
                               <small>
@@ -3517,7 +3681,7 @@ export default function PortalOcorrencias() {
                     <div className="form-grid">
                       <label className="field field-span-2">
                         <span>
-                          Cliente afetado <b>*</b>
+                          Empresa ou pessoa afetada <b>*</b>
                         </span>
                         <select
                           value={newForm.clientId}
@@ -3525,6 +3689,7 @@ export default function PortalOcorrencias() {
                             setNewForm({
                               ...newForm,
                               clientId: event.target.value,
+                              otherClient: "",
                             })
                           }
                           aria-invalid={Boolean(formErrors.clientId)}
@@ -3532,12 +3697,13 @@ export default function PortalOcorrencias() {
                             formErrors.clientId ? "client-error" : undefined
                           }
                         >
-                          <option value="">Selecione um cliente</option>
+                          <option value="">Selecione uma empresa</option>
                           {clients.map((client) => (
                             <option key={client.id} value={client.id}>
                               {client.name}
                             </option>
                           ))}
+                          <option value="other">Outros — pessoa ou registro livre</option>
                         </select>
                         {formErrors.clientId && (
                           <small className="field-error" id="client-error">
@@ -3545,6 +3711,37 @@ export default function PortalOcorrencias() {
                           </small>
                         )}
                       </label>
+                      {newForm.clientId === "other" && (
+                        <div className="other-client-card field-span-2">
+                          <div className="other-client-icon">
+                            <UserRound size={20} />
+                          </div>
+                          <label className="field">
+                            <span>
+                              Nome da pessoa ou identificação <b>*</b>
+                            </span>
+                            <input
+                              value={newForm.otherClient}
+                              onChange={(event) => setNewForm({
+                                ...newForm,
+                                otherClient: event.target.value.slice(0, 120),
+                              })}
+                              placeholder="Ex.: Fulana de tal"
+                              aria-invalid={Boolean(formErrors.otherClient)}
+                              aria-describedby={formErrors.otherClient ? "other-client-error" : undefined}
+                              autoFocus
+                            />
+                            <small className="field-help">
+                              Use quando o registro não pertence a uma empresa cadastrada.
+                            </small>
+                            {formErrors.otherClient && (
+                              <small className="field-error" id="other-client-error">
+                                {formErrors.otherClient}
+                              </small>
+                            )}
+                          </label>
+                        </div>
+                      )}
                       <label className="field">
                         <span>
                           Sistema <b>*</b>
@@ -3891,9 +4088,11 @@ export default function PortalOcorrencias() {
                     <h2>Resumo do registro</h2>
                     <dl>
                       <div>
-                        <dt>Cliente</dt>
+                        <dt>Empresa ou pessoa</dt>
                         <dd>
-                          {newForm.clientId
+                          {newForm.clientId === "other"
+                            ? newForm.otherClient || "Não informado"
+                            : newForm.clientId
                             ? getClient(newForm.clientId)
                             : "Não informado"}
                         </dd>
@@ -4023,8 +4222,8 @@ export default function PortalOcorrencias() {
                     </header>
                     <dl className="detail-grid">
                       <div>
-                        <dt>Cliente afetado</dt>
-                        <dd>{getClient(currentOccurrence.clientId)}</dd>
+                        <dt>Empresa ou pessoa afetada</dt>
+                        <dd>{getOccurrenceClient(currentOccurrence)}</dd>
                       </div>
                       <div>
                         <dt>Data e horário</dt>
@@ -4165,6 +4364,110 @@ export default function PortalOcorrencias() {
                   </section>
                 </aside>
               </div>
+            </>
+          )}
+
+          {view === "empresas" && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">Cadastros</span>
+                  <h1>Empresas</h1>
+                  <p>Cadastre as empresas que poderão ser selecionadas nas ocorrências.</p>
+                </div>
+              </div>
+              {referenceError && (
+                <div className="reference-error" role="alert">
+                  <CircleAlert size={18} />
+                  <span>{referenceError}</span>
+                </div>
+              )}
+              <section className="card company-manager">
+                <div className="company-create-card">
+                  <div>
+                    <span className="card-kicker">{editingClientId ? "Edição" : "Nova empresa"}</span>
+                    <h2>{editingClientId ? "Editar empresa" : "Cadastrar empresa"}</h2>
+                    <p>Use o nome pelo qual a equipe identifica a empresa.</p>
+                  </div>
+                  <div className="reference-form-row">
+                    <label className="field">
+                      <span>Nome da empresa</span>
+                      <input
+                        value={clientDraft}
+                        onChange={(event) => setClientDraft(event.target.value.slice(0, 80))}
+                        placeholder="Ex.: Empresa Exemplo Ltda."
+                      />
+                    </label>
+                    <button
+                      className="button button-primary"
+                      onClick={saveClientReference}
+                      disabled={saving || clientDraft.trim().length < 2}
+                    >
+                      {saving ? <span className="spinner" /> : <Check size={17} />}
+                      {editingClientId ? "Atualizar" : "Cadastrar"}
+                    </button>
+                    {editingClientId && (
+                      <button
+                        className="button button-ghost"
+                        onClick={() => {
+                          setEditingClientId(null);
+                          setClientDraft("");
+                          setReferenceError("");
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="company-list-card">
+                  <div className="reference-panel-heading">
+                    <div>
+                      <span className="card-kicker">Empresas cadastradas</span>
+                      <h3>Disponíveis nos registros</h3>
+                    </div>
+                    <strong>{clients.length}</strong>
+                  </div>
+                  <div className="reference-list">
+                    {clients.length === 0 ? (
+                      <p className="reference-list-empty">Nenhuma empresa cadastrada.</p>
+                    ) : clients.map((client) => (
+                      <div className="reference-list-item" key={client.id}>
+                        <div>
+                          <strong>{client.name}</strong>
+                          <small>Empresa ativa</small>
+                        </div>
+                        <div className="reference-list-actions">
+                          <button
+                            className="icon-button"
+                            onClick={() => {
+                              setEditingClientId(client.id);
+                              setClientDraft(client.name);
+                              setReferenceError("");
+                            }}
+                            aria-label={`Editar empresa ${client.name}`}
+                            title="Editar"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            className="icon-button danger-icon-button"
+                            onClick={() => setConfirmReferenceDelete({
+                              kind: "client",
+                              id: client.id,
+                              name: client.name,
+                            })}
+                            aria-label={`Excluir empresa ${client.name}`}
+                            title="Excluir"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
             </>
           )}
 
@@ -4694,7 +4997,7 @@ export default function PortalOcorrencias() {
 
       {selectedAction && (
         <Modal
-          title={`${selectedAction.number} · ${selectedAction.title}`}
+          title={`${selectedAction.systemId ? getSystem(selectedAction.systemId) : "Sistema não informado"} · ${selectedAction.title}`}
           description="Detalhes, prazo e acompanhamento da ação encaminhada."
           size="large"
           onClose={() => { setSelectedActionId(null); setEditingActionDetails(false); setActionUpdateEvidenceFiles([]); }}
@@ -4721,7 +5024,7 @@ export default function PortalOcorrencias() {
         >
           <div className="development-action-detail">
             <div className="development-action-card-toolbar">
-              <div><span>Informações da ação</span><strong>{selectedAction.number}</strong></div>
+              <div><span>ID da ação</span><strong>{selectedAction.number}</strong></div>
               {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>}
             </div>
             {editingActionDetails && currentUser.role !== "desenvolvedor" && (
@@ -4753,8 +5056,9 @@ export default function PortalOcorrencias() {
             <dl className="detail-grid">
               <div><dt>Status</dt><dd><Badge tone={selectedAction.status}>{selectedAction.status}</Badge></dd></div>
               <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
-              <div><dt>Sistema / módulo</dt><dd>{getActionSystemModule(selectedAction)}</dd></div>
-              <div><dt>Urgência</dt><dd><Badge tone={selectedAction.urgency || "Médio"}>{selectedAction.urgency || "Médio"}</Badge></dd></div>
+              <div><dt>Sistema</dt><dd>{selectedAction.systemId ? getSystem(selectedAction.systemId) : "Não informado"}</dd></div>
+              <div><dt>Categoria / módulo</dt><dd>{selectedAction.systemId && selectedAction.moduleId ? getModule(selectedAction.systemId, selectedAction.moduleId) : "Não informado"}</dd></div>
+              <div><dt>Prioridade</dt><dd><Badge tone={selectedAction.urgency || "Médio"}>{getActionPriority(selectedAction)}</Badge></dd></div>
               <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
               <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>
               <div><dt>Criada em</dt><dd>{formatDate(selectedAction.createdAt)}</dd></div>
@@ -4764,8 +5068,18 @@ export default function PortalOcorrencias() {
               {selectedAction.archivedAt && <div><dt>Arquivada por</dt><dd>{selectedAction.archivedBy ? getActionUser(selectedAction.archivedBy) : "Administrador"}</dd></div>}
               <div className="detail-span-2"><dt>Descrição do problema</dt><dd className="detail-description">{selectedAction.problemDescription}</dd></div>
               <div className="detail-span-2"><dt>Anotações do Desenvolvedor</dt><dd className="detail-description">{selectedAction.developerNotes || "Nenhuma anotação registrada."}</dd></div>
+              <div className="detail-span-2"><dt>Comentários</dt><dd className="detail-description">{selectedAction.analysisInformation || selectedAction.resolutionNotes || "Nenhum comentário registrado."}</dd></div>
               {selectedAction.resolutionNotes && <div className="detail-span-2"><dt>Validação do Suporte</dt><dd className="detail-description">{selectedAction.resolutionNotes}</dd></div>}
             </dl>
+
+            <section className="development-history-section">
+              <h3>Histórico</h3>
+              <div className="development-history-list">
+                <span><CheckCircle2 size={15} /><p><strong>Ação criada</strong><small>{formatDate(selectedAction.createdAt)}</small></p></span>
+                <span><RefreshCcw size={15} /><p><strong>Última atualização</strong><small>{formatDate(selectedAction.updatedAt)}</small></p></span>
+                <span><Clock3 size={15} /><p><strong>Status atual: {selectedAction.status}</strong><small>{selectedAction.dueAt ? `Previsão ${formatDate(selectedAction.dueAt)}` : "Sem previsão definida"}</small></p></span>
+              </div>
+            </section>
 
             <section className="development-evidence-section">
               <h3>Evidências</h3>
@@ -5218,9 +5532,11 @@ export default function PortalOcorrencias() {
       {confirmReferenceDelete && (
         <Modal
           title={
-            confirmReferenceDelete.kind === "system"
-              ? "Excluir sistema da visualização?"
-              : "Excluir módulo da visualização?"
+            confirmReferenceDelete.kind === "client"
+              ? "Excluir empresa da visualização?"
+              : confirmReferenceDelete.kind === "system"
+                ? "Excluir sistema da visualização?"
+                : "Excluir módulo da visualização?"
           }
           description="O cadastro continuará preservado no banco para auditoria."
           onClose={() => setConfirmReferenceDelete(null)}
@@ -5246,8 +5562,8 @@ export default function PortalOcorrencias() {
           <div className="safe-delete-copy">
             <strong>{confirmReferenceDelete.name}</strong>
             <p>
-              Se estiver sendo usado em um item do Catálogo ou ocorrência, o
-              sistema impedirá a exclusão e mostrará como corrigir.
+              Se este cadastro estiver sendo usado em uma ocorrência ou item do
+              Catálogo, o sistema impedirá a exclusão e mostrará como corrigir.
             </p>
           </div>
         </Modal>
