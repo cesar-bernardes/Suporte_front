@@ -2785,7 +2785,19 @@ export default function PortalOcorrencias() {
                                 <strong className="development-kanban-title">{action.title}</strong>
                                 <span className="development-kanban-reference"><span><BookOpenCheck size={14} /></span><span><strong>{action.systemId && action.moduleId ? getModule(action.systemId, action.moduleId) : "Módulo não informado"}</strong><small>Categoria / módulo</small></span></span>
                                 <span className="development-kanban-person"><UserRound size={14} />{getActionUser(action.developerId)}</span>
-                                <span className="development-kanban-deadline"><Clock3 size={14} /><span><small>Previsão</small><strong>{action.dueAt ? formatDate(action.dueAt) : "Não definida"}</strong></span></span>
+                                <span className="development-kanban-deadline">
+                                  <Clock3 size={14} />
+                                  <span>
+                                    <small>{action.status === "Encaminhada" ? "Criada em" : "Previsão"}</small>
+                                    <strong>
+                                      {action.status === "Encaminhada"
+                                        ? formatDate(action.createdAt, false)
+                                        : action.dueAt
+                                          ? formatDate(action.dueAt)
+                                          : "Não definida"}
+                                    </strong>
+                                  </span>
+                                </span>
                                 {isActionOverdue(action) && <span className="development-kanban-overdue"><AlertTriangle size={14} />Prazo atingido</span>}
                                 {action.archivedAt && <span className="development-kanban-archived"><Archive size={14} />Arquivada em {formatDate(action.archivedAt)}</span>}
                                 <span className="development-kanban-open"><Eye size={14} />Ver detalhes</span>
