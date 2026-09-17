@@ -55,6 +55,12 @@ import {
   useState,
 } from "react";
 import AgendaView from "./AgendaView";
+import {
+  formatOccurrenceDateTime,
+  normalizeOccurrenceDateTime,
+  occurrenceDateKey,
+  toOccurrenceDateTimeInput,
+} from "./occurrence-date-time";
 
 type Role = "suporte" | "desenvolvedor" | "administrador";
 type Severity = "Baixa" | "Média" | "Alta" | "Crítica";
@@ -274,15 +280,6 @@ function getPeriodBounds(
   }
 
   return { start, end };
-}
-
-function getLocalDateKey(value: string | Date) {
-  const date = typeof value === "string" ? new Date(value) : value;
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
 }
 
 function formatDailyLabel(value: string) {
@@ -673,18 +670,22 @@ export default function PortalOcorrencias() {
           credentials: "same-origin",
           cache: "no-store",
         });
-        if (occurrencesResponse.ok) {
-          const payload = (await occurrencesResponse.json()) as {
-            occurrences: Occurrence[];
-          };
-          if (active) {
-            setOccurrences(payload.occurrences);
-            setSelectedOccurrenceId((current) =>
-              current && payload.occurrences.some((item) => item.id === current)
-                ? current
-                : payload.occurrences[0]?.id || "",
-            );
-          }
+        const occurrencesPayload = (await occurrencesResponse.json().catch(() => ({}))) as {
+          occurrences?: Occurrence[];
+          message?: string;
+        };
+        if (!occurrencesResponse.ok || !occurrencesPayload.occurrences) {
+          throw new Error(
+            occurrencesPayload.message || "Não foi possível carregar as ocorrências.",
+          );
+        }
+        if (active) {
+          setOccurrences(occurrencesPayload.occurrences);
+          setSelectedOccurrenceId((current) =>
+            current && occurrencesPayload.occurrences?.some((item) => item.id === current)
+              ? current
+              : occurrencesPayload.occurrences?.[0]?.id || "",
+          );
         }
         const catalogResponse = await fetch("/api/catalog", {
           credentials: "same-origin",
@@ -786,11 +787,11 @@ export default function PortalOcorrencias() {
         }
       } catch (error) {
         if (active) {
-          setUsersError(
-            error instanceof Error
-              ? error.message
-              : "Não foi possível carregar os usuários.",
-          );
+          const message = error instanceof Error
+            ? error.message
+            : "Não foi possível atualizar os dados do portal.";
+          setApiError(message);
+          setUsersError(message);
         }
       } finally {
         if (active) {
@@ -814,11 +815,14 @@ export default function PortalOcorrencias() {
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") refresh();
     };
-    const intervalId = window.setInterval(refresh, 30_000);
+    const clockIntervalId = window.setInterval(
+      () => setCurrentTime(Date.now()),
+      30_000,
+    );
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
-      window.clearInterval(intervalId);
+      window.clearInterval(clockIntervalId);
       window.removeEventListener("focus", refresh);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
@@ -854,7 +858,8 @@ export default function PortalOcorrencias() {
   const currentOccurrence = visibleOccurrences.find(
     (item) => item.id === selectedOccurrenceId,
   );
-  const canManageCatalog = Boolean(currentUser);
+  const canManageCatalog =
+    currentUser?.role === "suporte" || currentUser?.role === "administrador";
   const generalModuleIds = new Set(
     systems.flatMap((system) =>
       system.modules.filter((module) => module.isGeneral).map((module) => module.id),
@@ -1470,7 +1475,7 @@ export default function PortalOcorrencias() {
       otherError: "",
       description: "",
       severity: "Média",
-      occurredAt: toDateTimeLocal(new Date()),
+      occurredAt: toOccurrenceDateTimeInput(new Date()),
       status: "Novo",
       responsibleId: currentUser?.id || "",
       attachments: [],
@@ -1523,15 +1528,19 @@ export default function PortalOcorrencias() {
     ) {
       errors.otherError = "Descreva o erro com pelo menos 8 caracteres.";
     }
+    const normalizedOccurredAt = newForm.occurredAt
+      ? normalizeOccurrenceDateTime(newForm.occurredAt)
+      : null;
     if (!newForm.occurredAt) errors.occurredAt = "Informe data e horário.";
+    else if (!normalizedOccurredAt) errors.occurredAt = "Informe uma data e um horário válidos.";
     if (!newForm.responsibleId) {
       errors.responsibleId = "Selecione o responsável.";
     }
-    if (new Date(newForm.occurredAt).getTime() > Date.now()) {
+    if (normalizedOccurredAt && Date.parse(normalizedOccurredAt) > Date.now()) {
       errors.occurredAt = "A data da ocorrência não pode estar no futuro.";
     }
     setFormErrors(errors);
-    if (Object.keys(errors).length) return;
+    if (Object.keys(errors).length || !normalizedOccurredAt) return;
 
     setSaving(true);
     try {
@@ -1539,7 +1548,10 @@ export default function PortalOcorrencias() {
         "/api/occurrences",
         {
           method: "POST",
-          body: JSON.stringify(newForm),
+          body: JSON.stringify({
+            ...newForm,
+            occurredAt: normalizedOccurredAt,
+          }),
         },
       );
       const newOccurrence = payload.occurrence;
@@ -2363,7 +2375,7 @@ export default function PortalOcorrencias() {
 
   const dailyEvolution = (() => {
     const counts = dashboardData.reduce<Map<string, number>>((map, item) => {
-      const key = getLocalDateKey(item.occurredAt);
+      const key = occurrenceDateKey(item.occurredAt);
       map.set(key, (map.get(key) || 0) + 1);
       return map;
     }, new Map());
@@ -2385,7 +2397,7 @@ export default function PortalOcorrencias() {
     const points: { key: string; label: string; count: number }[] = [];
     const cursor = new Date(startDate);
     while (cursor.getTime() <= endDate.getTime()) {
-      const key = getLocalDateKey(cursor);
+      const key = occurrenceDateKey(cursor.toISOString());
       points.push({ key, label: formatDailyLabel(key), count: counts.get(key) || 0 });
       cursor.setDate(cursor.getDate() + 1);
     }
@@ -3335,7 +3347,7 @@ export default function PortalOcorrencias() {
                                 >
                                   {item.number}
                                 </button>
-                                <small>{formatDate(item.occurredAt)}</small>
+                                <small>{formatOccurrenceDateTime(item.occurredAt)}</small>
                               </td>
                               <td>{getOccurrenceClient(item)}</td>
                               <td className="table-error">
@@ -3550,7 +3562,7 @@ export default function PortalOcorrencias() {
                         {paginatedRecords.map((item) => (
                           <tr key={item.id}>
                             <td>
-                              <strong>{formatDate(item.occurredAt)}</strong>
+                              <strong>{formatOccurrenceDateTime(item.occurredAt)}</strong>
                               <small>{item.number}</small>
                             </td>
                             <td>{getOccurrenceClient(item)}</td>
@@ -3966,7 +3978,7 @@ export default function PortalOcorrencias() {
                         <input
                           type="datetime-local"
                           value={newForm.occurredAt}
-                          max={toDateTimeLocal(new Date())}
+                          max={toOccurrenceDateTimeInput(new Date())}
                           onChange={(event) =>
                             setNewForm({
                               ...newForm,
@@ -4239,7 +4251,7 @@ export default function PortalOcorrencias() {
                       </div>
                       <div>
                         <dt>Data e horário</dt>
-                        <dd>{formatDate(currentOccurrence.occurredAt)}</dd>
+                        <dd>{formatOccurrenceDateTime(currentOccurrence.occurredAt)}</dd>
                       </div>
                       <div>
                         <dt>Sistema</dt>
