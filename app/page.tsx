@@ -193,7 +193,7 @@ const SEVERITIES: Severity[] = ["Baixa", "Média", "Alta", "Crítica"];
 
 const roleLabel: Record<Role, string> = {
   suporte: "Suporte",
-  desenvolvedor: "Desenvolvedor",
+  desenvolvedor: "Implementador",
   administrador: "Administrador",
 };
 
@@ -203,11 +203,12 @@ const rolePermissions: Record<Role, string[]> = {
     "Criar registros",
     "Atualizar ocorrências próprias",
     "Manter o Catálogo",
+    "Criar e acompanhar ações",
   ],
   desenvolvedor: [
-    "Visualizar ações atribuídas",
-    "Definir previsão de resolução",
-    "Atualizar andamento e enviar para validação",
+    "Criar e acompanhar ações",
+    "Editar, mover e arquivar ações",
+    "Definir previsão e registrar evidências",
   ],
   administrador: [
     "Acesso completo",
@@ -1090,7 +1091,7 @@ export default function PortalOcorrencias() {
     const firstSystem = systems[0];
     setActionDraft({
       title: "", problemDescription: "",
-      identifiedAt: toDateTimeLocal(new Date()), developerId: developerUsers[0]?.id || "",
+      identifiedAt: toDateTimeLocal(new Date()), developerId: currentUser?.role === "desenvolvedor" ? currentUser.id : developerUsers[0]?.id || "",
       systemId: firstSystem?.id || "", moduleId: firstSystem?.modules[0]?.id || "",
       urgency: "Médio",
     });
@@ -1160,7 +1161,7 @@ export default function PortalOcorrencias() {
       return;
     }
     if (!actionDraft.developerId) {
-      setActionFormError("Cadastre e selecione um Desenvolvedor ativo.");
+      setActionFormError("Cadastre e selecione um Implementador ativo.");
       return;
     }
     setSaving(true);
@@ -1176,7 +1177,7 @@ export default function PortalOcorrencias() {
       }
       setActionModalOpen(false);
       setSelectedActionId(action.id);
-      setToast("Ação encaminhada ao Desenvolvedor.");
+      setToast("Ação criada e encaminhada ao Implementador.");
     } catch (error) {
       setActionFormError(error instanceof Error ? error.message : "Não foi possível criar a ação.");
     } finally {
@@ -1367,7 +1368,7 @@ export default function PortalOcorrencias() {
   }
 
   async function setDevelopmentActionArchived(action: DevelopmentAction, archived: boolean) {
-    if (!currentUser || currentUser.role === "desenvolvedor") return;
+    if (!currentUser) return;
     if (!archived && currentUser.role !== "administrador") return;
     setSaving(true);
     setActionFormError("");
@@ -2543,7 +2544,7 @@ export default function PortalOcorrencias() {
           </span>
           <p>
             {currentUser.role === "desenvolvedor" ? (
-              <><strong>{developmentActions.filter((action) => !isActionClosed(action)).length} ações abertas</strong>atribuídas a você</>
+              <><strong>{developmentActions.filter((action) => !isActionClosed(action)).length} ações abertas</strong>no quadro</>
             ) : (
               <><strong>{overdueActions.length} prazos atingidos</strong>aguardando verificação</>
             )}
@@ -2662,7 +2663,7 @@ export default function PortalOcorrencias() {
                       <button type="button" className={actionListMode === "archived" ? "is-active" : ""} onClick={() => void loadArchivedDevelopmentActions()}><Archive size={16} />Arquivadas</button>
                     </div>
                   )}
-                  {currentUser.role !== "desenvolvedor" && actionListMode === "active" && (
+                  {actionListMode === "active" && (
                     <button className="button button-primary" onClick={openNewDevelopmentAction}>
                       <Plus size={18} /> Nova ação
                     </button>
@@ -2699,12 +2700,12 @@ export default function PortalOcorrencias() {
                 {actionSystemChips.map((system) => <button type="button" key={system.id} className={actionSystemFilter === system.id ? "is-active" : ""} onClick={() => setActionSystemFilter(system.id)}><Building2 size={15} /><span>{system.name}</span><strong>{system.count}</strong></button>)}
               </nav>
 
-              {actionListMode === "active" && currentUser.role !== "desenvolvedor" && filteredOverdueActions.length > 0 && (
+              {actionListMode === "active" && filteredOverdueActions.length > 0 && (
                 <div className="development-deadline-alert" role="alert">
                   <AlertTriangle size={22} />
                   <div>
                     <strong>{filteredOverdueActions.length} {filteredOverdueActions.length === 1 ? "prazo foi atingido" : "prazos foram atingidos"}</strong>
-                    <span>Verifique com o Desenvolvedor e valide se o problema foi solucionado.</span>
+                    <span>Verifique com o Implementador e valide se o problema foi solucionado.</span>
                   </div>
                 </div>
               )}
@@ -4809,7 +4810,7 @@ export default function PortalOcorrencias() {
                       >
                         <option value="all">Todos os perfis</option>
                         <option value="suporte">Suporte</option>
-                        <option value="desenvolvedor">Desenvolvedor</option>
+                        <option value="desenvolvedor">Implementador</option>
                         <option value="administrador">Administrador</option>
                       </select>
                     </label>
@@ -4939,9 +4940,9 @@ export default function PortalOcorrencias() {
         </main>
       </div>
 
-      {actionModalOpen && currentUser.role !== "desenvolvedor" && (
+      {actionModalOpen && (
         <Modal
-          title="Nova ação para Desenvolvedor"
+          title="Nova ação para Implementador"
           description="Encaminhe o problema com contexto suficiente para análise e correção."
           size="large"
           onClose={() => setActionModalOpen(false)}
@@ -4986,12 +4987,12 @@ export default function PortalOcorrencias() {
               <input type="datetime-local" value={actionDraft.identifiedAt} onChange={(event) => setActionDraft({ ...actionDraft, identifiedAt: event.target.value })} />
             </label>
             <label className="field">
-              <span>Desenvolvedor responsável <b>*</b></span>
+              <span>Implementador responsável <b>*</b></span>
               <select value={actionDraft.developerId} onChange={(event) => setActionDraft({ ...actionDraft, developerId: event.target.value })}>
                 <option value="">Selecione</option>
                 {developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}
               </select>
-              {developerUsers.length === 0 && <small className="field-help">Crie primeiro uma conta com o perfil Desenvolvedor na aba Usuários.</small>}
+              {developerUsers.length === 0 && <small className="field-help">Crie primeiro uma conta com o perfil Implementador na aba Usuários.</small>}
             </label>
             <label className="field">
               <span>Urgência <b>*</b></span>
@@ -5034,7 +5035,7 @@ export default function PortalOcorrencias() {
                   <ArchiveRestore size={17} /> Restaurar ação
                 </button>
               )}
-              {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && isActionClosed(selectedAction) && (
+              {!selectedAction.archivedAt && isActionClosed(selectedAction) && (
                 <button className="button button-secondary" onClick={() => void setDevelopmentActionArchived(selectedAction, true)} disabled={saving}>
                   <Archive size={17} /> Arquivar ação
                 </button>
@@ -5051,9 +5052,9 @@ export default function PortalOcorrencias() {
           <div className="development-action-detail">
             <div className="development-action-card-toolbar">
               <div><span>ID da ação</span><strong>{selectedAction.number}</strong></div>
-              {currentUser.role !== "desenvolvedor" && !selectedAction.archivedAt && <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>}
+              {!selectedAction.archivedAt && <button type="button" className="icon-button" onClick={() => startEditingActionDetails(selectedAction)} aria-label="Editar informações da ação" title="Editar informações da ação"><Pencil size={18} /></button>}
             </div>
-            {editingActionDetails && currentUser.role !== "desenvolvedor" && (
+            {editingActionDetails && (
               <section className="development-action-edit-panel">
                 <div className="development-action-edit-heading">
                   <div><h3>Editar informações</h3><p>Atualize os dados principais sem alterar o histórico da ação.</p></div>
@@ -5066,7 +5067,7 @@ export default function PortalOcorrencias() {
                   <label className="field"><span>Módulo <b>*</b></span><select value={actionDetailsDraft.moduleId} disabled={!actionDetailsDraft.systemId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, moduleId: event.target.value })}><option value="">Selecione</option>{systems.find((system) => system.id === actionDetailsDraft.systemId)?.modules.map((module) => <option key={module.id} value={module.id}>{module.name}</option>)}</select></label>
                   <label className="field"><span>Urgência <b>*</b></span><select value={actionDetailsDraft.urgency} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, urgency: event.target.value as DevelopmentActionUrgency })}>{DEVELOPMENT_URGENCY_OPTIONS.map((urgency) => <option key={urgency}>{urgency}</option>)}</select></label>
                   <label className="field"><span>Data da identificação <b>*</b></span><input type="datetime-local" value={actionDetailsDraft.identifiedAt} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, identifiedAt: event.target.value })} /></label>
-                  <label className="field field-span-2"><span>Desenvolvedor responsável <b>*</b></span><select value={actionDetailsDraft.developerId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, developerId: event.target.value })}>{developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
+                  <label className="field field-span-2"><span>Implementador responsável <b>*</b></span><select value={actionDetailsDraft.developerId} onChange={(event) => setActionDetailsDraft({ ...actionDetailsDraft, developerId: event.target.value })}>{developerUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
                 </div>
                 <div className="development-action-edit-actions">
                   <button type="button" className="button button-ghost" onClick={() => setEditingActionDetails(false)} disabled={saving}>Cancelar</button>
@@ -5081,7 +5082,7 @@ export default function PortalOcorrencias() {
             )}
             <dl className="detail-grid">
               <div><dt>Status</dt><dd><Badge tone={selectedAction.status}>{selectedAction.status}</Badge></dd></div>
-              <div><dt>Desenvolvedor</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
+              <div><dt>Implementador</dt><dd>{getActionUser(selectedAction.developerId)}</dd></div>
               <div><dt>Sistema</dt><dd>{selectedAction.systemId ? getSystem(selectedAction.systemId) : "Não informado"}</dd></div>
               <div><dt>Categoria / módulo</dt><dd>{selectedAction.systemId && selectedAction.moduleId ? getModule(selectedAction.systemId, selectedAction.moduleId) : "Não informado"}</dd></div>
               <div><dt>Prioridade</dt><dd><Badge tone={selectedAction.urgency || "Médio"}>{getActionPriority(selectedAction)}</Badge></dd></div>
@@ -5835,7 +5836,7 @@ export default function PortalOcorrencias() {
                 onChange={(event) => setUserDraft({ ...userDraft, role: event.target.value as Role })}
               >
                 <option value="suporte">Suporte</option>
-                <option value="desenvolvedor">Desenvolvedor</option>
+                <option value="desenvolvedor">Implementador</option>
                 <option value="administrador">Administrador</option>
               </select>
             </label>
