@@ -20,6 +20,8 @@ test("mantém a estrutura visual do Portal", async () => {
   assert.match(page, /currentUser\?\.role === "suporte"/);
   assert.match(page, /setCurrentTime\(Date\.now\(\)\)/);
   assert.doesNotMatch(page, /setInterval\(refresh,\s*30_000\)/);
+  assert.match(page, /label: "Ação"/);
+  assert.match(page, /currentUser\?\.role === "desenvolvedor" \|\| currentUser\?\.role === "suporte"/);
   assert.match(page, /role="dialog"/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(max-width: 960px\)/);

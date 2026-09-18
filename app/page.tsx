@@ -860,6 +860,8 @@ export default function PortalOcorrencias() {
   );
   const canManageCatalog =
     currentUser?.role === "suporte" || currentUser?.role === "administrador";
+  const canOperateDevelopmentActions =
+    currentUser?.role === "desenvolvedor" || currentUser?.role === "suporte";
   const generalModuleIds = new Set(
     systems.flatMap((system) =>
       system.modules.filter((module) => module.isGeneral).map((module) => module.id),
@@ -1252,7 +1254,7 @@ export default function PortalOcorrencias() {
       setActionUpdateEvidenceFiles([]);
       setToast(
         developerActionDraft.status === "Resolvida"
-          ? "Ação finalizada pelo Desenvolvedor."
+          ? "Ação finalizada."
           : developerActionDraft.status === "Reprovada"
             ? "Ação marcada como reprovada."
           : actionUpdateEvidenceFiles.length
@@ -1267,7 +1269,7 @@ export default function PortalOcorrencias() {
   }
 
   async function moveDevelopmentAction(actionId: string, status: DevelopmentActionStatus) {
-    if (currentUser?.role !== "desenvolvedor") return;
+    if (!canOperateDevelopmentActions) return;
     const previousAction = developmentActions.find((action) => action.id === actionId);
     if (!previousAction || previousAction.status === status || movingActionId) return;
 
@@ -1302,7 +1304,7 @@ export default function PortalOcorrencias() {
   }
 
   function startDevelopmentActionDrag(event: DragEvent<HTMLElement>, actionId: string) {
-    if (currentUser?.role !== "desenvolvedor" || movingActionId) {
+    if (!canOperateDevelopmentActions || movingActionId) {
       event.preventDefault();
       return;
     }
@@ -2436,12 +2438,12 @@ export default function PortalOcorrencias() {
   const dailyLabelStep = Math.max(1, Math.ceil(dailyEvolution.length / 7));
 
   const navItems = currentUser.role === "desenvolvedor"
-    ? [{ id: "acoes" as View, label: "Ações para Desenvolvedores", icon: Code2 }]
+    ? [{ id: "acoes" as View, label: "Ação", icon: Code2 }]
     : [
         { id: "dashboard" as View, label: "Dashboard", icon: LayoutDashboard },
         { id: "registros" as View, label: "Registro", icon: ClipboardList },
         { id: "agenda" as View, label: "Agenda", icon: CalendarDays },
-        { id: "acoes" as View, label: "Ações para Desenvolvedores", icon: Code2 },
+        { id: "acoes" as View, label: "Ação", icon: Code2 },
       ];
   const administrationItems = currentUser.role === "desenvolvedor"
     ? []
@@ -2650,7 +2652,7 @@ export default function PortalOcorrencias() {
               <div className="page-heading">
                 <div>
                   <span className="eyebrow">Desenvolvimento</span>
-                  <h1>Ações para Desenvolvedores</h1>
+                  <h1>Ação</h1>
                   <p>Acompanhe encaminhamentos, previsões, prazos e validações das correções.</p>
                 </div>
                 <div className="development-heading-actions">
@@ -2737,7 +2739,7 @@ export default function PortalOcorrencias() {
                     <Building2 size={18} />
                     <span>{actionSystemFilter === "all" ? "Todos os sistemas" : systems.find((system) => system.id === actionSystemFilter)?.name || "Sistema selecionado"}</span>
                   </div>
-                  <div className="development-kanban-summary"><strong>{filteredDevelopmentActions.length}</strong><span>{filteredDevelopmentActions.length === 1 ? "ação" : "ações"} {actionListMode === "archived" ? "arquivadas" : "no quadro"}</span>{actionListMode === "active" && currentUser.role === "desenvolvedor" && <small>Arraste os cartões para alterar o status</small>}</div>
+                  <div className="development-kanban-summary"><strong>{filteredDevelopmentActions.length}</strong><span>{filteredDevelopmentActions.length === 1 ? "ação" : "ações"} {actionListMode === "archived" ? "arquivadas" : "no quadro"}</span>{actionListMode === "active" && canOperateDevelopmentActions && <small>Arraste os cartões para alterar o status</small>}</div>
                 </div>
                 {actionsLoading ? (
                   <div className="users-loading"><span className="spinner" />Carregando ações…</div>
@@ -2757,10 +2759,10 @@ export default function PortalOcorrencias() {
                           className={`development-kanban-column kanban-${toneClass(status)}${dragOverStatus === status ? " is-drag-over" : ""}`}
                           key={status}
                           aria-label={`${status}: ${columnActions.length} ações`}
-                          onDragEnter={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => { event.preventDefault(); setDragOverStatus(status); } : undefined}
-                          onDragOver={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; setDragOverStatus(status); } : undefined}
-                          onDragLeave={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragOverStatus(null); } : undefined}
-                          onDrop={actionListMode === "active" && currentUser.role === "desenvolvedor" ? (event) => dropDevelopmentAction(event, status) : undefined}
+                          onDragEnter={actionListMode === "active" && canOperateDevelopmentActions ? (event) => { event.preventDefault(); setDragOverStatus(status); } : undefined}
+                          onDragOver={actionListMode === "active" && canOperateDevelopmentActions ? (event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; } : undefined}
+                          onDragLeave={actionListMode === "active" && canOperateDevelopmentActions ? (event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragOverStatus(null); } : undefined}
+                          onDrop={actionListMode === "active" && canOperateDevelopmentActions ? (event) => dropDevelopmentAction(event, status) : undefined}
                         >
                           <header>
                             <span className="kanban-status-mark" aria-hidden="true" />
@@ -2781,7 +2783,7 @@ export default function PortalOcorrencias() {
                               >
                                 <span className="development-kanban-card-top">
                                   <span className="development-kanban-card-identity">
-                                    {actionListMode === "active" && currentUser.role === "desenvolvedor" && <span
+                                    {actionListMode === "active" && canOperateDevelopmentActions && <span
                                       className="development-kanban-drag-handle"
                                       draggable={movingActionId !== action.id}
                                       title="Arrastar cartão"
@@ -5086,12 +5088,12 @@ export default function PortalOcorrencias() {
               <div><dt>Registrado por</dt><dd>{getActionUser(selectedAction.supportId)}</dd></div>
               <div><dt>Identificado em</dt><dd>{formatDate(selectedAction.identifiedAt)}</dd></div>
               <div><dt>Criada em</dt><dd>{formatDate(selectedAction.createdAt)}</dd></div>
-              <div className="development-due-date"><dt>Prazo definido pelo Desenvolvedor</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda não definido"}</dd></div>
+              <div className="development-due-date"><dt>Prazo definido</dt><dd>{selectedAction.dueAt ? formatDate(selectedAction.dueAt) : "Ainda não definido"}</dd></div>
               <div><dt>Encerrado em</dt><dd>{selectedAction.resolvedAt ? formatDate(selectedAction.resolvedAt) : "—"}</dd></div>
               {selectedAction.archivedAt && <div><dt>Arquivada em</dt><dd>{formatDate(selectedAction.archivedAt)}</dd></div>}
               {selectedAction.archivedAt && <div><dt>Arquivada por</dt><dd>{selectedAction.archivedBy ? getActionUser(selectedAction.archivedBy) : "Administrador"}</dd></div>}
               <div className="detail-span-2"><dt>Descrição do problema</dt><dd className="detail-description">{selectedAction.problemDescription}</dd></div>
-              <div className="detail-span-2"><dt>Anotações do Desenvolvedor</dt><dd className="detail-description">{selectedAction.developerNotes || "Nenhuma anotação registrada."}</dd></div>
+              <div className="detail-span-2"><dt>Anotações de acompanhamento</dt><dd className="detail-description">{selectedAction.developerNotes || "Nenhuma anotação registrada."}</dd></div>
               <div className="detail-span-2"><dt>Comentários</dt><dd className="detail-description">{selectedAction.analysisInformation || selectedAction.resolutionNotes || "Nenhum comentário registrado."}</dd></div>
               {selectedAction.resolutionNotes && <div className="detail-span-2"><dt>Validação do Suporte</dt><dd className="detail-description">{selectedAction.resolutionNotes}</dd></div>}
             </dl>
@@ -5120,7 +5122,7 @@ export default function PortalOcorrencias() {
               ) : <p className="muted-copy">Nenhuma evidência anexada.</p>}
             </section>
 
-            {currentUser.role === "desenvolvedor" && !selectedAction.archivedAt && !isActionClosed(selectedAction) && (
+            {canOperateDevelopmentActions && !selectedAction.archivedAt && !isActionClosed(selectedAction) && (
               <section className="development-workflow-panel">
                 <h3>Atualizar análise e previsão</h3>
                 <div className="form-grid">
