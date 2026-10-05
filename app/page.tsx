@@ -2341,25 +2341,42 @@ export default function PortalOcorrencias() {
   const dashboardCritical = dashboardData.filter((item) =>
     ["Alta", "Crítica"].includes(item.severity),
   ).length;
-  const catalogCounts = catalog
-    .map((entry) => ({
-      id: entry.id,
-      name: entry.name,
-      count: dashboardData.filter((item) => item.catalogItemId === entry.id)
-        .length,
-    }))
+  const catalogCounts = Array.from(
+    dashboardData.reduce<
+      Map<string, { id: string; name: string; count: number }>
+    >((counts, item) => {
+      const name = getCatalogName(item);
+      const id = item.catalogItemId || `other:${normalizeText(name)}`;
+      const current = counts.get(id);
+      counts.set(id, {
+        id,
+        name,
+        count: (current?.count || 0) + 1,
+      });
+      return counts;
+    }, new Map()).values(),
+  )
     .sort((a, b) => b.count - a.count);
   const recurrent = catalogCounts[0];
-  const systemCounts = systems.map((system) => ({
-    ...system,
-    count: dashboardData.filter((item) => item.systemId === system.id).length,
-  }));
+  const systemCounts = systems
+    .map((system) => ({
+      ...system,
+      count: dashboardData.filter((item) => item.systemId === system.id).length,
+    }))
+    .filter((item) => item.count > 0);
   const mostAffected = [...systemCounts].sort((a, b) => b.count - a.count)[0];
   const maxSystemCount = Math.max(1, ...systemCounts.map((item) => item.count));
   const statusCounts = STATUS_OPTIONS.map((status) => ({
     status,
     count: dashboardData.filter((item) => item.status === status).length,
   })).filter((item) => item.count > 0);
+  const severityCounts = SEVERITIES.slice()
+    .reverse()
+    .map((severity) => ({
+      severity,
+      count: dashboardData.filter((item) => item.severity === severity).length,
+    }))
+    .filter((item) => item.count > 0);
   let donutCursor = 0;
   const donutColors = ["#0f766e", "#2d6ca2", "#e1a42f", "#42a474", "#94a3b8"];
   const donutParts = statusCounts.map((item, index) => {
@@ -2382,27 +2399,19 @@ export default function PortalOcorrencias() {
       map.set(key, (map.get(key) || 0) + 1);
       return map;
     }, new Map());
-    const timestamps = dashboardData.map((item) =>
-      new Date(item.occurredAt).getTime(),
+    const occurrenceDays = Array.from(counts.keys()).sort();
+    const fallbackDay = occurrenceDateKey(new Date(currentTime).toISOString());
+    const startDate = new Date(`${occurrenceDays[0] || fallbackDay}T12:00:00Z`);
+    const endDate = new Date(
+      `${occurrenceDays[occurrenceDays.length - 1] || fallbackDay}T12:00:00Z`,
     );
-    const now = currentTime;
-    const startTimestamp =
-      dashboardPeriodBounds.start ||
-      (timestamps.length ? Math.min(...timestamps) : now);
-    const endTimestamp = Number.isFinite(dashboardPeriodBounds.end)
-      ? Math.min(dashboardPeriodBounds.end, now)
-      : now;
-    const startDate = new Date(startTimestamp);
-    const endDate = new Date(Math.max(startTimestamp, endTimestamp));
-    startDate.setHours(12, 0, 0, 0);
-    endDate.setHours(12, 0, 0, 0);
 
     const points: { key: string; label: string; count: number }[] = [];
     const cursor = new Date(startDate);
     while (cursor.getTime() <= endDate.getTime()) {
-      const key = occurrenceDateKey(cursor.toISOString());
+      const key = cursor.toISOString().slice(0, 10);
       points.push({ key, label: formatDailyLabel(key), count: counts.get(key) || 0 });
-      cursor.setDate(cursor.getDate() + 1);
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
     }
     return points;
   })();
@@ -3282,12 +3291,7 @@ export default function PortalOcorrencias() {
                         </div>
                       </header>
                       <div className="severity-list">
-                        {SEVERITIES.slice()
-                          .reverse()
-                          .map((severity) => {
-                            const count = dashboardData.filter(
-                              (item) => item.severity === severity,
-                            ).length;
+                        {severityCounts.map(({ severity, count }) => {
                             return (
                               <div key={severity}>
                                 <span className={"severity-dot " + toneClass(severity)} />
