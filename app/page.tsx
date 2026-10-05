@@ -581,6 +581,7 @@ export default function PortalOcorrencias() {
     responsibleId: "",
     attachments: [] as string[],
   });
+  const [newEvidenceFiles, setNewEvidenceFiles] = useState<File[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -1483,6 +1484,7 @@ export default function PortalOcorrencias() {
       responsibleId: currentUser?.id || "",
       attachments: [],
     });
+    setNewEvidenceFiles([]);
     setFormErrors({});
   }
 
@@ -1499,17 +1501,32 @@ export default function PortalOcorrencias() {
         file.type === "video/mp4" ||
         file.type === "text/plain",
     );
+    if (files.length > 3) {
+      setFormErrors((current) => ({
+        ...current,
+        attachments: "Cada ocorrência pode ter no máximo 3 evidências.",
+      }));
+      return;
+    }
     if (allowed.length !== files.length) {
       setFormErrors((current) => ({
         ...current,
         attachments: "Use PNG, JPG, WEBP, MP4 ou TXT.",
       }));
-    } else {
-      setFormErrors((current) => ({ ...current, attachments: "" }));
+      return;
     }
+    if (allowed.some((file) => file.size > 10 * 1024 * 1024)) {
+      setFormErrors((current) => ({
+        ...current,
+        attachments: "Cada evidência pode ter no máximo 10 MB.",
+      }));
+      return;
+    }
+    setFormErrors((current) => ({ ...current, attachments: "" }));
+    setNewEvidenceFiles(allowed);
     setNewForm((current) => ({
       ...current,
-      attachments: allowed.slice(0, 3).map((file) => file.name),
+      attachments: allowed.map((file) => file.name),
     }));
   }
 
@@ -1539,7 +1556,7 @@ export default function PortalOcorrencias() {
     if (!newForm.responsibleId) {
       errors.responsibleId = "Selecione o responsável.";
     }
-    if (normalizedOccurredAt && Date.parse(normalizedOccurredAt) > Date.now()) {
+    if (normalizedOccurredAt && Date.parse(normalizedOccurredAt) > currentTime) {
       errors.occurredAt = "A data da ocorrência não pode estar no futuro.";
     }
     setFormErrors(errors);
@@ -1553,13 +1570,38 @@ export default function PortalOcorrencias() {
           method: "POST",
           body: JSON.stringify({
             ...newForm,
+            attachments: [],
             occurredAt: normalizedOccurredAt,
           }),
         },
       );
-      const newOccurrence = payload.occurrence;
+      let newOccurrence = payload.occurrence;
+      if (newEvidenceFiles.length) {
+        try {
+          const upload = await uploadOccurrenceEvidence(
+            newOccurrence.id,
+            newEvidenceFiles,
+          );
+          newOccurrence = upload.occurrence;
+        } catch (error) {
+          setOccurrences((current) => [newOccurrence, ...current]);
+          setSelectedOccurrenceId(newOccurrence.id);
+          setNewEvidenceFiles([]);
+          setToast(
+            "A ocorrência foi registrada, mas as evidências não foram enviadas. Edite o registro para anexá-las novamente.",
+          );
+          setApiError(
+            error instanceof Error
+              ? error.message
+              : "Não foi possível enviar as evidências.",
+          );
+          setView("detalhe");
+          return;
+        }
+      }
       setOccurrences((current) => [newOccurrence, ...current]);
       setSelectedOccurrenceId(newOccurrence.id);
+      setNewEvidenceFiles([]);
       setToast("Ocorrência registrada com sucesso.");
       setView("detalhe");
     } catch {
@@ -1575,7 +1617,9 @@ export default function PortalOcorrencias() {
       severity: item.severity,
       status: item.status,
       responsibleId: item.responsibleId,
-      attachments: item.attachments,
+      attachments: item.attachments.filter((path) =>
+        path.startsWith(`${item.id}/`),
+      ),
     });
     setEditEvidenceFiles([]);
     setEditEvidenceError("");
@@ -1606,11 +1650,16 @@ export default function PortalOcorrencias() {
     setEditEvidenceError("");
   }
 
-  async function uploadOccurrenceEvidence(occurrenceId: string) {
-    if (!editEvidenceFiles.length) return [] as string[];
+  async function uploadOccurrenceEvidence(
+    occurrenceId: string,
+    files: File[],
+  ): Promise<{ attachments: string[]; occurrence: Occurrence }> {
+    if (!files.length) {
+      throw new Error("Nenhuma evidência foi selecionada.");
+    }
     const form = new FormData();
     form.append("occurrenceId", occurrenceId);
-    editEvidenceFiles.forEach((file) => form.append("files", file));
+    files.forEach((file) => form.append("files", file));
     const response = await fetch("/api/occurrences", {
       method: "POST",
       credentials: "same-origin",
@@ -1618,20 +1667,27 @@ export default function PortalOcorrencias() {
     });
     const payload = (await response.json().catch(() => ({}))) as {
       attachments?: string[];
+      occurrence?: Occurrence;
       message?: string;
     };
-    if (!response.ok || !payload.attachments) {
+    if (!response.ok || !payload.attachments || !payload.occurrence) {
       throw new Error(payload.message || "Não foi possível enviar as evidências.");
     }
-    return payload.attachments;
+    return {
+      attachments: payload.attachments,
+      occurrence: payload.occurrence,
+    };
   }
 
   async function saveOccurrenceEdit() {
     if (!currentOccurrence) return;
     setSaving(true);
     try {
-      const uploadedAttachments = await uploadOccurrenceEvidence(currentOccurrence.id);
-      const attachments = [...editDraft.attachments, ...uploadedAttachments];
+      const upload = editEvidenceFiles.length
+        ? await uploadOccurrenceEvidence(currentOccurrence.id, editEvidenceFiles)
+        : null;
+      const uploadedAttachments = upload?.attachments ?? [];
+      const attachments = upload?.occurrence.attachments ?? editDraft.attachments;
       const payload = await portalRequest<{
         changes: Pick<
           Occurrence,
@@ -4088,23 +4144,25 @@ export default function PortalOcorrencias() {
                         {formErrors.attachments}
                       </small>
                     )}
-                    {newForm.attachments.length > 0 && (
+                    {newEvidenceFiles.length > 0 && (
                       <div className="attachment-list">
-                        {newForm.attachments.map((file) => (
-                          <span key={file}>
+                        {newEvidenceFiles.map((file, index) => (
+                          <span key={file.name + file.lastModified + index}>
                             <Paperclip size={15} />
-                            {file}
+                            {file.name}
                             <button
                               type="button"
-                              onClick={() =>
-                                setNewForm({
-                                  ...newForm,
-                                  attachments: newForm.attachments.filter(
-                                    (item) => item !== file,
-                                  ),
-                                })
-                              }
-                              aria-label={"Remover " + file}
+                              onClick={() => {
+                                const remaining = newEvidenceFiles.filter(
+                                  (_, itemIndex) => itemIndex !== index,
+                                );
+                                setNewEvidenceFiles(remaining);
+                                setNewForm((current) => ({
+                                  ...current,
+                                  attachments: remaining.map((item) => item.name),
+                                }));
+                              }}
+                              aria-label={"Remover " + file.name}
                             >
                               <X size={14} />
                             </button>
